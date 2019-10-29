@@ -1,4 +1,4 @@
-package com.utsman.kemana.fragment
+package com.utsman.kemana.old.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater

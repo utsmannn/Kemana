@@ -1,4 +1,4 @@
-package com.utsman.kemana
+package com.utsman.kemana.old
 
 import android.os.Bundle
 import android.os.Handler
@@ -6,6 +6,7 @@ import android.view.View
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.utsman.kemana.R
 import com.utsman.kemana.base.Key
 import com.utsman.kemana.base.RxAppCompatActivity
 import com.utsman.kemana.base.collapse
@@ -17,11 +18,11 @@ import com.utsman.kemana.base.replaceFragment
 import com.utsman.kemana.callback.CallbackFragment
 import com.utsman.kemana.callback.CallbackFragmentStart
 import com.utsman.kemana.callback.MapReady
-import com.utsman.kemana.fragment.SheetStartFragment
-import com.utsman.kemana.map.MapOrder
-import com.utsman.kemana.map.MapStart
 import com.utsman.kemana.maputil.getLocation
 import com.utsman.kemana.maputil.toLatlng
+import com.utsman.kemana.old.fragment.SheetStartFragment
+import com.utsman.kemana.old.map.MapOrder
+import com.utsman.kemana.old.map.MapStart
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
 
@@ -62,7 +63,6 @@ class MapActivity : RxAppCompatActivity() {
                     bottomSheetBehavior.peekHeight = dpToInt(200)
                 }
             }, 500)
-
 
         }
 

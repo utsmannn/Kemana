@@ -14,6 +14,7 @@ import com.utsman.kemana.base.intentTo
 import com.utsman.kemana.base.logi
 import com.utsman.kemana.base.preferences
 import com.utsman.kemana.base.toast
+import com.utsman.kemana.old.MapActivity
 import kotlinx.android.synthetic.main.activity_auth.*
 
 class AuthActivity : AppCompatActivity() {

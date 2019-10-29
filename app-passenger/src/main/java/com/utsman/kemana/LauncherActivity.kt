@@ -17,6 +17,7 @@ import com.utsman.kemana.base.logi
 import com.utsman.kemana.base.preferences
 import com.utsman.kemana.base.toast
 import com.utsman.kemana.base.withPermission
+import com.utsman.kemana.old.MapActivity
 
 class LauncherActivity : AppCompatActivity() {
 

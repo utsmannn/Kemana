@@ -1,4 +1,4 @@
-package com.utsman.kemana.map
+package com.utsman.kemana.old.map
 
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
