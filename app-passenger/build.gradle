@@ -1,0 +1,50 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+    defaultConfig {
+        applicationId "com.utsman.kemana"
+        minSdkVersion 16
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled = true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation project(Module.base)
+    implementation project(Module.feature_auth)
+    implementation project(Module.feature_backendless)
+    implementation project(Module.feature_map_util)
+    implementation project(Module.feature_place)
+
+    implementation Core.kotlin
+    implementation Core.appCompat
+    implementation Core.ktx
+    implementation Core.eventBus
+    implementation Core.multidex
+
+    implementation Lifecycle.lifecycle
+
+    implementation Design.material
+    implementation Maps.mapbox
+
+    implementation Rx.rxJava
+    implementation Rx.rxAndroid
+    implementation Rx.rxNetwork
+    implementation Rx.rxBinding3
+}
