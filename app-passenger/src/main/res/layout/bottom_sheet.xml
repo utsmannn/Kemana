@@ -7,13 +7,14 @@
     android:orientation="vertical"
     app:behavior_hideable="true"
     app:behavior_peekHeight="200dp"
-    app:cardCornerRadius="0dp"
+    app:cardCornerRadius="16dp"
     app:cardElevation="5dp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:id="@+id/main_frame_bottom"/>
 
 </com.google.android.material.card.MaterialCardView>

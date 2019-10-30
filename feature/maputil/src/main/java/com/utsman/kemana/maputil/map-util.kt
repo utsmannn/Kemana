@@ -60,7 +60,7 @@ fun Context.getLocationDebounce(disposable: CompositeDisposable, oldLocation: (L
     disposable.add(subscription)
 }
 
-fun Context.getLocation(disposable: CompositeDisposable, update: Boolean, locationListener: Context.(loc: Location) -> Unit) {
+fun Context.getLocation(disposable: CompositeDisposable, update: Boolean, locationListener: (latLng: LatLng) -> Unit) {
     val request = if (!update) {
         LocationRequest.create()
             .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -76,8 +76,9 @@ fun Context.getLocation(disposable: CompositeDisposable, update: Boolean, locati
     val subscription = provider.getUpdatedLocation(request)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
+        .map { it.toLatlng() }
         .subscribe({ updateLocation ->
-            locationListener(this, updateLocation)
+            locationListener.invoke(updateLocation)
 
         }, {  thr ->
             loge(thr.localizedMessage)

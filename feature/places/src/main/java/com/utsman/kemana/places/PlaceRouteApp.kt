@@ -16,7 +16,6 @@ import okhttp3.RequestBody
 class PlaceRouteApp(private val disposable: CompositeDisposable) {
 
     private val retrofit = RetrofitInstance.create()
-    private val liveAddress = MutableLiveData<Feature>()
     private val livePlaces = MutableLiveData<MutableList<Feature>>()
     private val liveNetwork = MutableLiveData<NetworkState>()
 
@@ -26,6 +25,7 @@ class PlaceRouteApp(private val disposable: CompositeDisposable) {
     private val token = Key.MAP_KEY
 
     fun getMyAddress(location: Location): LiveData<Feature> {
+        val liveAddress = MutableLiveData<Feature>()
         val obs = retrofit.getAddress(location.longitude, location.latitude, token)
             .subscribeOn(Schedulers.io())
             .map { it.features[0] }

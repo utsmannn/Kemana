@@ -1,4 +1,4 @@
-package com.utsman.kemana.callback
+package com.utsman.kemana.fragment.callback
 
 import com.mapbox.mapboxsdk.geometry.LatLng
 

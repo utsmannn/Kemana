@@ -27,6 +27,7 @@ object Design {
     val recycling           = "com.utsman.recycling:recycling:1.3.8"
     val glide               = "com.github.bumptech.glide:glide:4.10.0"
     val glideKapt           = "com.github.bumptech.glide:compiler:4.10.0"
+    val fonty               = "com.anggun.fonty:fonty:0.1"
 }
 
 object Lifecycle {

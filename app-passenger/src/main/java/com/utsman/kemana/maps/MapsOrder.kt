@@ -1,4 +1,4 @@
-package com.utsman.kemana.old.map
+package com.utsman.kemana.maps
 
 import android.graphics.Color
 import android.os.Handler
@@ -30,7 +30,11 @@ import com.utsman.kemana.places.PlaceRouteApp
 import com.utsman.kemana.places.Route
 import io.reactivex.disposables.CompositeDisposable
 
-class MapOrder(private val activity: FragmentActivity, private val disposable: CompositeDisposable) : OnMapReadyCallback {
+class MapsOrder(
+    private val activity: FragmentActivity,
+    private val disposable: CompositeDisposable,
+    private val onReady: (Route) -> Unit
+) : OnMapReadyCallback {
 
     private var fromLatLng: LatLng = LatLng()
     private var toLatLng: LatLng = LatLng()
@@ -53,8 +57,8 @@ class MapOrder(private val activity: FragmentActivity, private val disposable: C
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         mapboxMap.setStyle(Style.MAPBOX_STREETS) { style ->
+            mapboxMap.uiSettings.setLogoMargins(30, 30, 30,30)
 
-            mapboxMap.uiSettings.setLogoMargins(30,30,30, paddingBottom + 30)
             val bodyString = "coordinates=" +
                 "${toLatLng.longitude}," +
                 "${toLatLng.latitude};" +
@@ -65,8 +69,11 @@ class MapOrder(private val activity: FragmentActivity, private val disposable: C
             placeRouteApp.getRoute(bodyString)
                 .observe(activity as LifecycleOwner, Observer { route ->
                     progressHelper.hideProgressDialog()
+                    mapboxMap.uiSettings.setLogoMargins(30, 30, 30, paddingBottom + 30)
+
 
                     if (route != null) {
+                        onReady.invoke(route)
                         Handler().postDelayed({
                             getRouteLine(route, mapboxMap, style)
                         }, 500)
@@ -78,7 +85,7 @@ class MapOrder(private val activity: FragmentActivity, private val disposable: C
     }
 
     private fun getRouteLine(route: Route, mapboxMap: MapboxMap, style: Style) {
-        val geometry = route.routes[0].geometry ?: ""
+        val geometry = route.routes[0].geometry
         val id = "source-route"
 
         logi(route.routes[0].geometry)

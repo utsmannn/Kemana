@@ -1,10 +1,9 @@
 package com.utsman.kemana.base
 
 import android.os.Handler
-import android.view.View
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
-fun BottomSheetBehavior<View>.expand() {
+fun BottomSheetBehavior<*>.expand() {
     isHideable = true
     state = BottomSheetBehavior.STATE_EXPANDED
 
@@ -13,15 +12,23 @@ fun BottomSheetBehavior<View>.expand() {
     }, 500)
 }
 
-fun BottomSheetBehavior<View>.hidden() {
+fun BottomSheetBehavior<*>.hidden() {
     isHideable = true
     state = BottomSheetBehavior.STATE_HIDDEN
 }
 
-fun BottomSheetBehavior<View>.isExpand(): Boolean {
+fun BottomSheetBehavior<*>.collapse() {
+    isHideable = true
+    state = BottomSheetBehavior.STATE_COLLAPSED
+    Handler().postDelayed({
+        isHideable = false
+    }, 500)
+}
+
+fun BottomSheetBehavior<*>.isExpand(): Boolean {
     return state == BottomSheetBehavior.STATE_EXPANDED
 }
 
-fun BottomSheetBehavior<View>.isCollapse(): Boolean {
+fun BottomSheetBehavior<*>.isCollapse(): Boolean {
     return state == BottomSheetBehavior.STATE_COLLAPSED
 }

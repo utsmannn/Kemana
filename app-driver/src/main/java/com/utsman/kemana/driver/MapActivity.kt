@@ -14,7 +14,6 @@ import com.utsman.kemana.base.logi
 import com.utsman.kemana.base.preferences
 import com.utsman.kemana.maputil.EventTracking
 import com.utsman.kemana.maputil.getLocation
-import com.utsman.kemana.maputil.toLatlng
 import kotlinx.android.synthetic.main.activity_map.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -35,7 +34,7 @@ class MapActivity : RxAppCompatActivity() {
         userDriver = (intent.getStringExtra("user") ?: "").stringToUser()
 
         getLocation(compositeDisposable, false) { loc ->
-            mapsCallback = MapsCallback(this, loc.toLatlng()) {
+            mapsCallback = MapsCallback(this, loc) {
                 startService(intentService)
             }
 

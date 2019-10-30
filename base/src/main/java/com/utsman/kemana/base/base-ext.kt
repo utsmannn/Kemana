@@ -17,7 +17,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.bumptech.glide.Glide
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionDeniedResponse
@@ -86,14 +85,6 @@ fun Activity.withPermission(permission: String, listener: Context?.() -> Unit) {
 
         })
         .check()
-}
-
-fun BottomSheetBehavior<View>.collapse() {
-    isHideable = true
-    state = BottomSheetBehavior.STATE_COLLAPSED
-    Handler().postDelayed({
-        isHideable = false
-    }, 500)
 }
 
 inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) {

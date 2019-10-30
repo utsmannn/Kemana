@@ -1,4 +1,4 @@
-package com.utsman.kemana.old.fragment
+package com.utsman.kemana.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,13 +11,10 @@ import com.jakewharton.rxbinding3.widget.afterTextChangeEvents
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.R
 import com.utsman.kemana.base.RxFragment
-import com.utsman.kemana.base.gone
 import com.utsman.kemana.base.hideKeyboard
-import com.utsman.kemana.base.isVisible
 import com.utsman.kemana.base.loge
-import com.utsman.kemana.base.visible
-import com.utsman.kemana.callback.CallbackFragment
-import com.utsman.kemana.callback.CallbackFragmentStart
+import com.utsman.kemana.fragment.callback.CallbackFragment
+import com.utsman.kemana.fragment.callback.CallbackFragmentStart
 import com.utsman.kemana.maputil.calculateBound
 import com.utsman.kemana.maputil.toLocation
 import com.utsman.kemana.places.Feature
@@ -30,30 +27,20 @@ import kotlinx.android.synthetic.main.fragment_sheet_start.*
 import kotlinx.android.synthetic.main.item_place.view.*
 import java.util.concurrent.TimeUnit
 
-class SheetStartFragment(
-    private val callbackFragment: CallbackFragment,
-    private val callbackFragmentStart: CallbackFragmentStart
-) : RxFragment() {
+class StartBottomFragment(private val callbackFragment: CallbackFragment,
+                          private val callbackFragmentStart: CallbackFragmentStart) : RxFragment() {
 
     private lateinit var placeRouteApp: PlaceRouteApp
     private var currentLatLng = LatLng()
 
     fun setCurrentLatLng(currentLatLng: LatLng) {
         this.currentLatLng = currentLatLng
+        callbackFragmentStart.fromLatLng(currentLatLng)
     }
 
     fun clearFocus() {
         input_to_location.clearFocus()
         input_from_location.clearFocus()
-    }
-
-    fun isShowingPricing(show: Boolean) {
-        if (show) pricing_container.visible()
-        else pricing_container.gone()
-    }
-
-    fun ifShowPricing(): Boolean {
-        return pricing_container.isVisible()
     }
 
     override fun onCreateView(
@@ -66,8 +53,7 @@ class SheetStartFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        isShowingPricing(false)
+        callbackFragment.onCollapse()
         placeRouteApp = PlaceRouteApp(compositeDisposable)
 
         input_from_location.setupSearch(true)
@@ -78,6 +64,7 @@ class SheetStartFragment(
                 val addressName = it.place_name
                 input_from_location.setText(addressName)
             })
+
     }
 
     private fun EditText.setupSearch(fromMyLocation: Boolean) {
@@ -114,8 +101,8 @@ class SheetStartFragment(
                             }
                         }
 
-                        callbackFragment.onCollapse()
-                        callbackFragment.onOrder()
+                        callbackFragment.onHidden()
+                        callbackFragment.onOrder(true)
                     }
                 }
 

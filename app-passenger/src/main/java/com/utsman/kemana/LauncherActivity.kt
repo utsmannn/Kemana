@@ -17,7 +17,6 @@ import com.utsman.kemana.base.logi
 import com.utsman.kemana.base.preferences
 import com.utsman.kemana.base.toast
 import com.utsman.kemana.base.withPermission
-import com.utsman.kemana.old.MapActivity
 
 class LauncherActivity : AppCompatActivity() {
 
@@ -60,7 +59,8 @@ class LauncherActivity : AppCompatActivity() {
                     preferencesUser.edit().putString("model", user.userToString()).apply()
 
                     progressHelper.hideProgressDialog()
-                    intentTo(MapActivity::class.java, bundleOf("user" to user.userToString()))
+                    //intentTo(MapActivity::class.java, bundleOf("user" to user.userToString()))
+                    intentTo(MapsActivity::class.java, bundleOf("user" to user.userToString()))
                     finish()
                 }
 
