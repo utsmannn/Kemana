@@ -31,6 +31,7 @@ dependencies {
     implementation project(Module.feature_backendless)
     implementation project(Module.feature_map_util)
     implementation project(Module.feature_place)
+    implementation project(Module.feature_message)
 
     implementation Core.kotlin
     implementation Core.appCompat
@@ -47,4 +48,5 @@ dependencies {
     implementation Rx.rxAndroid
     implementation Rx.rxNetwork
     implementation Rx.rxBinding3
+    implementation Message.rmqa
 }

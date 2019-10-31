@@ -7,10 +7,6 @@ import java.util.Formatter
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
-// Resources r = getResources();
-// int px = Math.round(TypedValue.applyDimension(
-//     TypedValue.COMPLEX_UNIT_DIP, 14,r.getDisplayMetrics()));
-
 fun Context.dp(dp: Int): Int {
     return TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,

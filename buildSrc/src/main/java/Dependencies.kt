@@ -54,24 +54,15 @@ object Retrofit {
     val loggingInterceptor  = "com.squareup.okhttp3:logging-interceptor:4.0.1"
 }
 
-object Koin {
-    val koin                = "org.koin:koin-android:2.0.1"
-    val koinViewModel       = "org.koin:koin-androidx-viewmodel:2.0.1"
-}
-
-object Firebase {
-    val firestore           = "com.google.firebase:firebase-firestore:21.1.1"
-    val auth                = "com.utsman:easygooglelogin:1.0.10"
-    val authUi              = "com.firebaseui:firebase-ui-auth:4.3.0"
-    val fcm                 = "com.google.firebase:firebase-messaging:20.0.0"
+object Message {
+    val rmqa                = "com.utsman.rmqa:rmqa:0.0.2"
 }
 
 object Module {
     val base                = ":base"
     val feature_auth        = ":feature:auth"
     val feature_map_util    = ":feature:maputil"
-    val feature_firestore   = ":feature:firestore"
     val feature_place       = ":feature:places"
-    val feature_fcm         = ":feature:fcm"
+    val feature_message     = ":feature:message"
     val feature_backendless = ":feature:backendless"
 }

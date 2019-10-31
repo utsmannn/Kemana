@@ -56,10 +56,14 @@ class LauncherActivity : AppCompatActivity() {
                 override fun onLoginSuccess(user: User, password: String, fromRegister: Boolean) {
                     logi("token is --> ${user.token}")
                     preferences.edit().putString("token", user.token).apply()
+                    preferences.edit().putString("user-id", user.userId).apply()
+
+                    logi("user id is --> ${user.userId}")
+
                     preferencesUser.edit().putString("model", user.userToString()).apply()
 
                     progressHelper.hideProgressDialog()
-                    intentTo(MapActivity::class.java, bundleOf("user" to user.userToString()))
+                    intentTo(MapsActivity::class.java, bundleOf("user" to user.userToString()))
                     finish()
                 }
 

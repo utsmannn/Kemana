@@ -1,2 +1,2 @@
-include ':app-passenger', ':app-driver', ':base', ':feature:auth', ':feature:backendless', ':feature:maputil', ':feature:places'
+include ':app-passenger', ':app-driver', ':base', ':feature:auth', ':feature:backendless', ':feature:maputil', ':feature:places', ':feature:message'
 rootProject.name='Kemana'

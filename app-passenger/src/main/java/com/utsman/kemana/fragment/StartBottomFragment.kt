@@ -76,7 +76,7 @@ class StartBottomFragment(private val callbackFragment: CallbackFragment,
             false
         }
 
-        rxTextWatcher(2) { q ->
+        rxTextWatcher(1) { q ->
             val bounds = calculateBound(currentLatLng, 50f, 50f)
 
             val bbox = "${bounds.southWest.longitude}," +

@@ -7,7 +7,6 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
 
-
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 29
@@ -24,7 +23,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 dependencies {
@@ -33,7 +31,7 @@ dependencies {
     implementation Core.ktx
     implementation Core.permission
 
-    implementation Design.glide
+    api Design.glide
     kapt Design.glideKapt
 
     implementation Rx.rxJava

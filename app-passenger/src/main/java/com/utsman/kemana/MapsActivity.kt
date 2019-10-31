@@ -1,11 +1,15 @@
 package com.utsman.kemana
 
+import android.app.Dialog
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.utsman.kemana.auth.User
+import com.utsman.kemana.auth.stringToUser
+import com.utsman.kemana.auth.toUser
 import com.utsman.kemana.base.Key
 import com.utsman.kemana.base.ProgressHelper
 import com.utsman.kemana.base.RxAppCompatActivity
@@ -15,6 +19,8 @@ import com.utsman.kemana.base.dpFloat
 import com.utsman.kemana.base.expand
 import com.utsman.kemana.base.hidden
 import com.utsman.kemana.base.isExpand
+import com.utsman.kemana.base.isHidden
+import com.utsman.kemana.base.logi
 import com.utsman.kemana.base.replaceFragment
 import com.utsman.kemana.fragment.OrderBottomFragment
 import com.utsman.kemana.fragment.StartBottomFragment
@@ -24,6 +30,10 @@ import com.utsman.kemana.fragment.callback.CallbackFragmentStart
 import com.utsman.kemana.maps.MapsOrder
 import com.utsman.kemana.maps.MapsStart
 import com.utsman.kemana.maputil.getLocation
+import com.utsman.kemana.message.OrderData
+import com.utsman.kemana.message.toJSONObject
+import com.utsman.rmqa.Rmqa
+import com.utsman.rmqa.RmqaConnection
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
 
@@ -31,9 +41,15 @@ class MapsActivity : RxAppCompatActivity() {
 
     private lateinit var bottomStart: StartBottomFragment
     private lateinit var bottomOrder: OrderBottomFragment
+    private lateinit var userPassenger: User
+
     private var fromLatLng: LatLng? = null
     private var toLatLng: LatLng? = null
     private var onOrder = false
+    private var rmqaConnection: RmqaConnection? = null
+
+    private var dialog: Dialog? = null
+    private var position = 0
 
     private val progressHelper by lazy { ProgressHelper(this) }
 
@@ -72,6 +88,8 @@ class MapsActivity : RxAppCompatActivity() {
                 Handler().postDelayed({
                     map_view.getMapAsync(mapsOrder)
                 }, 200)
+            } else if (bottomSheetLayout.isHidden() && fromLatLng == null || toLatLng == null) {
+                bottomSheetLayout.collapse()
             }
         }
     }
@@ -87,8 +105,51 @@ class MapsActivity : RxAppCompatActivity() {
     }
 
     private val callbackFragmentOrder = object : CallbackFragmentOrder {
-        override fun onBackPress() {
+        override fun onBtnOrderPress(listDriver: List<User?>, i: Int, distance: Double) {
+            logi("taiii --> ${listDriver.size} -- $i")
+
+            if (dialog != null) {
+                dialog!!.show()
+            }
+            if (i < listDriver.size) {
+                finder(distance, listDriver, i)
+            } else {
+                if (dialog != null) {
+                    dialog!!.dismiss()
+                }
+            }
+        }
+
+        override fun onBtnBackPress() {
             onBackPressed()
+        }
+    }
+
+    private fun finder(distance: Double, listDriver: List<User?>, i: Int) {
+
+        val orderData = OrderData(
+            userPassenger.userId,
+            userPassenger.name,
+            userPassenger.photoProfile!!,
+            fromLatLng?.latitude!!,
+            fromLatLng?.longitude!!,
+            toLatLng?.latitude!!,
+            toLatLng?.longitude!!,
+            distance
+        )
+
+        if (!listDriver.isNullOrEmpty()) {
+            try {
+                Rmqa.publishTo(listDriver[i]!!.userId, orderData.userId, orderData.toJSONObject())
+            } catch (e: IndexOutOfBoundsException) {
+                if (dialog != null) {
+                    dialog!!.dismiss()
+                }
+            }
+        } else {
+            if (dialog != null) {
+                dialog!!.dismiss()
+            }
         }
     }
 
@@ -102,11 +163,45 @@ class MapsActivity : RxAppCompatActivity() {
         setContentView(R.layout.activity_map)
         map_view.onCreate(savedInstanceState)
 
+        userPassenger = (intent.getStringExtra("user") ?: "").stringToUser()
+
+        rmqaConnection = RmqaConnection.Builder(this)
+            .setServer("woodpecker.rmq.cloudamqp.com")
+            .setUsername("edafafqh")
+            .setPassword("ypJNO0725gpmo1tFnr4cbyFThZ1ZwMLH")
+            .setVhost("edafafqh")
+            .setExchangeName("kemana")
+            .setConnectionName("kemana")
+            .setRoutingKey("route_kemana")
+            .setAutoClearQueue(true)
+            .build()
+
+        Rmqa.connect(rmqaConnection, userPassenger.userId, Rmqa.TYPE.DIRECT) { senderId, jsonObject ->
+            val data = jsonObject.toUser()
+
+            if (data.onOrder) {
+                if (dialog != null) {
+                    dialog!!.dismiss()
+                }
+            } else {
+                position += 1
+                Handler().postDelayed({
+                    bottomOrder.startOrder(position)
+                }, 800)
+            }
+        }
+
+        dialog = Dialog(this).apply {
+            setContentView(R.layout.dialog_finding_driver)
+            setCancelable(false)
+        }
+
         bottomStart = StartBottomFragment(callbackFragment, callbackFragmentStart)
         bottomOrder = OrderBottomFragment(callbackFragment, callbackFragmentOrder)
         userStarted()
 
-        bottomSheetLayout.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+        bottomSheetLayout.setBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(view: View, slide: Float) {
 
                 if (slide == 1f) {
@@ -129,6 +224,7 @@ class MapsActivity : RxAppCompatActivity() {
         val mapStart = MapsStart(this, compositeDisposable) {
             bottomSheetLayout.peekHeight = dp(200)
             onOrder = false
+            position = 0
             replaceFragment(bottomStart, R.id.main_frame_bottom)
         }
         mapStart.setPaddingBottom(dp(200))
@@ -170,6 +266,7 @@ class MapsActivity : RxAppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         map_view.onDestroy()
+        Rmqa.disconnect(rmqaConnection)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

@@ -43,10 +43,11 @@ class AuthActivity : AppCompatActivity() {
                     putString("email", user.email)
                     putString("password", password)
                     putString("token", user.token)
+                    putString("user-id", user.userId)
                 }.apply()
             }
 
-            intentTo(MapActivity::class.java, bundleOf("user" to user.userToString()))
+            intentTo(MapsActivity::class.java, bundleOf("user" to user.userToString()))
             finish()
         }
 

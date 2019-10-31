@@ -8,6 +8,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.R
+import com.utsman.kemana.backendless.BackendlessApp
 import com.utsman.kemana.base.RxFragment
 import com.utsman.kemana.base.calculateDistanceKm
 import com.utsman.kemana.base.calculatePricing
@@ -24,6 +25,7 @@ class OrderBottomFragment(private val callbackFragment: CallbackFragment,
     private var fromLatLng: LatLng = LatLng()
     private var toLatLng: LatLng = LatLng()
     private var distance = 0.0
+    private var position = 0
 
     fun setFromLatLng(fromLatLng: LatLng) {
         this.fromLatLng = fromLatLng
@@ -69,8 +71,20 @@ class OrderBottomFragment(private val callbackFragment: CallbackFragment,
         text_pricing.text = priceRp
 
         btn_order_cancel.setOnClickListener {
-            callbackFragmentOrder.onBackPress()
+            callbackFragmentOrder.onBtnBackPress()
         }
 
+        btn_order.setOnClickListener {
+            startOrder(position)
+        }
+    }
+
+    fun startOrder(position: Int) {
+        this.position = position
+        val backendlessApp = BackendlessApp(activity!!.application, compositeDisposable)
+
+        backendlessApp.getDriversList().observe(context as LifecycleOwner, Observer { users ->
+            callbackFragmentOrder.onBtnOrderPress(users, position, distance)
+        })
     }
 }

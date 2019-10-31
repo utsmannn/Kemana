@@ -32,3 +32,7 @@ fun BottomSheetBehavior<*>.isExpand(): Boolean {
 fun BottomSheetBehavior<*>.isCollapse(): Boolean {
     return state == BottomSheetBehavior.STATE_COLLAPSED
 }
+
+fun BottomSheetBehavior<*>.isHidden(): Boolean {
+    return state == BottomSheetBehavior.STATE_HIDDEN
+}

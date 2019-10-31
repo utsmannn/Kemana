@@ -6,6 +6,7 @@ import android.os.IBinder
 import androidx.lifecycle.MutableLiveData
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.auth.EventUser
+import com.utsman.kemana.auth.User
 import com.utsman.kemana.auth.stringToUser
 import com.utsman.kemana.backendless.BackendlessApp
 import com.utsman.kemana.base.loge
@@ -16,6 +17,10 @@ import com.utsman.kemana.maputil.LatLngUpdater
 import com.utsman.kemana.maputil.MarkerUtil
 import com.utsman.kemana.maputil.getLocationDebounce
 import com.utsman.kemana.maputil.toLatlng
+import com.utsman.kemana.message.EventOrderData
+import com.utsman.kemana.message.toOrderData
+import com.utsman.rmqa.Rmqa
+import com.utsman.rmqa.RmqaConnection
 import io.reactivex.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -29,6 +34,8 @@ class MapsServiceLocator : Service() {
     private val liveRotate = MutableLiveData<Float>()
     private var trackingActive = false
 
+    private var rmqaConnection: RmqaConnection? = null
+    private var user: User? = null
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
@@ -38,6 +45,17 @@ class MapsServiceLocator : Service() {
         liveRotate.postValue(0f)
         backendlessApp = BackendlessApp(application, disposable)
 
+        rmqaConnection = RmqaConnection.Builder(this)
+            .setServer("woodpecker.rmq.cloudamqp.com")
+            .setUsername("edafafqh")
+            .setPassword("ypJNO0725gpmo1tFnr4cbyFThZ1ZwMLH")
+            .setVhost("edafafqh")
+            .setExchangeName("kemana")
+            .setConnectionName("kemana")
+            .setRoutingKey("route_kemana")
+            .setAutoClearQueue(true)
+            .build()
+
         getLocationDebounce(disposable, { oldLocation ->
             currentLatLng = oldLocation.toLatlng()
         }, { newLocation ->
@@ -46,43 +64,38 @@ class MapsServiceLocator : Service() {
             markerUtil = MarkerUtil(this, currentLatLng)
 
             val angle = markerUtil.getAngle(currentLatLng, newLocation.toLatlng()).toFloat()
-            liveRotate.postValue(angle)
+            val eventTracking = EventTracking(latLngUpdater)
+            EventBus.getDefault().post(eventTracking)
 
-            val userPref = preferences("user").getString("model-active", "") ?: ""
-            val user = userPref.stringToUser()
+            val token = preferences("account").getString("token", "token") ?: "null-token"
 
-            liveRotate.observeForever { rotation ->
-                val eventTracking = EventTracking(latLngUpdater)
-                EventBus.getDefault().post(eventTracking)
-
-                val token = preferences("account").getString("token", "token") ?: "null-token"
-
-                if (trackingActive) {
-                    try {
-                        user.angle = rotation.toDouble()
-                        user.lon = newLocation.longitude
-                        user.lat = newLocation.latitude
-                        backendlessApp.updateDriverLocation("driver_active", user.objectId!!, user, token, {
-                            logi("update success")
-                        }, {
-                            loge("update fail --> ${it?.message}")
-                        })
-                    } catch (e: NullPointerException) {
-                        loge(e.message)
-                        e.printStackTrace()
-                    }
+            if (trackingActive) {
+                user?.let { usr ->
+                    usr.angle = angle.toDouble()
+                    usr.lon = newLocation.longitude
+                    usr.lat = newLocation.latitude
+                    backendlessApp.updateDriverLocation("driver_active", usr.objectId!!, usr, token, {
+                        logi("update success")
+                    }, {
+                        loge("update fail --> ${it?.message}")
+                    })
                 }
-
-                logi("ppp --> event is --> $trackingActive")
             }
 
+            logi("ppp --> event is --> $trackingActive --> ${user?.objectId}")
         })
 
-        return super.onStartCommand(intent, flags, startId)
+        val queueName = preferences("account").getString("user-id", "user")
+        Rmqa.connect(rmqaConnection, queueName, Rmqa.TYPE.DIRECT) { senderId, data ->
+            EventBus.getDefault().post(EventOrderData(data.toOrderData()))
+        }
+
+        return START_STICKY
     }
 
     @Subscribe
     fun onEventTrackingOn(eventUser: EventUser) {
+        user = eventUser.userString?.stringToUser()
         trackingActive = eventUser.tracking
     }
 

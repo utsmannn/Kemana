@@ -14,4 +14,5 @@ data class User(val userId: String,
                 var token: String? = null,
                 var lat: Double? = 0.0,
                 var lon: Double? = 0.0,
-                var angle: Double? = 0.0)
+                var angle: Double? = 0.0,
+                var onOrder: Boolean = false)

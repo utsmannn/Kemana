@@ -70,8 +70,6 @@ class MapsOrder(
                 .observe(activity as LifecycleOwner, Observer { route ->
                     progressHelper.hideProgressDialog()
                     mapboxMap.uiSettings.setLogoMargins(30, 30, 30, paddingBottom + 30)
-
-
                     if (route != null) {
                         onReady.invoke(route)
                         Handler().postDelayed({
