@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.auth.EventUser
@@ -14,12 +15,16 @@ import com.utsman.kemana.auth.toJSONObject
 import com.utsman.kemana.auth.userToString
 import com.utsman.kemana.backendless.BackendlessApp
 import com.utsman.kemana.base.Key
-import com.utsman.kemana.base.RxAppCompatActivity
-import com.utsman.kemana.base.calculateDistanceKm
-import com.utsman.kemana.base.calculatePricing
-import com.utsman.kemana.base.loadCircleUrl
-import com.utsman.kemana.base.logi
-import com.utsman.kemana.base.preferences
+import com.utsman.kemana.base.ext.calculateDistanceKm
+import com.utsman.kemana.base.ext.calculatePricing
+import com.utsman.kemana.base.ext.hidden
+import com.utsman.kemana.base.ext.loadCircleUrl
+import com.utsman.kemana.base.ext.logi
+import com.utsman.kemana.base.ext.preferences
+import com.utsman.kemana.base.rx.RxAppCompatActivity
+import com.utsman.kemana.base.view.BottomSheetUnDrag
+import com.utsman.kemana.driver.maps.MapsCallback
+import com.utsman.kemana.driver.service.MapsServiceLocator
 import com.utsman.kemana.maputil.EventTracking
 import com.utsman.kemana.maputil.getLocation
 import com.utsman.kemana.maputil.toLocation
@@ -27,6 +32,7 @@ import com.utsman.kemana.message.EventOrderData
 import com.utsman.kemana.places.PlaceRouteApp
 import com.utsman.rmqa.Rmqa
 import kotlinx.android.synthetic.main.activity_map.*
+import kotlinx.android.synthetic.main.bottom_sheet.*
 import kotlinx.android.synthetic.main.dialog_offering.view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -37,11 +43,17 @@ class MapsActivity : RxAppCompatActivity() {
     private lateinit var mapsCallback: MapsCallback
     private lateinit var backendlessApp: BackendlessApp
 
+    private val bottomSheetLayout by lazy {
+        BottomSheetBehavior.from(main_bottom_sheet) as BottomSheetUnDrag<*>
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, Key.MAP_KEY)
         setContentView(R.layout.activity_map)
         val intentService = Intent(this, MapsServiceLocator::class.java)
+
+        bottomSheetLayout.hidden()
 
         backendlessApp = BackendlessApp(application, compositeDisposable)
         userDriver = (intent.getStringExtra("user") ?: "").stringToUser()
@@ -80,16 +92,16 @@ class MapsActivity : RxAppCompatActivity() {
         logi("user email --> ${userDriver.email}")
         logi("anjaylah --> $userDriver")
 
-        val newUser = User(
+        /*user = User(
             userId = userDriver.userId,
             name = userDriver.name,
             email = userDriver.email,
             vehiclesType = userDriver.vehiclesType,
             vehiclesPlat = userDriver.vehiclesPlat
-        )
+        )*/
 
         userDriver.token = null
-        backendlessApp.saveUserToType(token, "driver_active", newUser, {
+        backendlessApp.saveUserToType(token, "driver_active", userDriver, {
             logi("saving table success with resp -> $it")
 
             preferences("user").edit().putString("model-active", it.userToString()).apply()
@@ -110,6 +122,8 @@ class MapsActivity : RxAppCompatActivity() {
 
     @Subscribe
     fun onTrackingUpdate(eventTracking: EventTracking) {
+        userDriver.lat = eventTracking.latLngUpdater.newLatLng.latitude
+        userDriver.lon = eventTracking.latLngUpdater.newLatLng.longitude
         mapsCallback.onEventTracker(eventTracking)
     }
 
@@ -144,9 +158,6 @@ class MapsActivity : RxAppCompatActivity() {
                     text_to_location.text = addressName
                 })
 
-            val userString = preferences("user").getString("model-active", "") ?: "null"
-            val user = userString.stringToUser()
-
             text_user_customer.text = orderData.username
             text_pricing.text = price
             text_distance.text = distanceKm
@@ -155,14 +166,15 @@ class MapsActivity : RxAppCompatActivity() {
 
             btn_order_reject.setOnClickListener {
                 dialogBuilder.dismiss()
-                user.onOrder = false
-                Rmqa.publishTo(orderData.userId, user.userId, user.toJSONObject())
+                userDriver.onOrder = false
+                Rmqa.publishTo(orderData.userId, userDriver.userId, userDriver.toJSONObject())
             }
 
             btn_order_accept.setOnClickListener {
                 dialogBuilder.dismiss()
-                user.onOrder = true
-                Rmqa.publishTo(orderData.userId, user.userId, user.toJSONObject())
+                userDriver.onOrder = true
+                logi("aa --> ${userDriver.lat} --> ${userDriver.toJSONObject()}")
+                Rmqa.publishTo(orderData.userId, userDriver.userId, userDriver.toJSONObject())
             }
         }
 

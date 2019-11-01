@@ -12,8 +12,7 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.utsman.kemana.R
 import com.utsman.kemana.backendless.BackendlessApp
-import com.utsman.kemana.maputil.MarkerBuilder
-import com.utsman.kemana.maputil.addMarker
+import com.utsman.kemana.maputil.MarkerUtil
 import io.reactivex.disposables.CompositeDisposable
 
 class MapsStart(private val activity: FragmentActivity, private val disposable: CompositeDisposable, private val onReady: (LatLng) -> Unit) : OnMapReadyCallback {
@@ -40,9 +39,19 @@ class MapsStart(private val activity: FragmentActivity, private val disposable: 
             mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position))
             mapboxMap.uiSettings.setLogoMargins(30, 30, 30,30)
 
-            val markerBuilder = MarkerBuilder(activity, style)
+            // val markerDriver = MarkerUtil(activity, driverLatLng)
+            //             markerDriver.addMarker("driver", style, R.drawable.ic_marker_driver, true) {
+            //                 return@addMarker driverLatLng
+            //             }
+
+            /*val markerBuilder = MarkerBuilder(activity, style)
             val marker = markerBuilder.newMarker("device-${System.currentTimeMillis()}", currentLatLng, R.drawable.mapbox_marker_icon_default, false)
-            style.addMarker(marker)
+            style.addMarker(marker)*/
+
+            val marker = MarkerUtil(activity, currentLatLng)
+            marker.addMarker("device", style, R.drawable.mapbox_marker_icon_default, false, latLng = {
+                return@addMarker currentLatLng
+            })
 
             backendlessApp.getDriversList().observe(activity as LifecycleOwner, Observer { users ->
                 onReady.invoke(currentLatLng)
@@ -51,7 +60,14 @@ class MapsStart(private val activity: FragmentActivity, private val disposable: 
                     if (user.lat != null && user.lon != null) {
                         val latLng = LatLng(user.lat!!, user.lon!!)
 
-                        val driverMarker =
+                        val driverMarker = MarkerUtil(activity, latLng)
+                        driverMarker.addMarker("driver", style, R.drawable.ic_marker_driver, true, symbolLayer = {
+                            it.withProperties(PropertyFactory.iconRotate(user.angle!!.toFloat()))
+                        }) {
+                            return@addMarker latLng
+                        }
+
+                        /*val driverMarker =
                             markerBuilder.newMarker(
                                 "${user.lat}-${user.lon}",
                                 latLng,
@@ -59,7 +75,7 @@ class MapsStart(private val activity: FragmentActivity, private val disposable: 
                                 true
                             )
                         driverMarker.withProperties(PropertyFactory.iconRotate(user.angle!!.toFloat()))
-                        style.addMarker(driverMarker)
+                        style.addMarker(driverMarker)*/
                     }
                 }
             })

@@ -6,8 +6,8 @@ import android.location.Location
 import com.google.android.gms.location.LocationRequest
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
-import com.utsman.kemana.base.loge
-import com.utsman.kemana.base.logi
+import com.utsman.kemana.base.ext.loge
+import com.utsman.kemana.base.ext.logi
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers

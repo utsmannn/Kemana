@@ -11,17 +11,19 @@ import com.utsman.kemana.auth.User
 import com.utsman.kemana.auth.stringToUser
 import com.utsman.kemana.auth.toUser
 import com.utsman.kemana.base.Key
-import com.utsman.kemana.base.ProgressHelper
-import com.utsman.kemana.base.RxAppCompatActivity
-import com.utsman.kemana.base.collapse
-import com.utsman.kemana.base.dp
-import com.utsman.kemana.base.dpFloat
-import com.utsman.kemana.base.expand
-import com.utsman.kemana.base.hidden
-import com.utsman.kemana.base.isExpand
-import com.utsman.kemana.base.isHidden
-import com.utsman.kemana.base.logi
-import com.utsman.kemana.base.replaceFragment
+import com.utsman.kemana.base.ext.ProgressHelper
+import com.utsman.kemana.base.ext.collapse
+import com.utsman.kemana.base.ext.dp
+import com.utsman.kemana.base.ext.dpFloat
+import com.utsman.kemana.base.ext.expand
+import com.utsman.kemana.base.ext.hidden
+import com.utsman.kemana.base.ext.isExpand
+import com.utsman.kemana.base.ext.isHidden
+import com.utsman.kemana.base.ext.logi
+import com.utsman.kemana.base.ext.replaceFragment
+import com.utsman.kemana.base.ext.toast
+import com.utsman.kemana.base.rx.RxAppCompatActivity
+import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.fragment.OrderBottomFragment
 import com.utsman.kemana.fragment.StartBottomFragment
 import com.utsman.kemana.fragment.callback.CallbackFragment
@@ -29,6 +31,7 @@ import com.utsman.kemana.fragment.callback.CallbackFragmentOrder
 import com.utsman.kemana.fragment.callback.CallbackFragmentStart
 import com.utsman.kemana.maps.MapsOrder
 import com.utsman.kemana.maps.MapsStart
+import com.utsman.kemana.maps.MapsWithDriver
 import com.utsman.kemana.maputil.getLocation
 import com.utsman.kemana.message.OrderData
 import com.utsman.kemana.message.toJSONObject
@@ -52,6 +55,9 @@ class MapsActivity : RxAppCompatActivity() {
     private var position = 0
 
     private val progressHelper by lazy { ProgressHelper(this) }
+    private val bottomSheetLayout by lazy {
+        BottomSheetBehavior.from(main_bottom_sheet) as BottomSheetUnDrag<*>
+    }
 
     private val callbackFragment = object : CallbackFragment {
         override fun onCollapse() {
@@ -96,6 +102,8 @@ class MapsActivity : RxAppCompatActivity() {
 
     private val callbackFragmentStart = object : CallbackFragmentStart {
         override fun fromLatLng(latLng: LatLng) {
+            userPassenger.lat = latLng.latitude
+            userPassenger.lon = latLng.longitude
             fromLatLng = latLng
         }
 
@@ -106,7 +114,6 @@ class MapsActivity : RxAppCompatActivity() {
 
     private val callbackFragmentOrder = object : CallbackFragmentOrder {
         override fun onBtnOrderPress(listDriver: List<User?>, i: Int, distance: Double) {
-            logi("taiii --> ${listDriver.size} -- $i")
 
             if (dialog != null) {
                 dialog!!.show()
@@ -126,7 +133,6 @@ class MapsActivity : RxAppCompatActivity() {
     }
 
     private fun finder(distance: Double, listDriver: List<User?>, i: Int) {
-
         val orderData = OrderData(
             userPassenger.userId,
             userPassenger.name,
@@ -153,51 +159,14 @@ class MapsActivity : RxAppCompatActivity() {
         }
     }
 
-    private val bottomSheetLayout by lazy {
-        BottomSheetBehavior.from(main_bottom_sheet) as BottomSheetBehavior<*>
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, Key.MAP_KEY)
         setContentView(R.layout.activity_map)
         map_view.onCreate(savedInstanceState)
 
-        userPassenger = (intent.getStringExtra("user") ?: "").stringToUser()
-
-        rmqaConnection = RmqaConnection.Builder(this)
-            .setServer("woodpecker.rmq.cloudamqp.com")
-            .setUsername("edafafqh")
-            .setPassword("ypJNO0725gpmo1tFnr4cbyFThZ1ZwMLH")
-            .setVhost("edafafqh")
-            .setExchangeName("kemana")
-            .setConnectionName("kemana")
-            .setRoutingKey("route_kemana")
-            .setAutoClearQueue(true)
-            .build()
-
-        Rmqa.connect(rmqaConnection, userPassenger.userId, Rmqa.TYPE.DIRECT) { senderId, jsonObject ->
-            val data = jsonObject.toUser()
-
-            if (data.onOrder) {
-                if (dialog != null) {
-                    dialog!!.dismiss()
-                }
-            } else {
-                position += 1
-                Handler().postDelayed({
-                    bottomOrder.startOrder(position)
-                }, 800)
-            }
-        }
-
-        dialog = Dialog(this).apply {
-            setContentView(R.layout.dialog_finding_driver)
-            setCancelable(false)
-        }
-
-        bottomStart = StartBottomFragment(callbackFragment, callbackFragmentStart)
-        bottomOrder = OrderBottomFragment(callbackFragment, callbackFragmentOrder)
+        setupVariable()
+        messageConnection()
         userStarted()
 
         bottomSheetLayout.setBottomSheetCallback(object :
@@ -217,6 +186,63 @@ class MapsActivity : RxAppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun messageConnection() {
+        Rmqa.connect(rmqaConnection, userPassenger.userId, Rmqa.TYPE.DIRECT) { senderId, jsonObject ->
+            val data = jsonObject.toUser()
+
+            if (data.onOrder) {
+                if (dialog != null) {
+                    dialog!!.dismiss()
+                    // accept here
+                    logi(data.toString())
+                    logi("userr --> $userPassenger")
+                    toast("${data.lat} -- ${data.lon}")
+                    toast("${userPassenger.lat} -- ${userPassenger.lon}")
+                    setupMapWithDriver(data)
+                }
+            } else {
+                position += 1
+                Handler().postDelayed({
+                    bottomOrder.startOrder(position)
+                }, 800)
+            }
+        }
+    }
+
+    private fun setupMapWithDriver(data: User) {
+        val mapWithDriver = MapsWithDriver(this, compositeDisposable, data, userPassenger) { driver ->
+
+        }
+        mapWithDriver.setPaddingBottom(dp(280))
+
+        map_view.getMapAsync(mapWithDriver)
+    }
+
+    private fun setupVariable() {
+        bottomSheetLayout.setAllowUserDragging(false)
+
+        userPassenger = (intent.getStringExtra("user") ?: "").stringToUser()
+
+        rmqaConnection = RmqaConnection.Builder(this)
+            .setServer("woodpecker.rmq.cloudamqp.com")
+            .setUsername("edafafqh")
+            .setPassword("ypJNO0725gpmo1tFnr4cbyFThZ1ZwMLH")
+            .setVhost("edafafqh")
+            .setExchangeName("kemana")
+            .setConnectionName("kemana")
+            .setRoutingKey("route_kemana")
+            .setAutoClearQueue(true)
+            .build()
+
+        dialog = Dialog(this).apply {
+            setContentView(R.layout.dialog_finding_driver)
+            setCancelable(false)
+        }
+
+        bottomStart = StartBottomFragment(callbackFragment, callbackFragmentStart)
+        bottomOrder = OrderBottomFragment(callbackFragment, callbackFragmentOrder)
     }
 
     private fun userStarted() {

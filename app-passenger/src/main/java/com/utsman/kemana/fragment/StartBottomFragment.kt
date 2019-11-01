@@ -10,9 +10,9 @@ import androidx.lifecycle.Observer
 import com.jakewharton.rxbinding3.widget.afterTextChangeEvents
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.R
-import com.utsman.kemana.base.RxFragment
-import com.utsman.kemana.base.hideKeyboard
-import com.utsman.kemana.base.loge
+import com.utsman.kemana.base.ext.hideKeyboard
+import com.utsman.kemana.base.ext.loge
+import com.utsman.kemana.base.rx.RxFragment
 import com.utsman.kemana.fragment.callback.CallbackFragment
 import com.utsman.kemana.fragment.callback.CallbackFragmentStart
 import com.utsman.kemana.maputil.calculateBound
@@ -64,7 +64,6 @@ class StartBottomFragment(private val callbackFragment: CallbackFragment,
                 val addressName = it.place_name
                 input_from_location.setText(addressName)
             })
-
     }
 
     private fun EditText.setupSearch(fromMyLocation: Boolean) {

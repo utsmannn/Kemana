@@ -1,4 +1,4 @@
-package com.utsman.kemana.base
+package com.utsman.kemana.base.rx
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

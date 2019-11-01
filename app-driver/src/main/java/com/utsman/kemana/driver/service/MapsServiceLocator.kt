@@ -1,4 +1,4 @@
-package com.utsman.kemana.driver
+package com.utsman.kemana.driver.service
 
 import android.app.Service
 import android.content.Intent
@@ -9,12 +9,13 @@ import com.utsman.kemana.auth.EventUser
 import com.utsman.kemana.auth.User
 import com.utsman.kemana.auth.stringToUser
 import com.utsman.kemana.backendless.BackendlessApp
-import com.utsman.kemana.base.loge
-import com.utsman.kemana.base.logi
-import com.utsman.kemana.base.preferences
+import com.utsman.kemana.base.ext.loge
+import com.utsman.kemana.base.ext.logi
+import com.utsman.kemana.base.ext.preferences
 import com.utsman.kemana.maputil.EventTracking
 import com.utsman.kemana.maputil.LatLngUpdater
 import com.utsman.kemana.maputil.MarkerUtil
+import com.utsman.kemana.maputil.getAngle
 import com.utsman.kemana.maputil.getLocationDebounce
 import com.utsman.kemana.maputil.toLatlng
 import com.utsman.kemana.message.EventOrderData
@@ -61,9 +62,9 @@ class MapsServiceLocator : Service() {
         }, { newLocation ->
             val latLngUpdater = LatLngUpdater(currentLatLng, newLocation.toLatlng())
 
-            markerUtil = MarkerUtil(this, currentLatLng)
+            //markerUtil = MarkerUtil(this, currentLatLng)
 
-            val angle = markerUtil.getAngle(currentLatLng, newLocation.toLatlng()).toFloat()
+            val angle = getAngle(currentLatLng, newLocation.toLatlng()).toFloat()
             val eventTracking = EventTracking(latLngUpdater)
             EventBus.getDefault().post(eventTracking)
 
@@ -106,6 +107,13 @@ class MapsServiceLocator : Service() {
 
     override fun onDestroy() {
         disposable.dispose()
+        EventBus.getDefault().post(EventUser(false, null))
+        val token = preferences("account").getString("token", "token") ?: "null-token"
+        val userActiveString = preferences("user").getString("model-active", "") ?: "no"
+        val objectIdActive = userActiveString.stringToUser().objectId ?: "nn"
+        backendlessApp.deleteDriverActive(objectIdActive, token, "driver_active", {
+            logi("delete success")
+        })
         super.onDestroy()
     }
 }

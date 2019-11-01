@@ -11,12 +11,12 @@ import com.utsman.kemana.auth.User
 import com.utsman.kemana.auth.UserLogin
 import com.utsman.kemana.auth.userToString
 import com.utsman.kemana.base.Key
-import com.utsman.kemana.base.ProgressHelper
-import com.utsman.kemana.base.intentTo
-import com.utsman.kemana.base.logi
-import com.utsman.kemana.base.preferences
-import com.utsman.kemana.base.toast
-import com.utsman.kemana.base.withPermission
+import com.utsman.kemana.base.ext.ProgressHelper
+import com.utsman.kemana.base.ext.intentTo
+import com.utsman.kemana.base.ext.logi
+import com.utsman.kemana.base.ext.preferences
+import com.utsman.kemana.base.ext.toast
+import com.utsman.kemana.base.ext.withPermission
 
 class LauncherActivity : AppCompatActivity() {
 

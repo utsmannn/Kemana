@@ -9,9 +9,9 @@ import androidx.lifecycle.Observer
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.R
 import com.utsman.kemana.backendless.BackendlessApp
-import com.utsman.kemana.base.RxFragment
-import com.utsman.kemana.base.calculateDistanceKm
-import com.utsman.kemana.base.calculatePricing
+import com.utsman.kemana.base.ext.calculateDistanceKm
+import com.utsman.kemana.base.ext.calculatePricing
+import com.utsman.kemana.base.rx.RxFragment
 import com.utsman.kemana.fragment.callback.CallbackFragment
 import com.utsman.kemana.fragment.callback.CallbackFragmentOrder
 import com.utsman.kemana.maputil.toLocation

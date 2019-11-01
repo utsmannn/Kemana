@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.utsman.kemana.auth.User
 import com.utsman.kemana.base.Key
-import com.utsman.kemana.base.loge
-import com.utsman.kemana.base.logi
+import com.utsman.kemana.base.ext.loge
+import com.utsman.kemana.base.ext.logi
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers

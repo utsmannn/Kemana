@@ -48,5 +48,6 @@ dependencies {
     implementation Rx.rxAndroid
     implementation Rx.rxNetwork
     implementation Rx.rxBinding3
+
     implementation Message.rmqa
 }

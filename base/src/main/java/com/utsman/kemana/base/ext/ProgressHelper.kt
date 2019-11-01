@@ -1,4 +1,4 @@
-package com.utsman.kemana.base
+package com.utsman.kemana.base.ext
 
 import android.app.ProgressDialog
 import android.content.Context

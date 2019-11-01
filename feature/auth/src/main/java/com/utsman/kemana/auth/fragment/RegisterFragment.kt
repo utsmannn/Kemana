@@ -10,7 +10,7 @@ import com.utsman.kemana.auth.AuthListener
 import com.utsman.kemana.auth.R
 import com.utsman.kemana.auth.User
 import com.utsman.kemana.base.Key
-import com.utsman.kemana.base.gone
+import com.utsman.kemana.base.ext.gone
 import kotlinx.android.synthetic.main.fragment_register.*
 
 class RegisterFragment(private val authListener: AuthListener, private val driver: Boolean) : Fragment() {

@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".MapsServiceLocator"/>
+        <service android:name=".service.MapsServiceLocator"/>
 
         <activity android:name="AuthActivity"/>
         <activity android:name=".MapsActivity"/>

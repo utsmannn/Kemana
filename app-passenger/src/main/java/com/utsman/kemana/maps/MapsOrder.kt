@@ -20,12 +20,12 @@ import com.mapbox.mapboxsdk.style.sources.CannotAddSourceException
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.utils.ColorUtils
 import com.utsman.kemana.R
-import com.utsman.kemana.base.ProgressHelper
-import com.utsman.kemana.base.loge
-import com.utsman.kemana.base.logi
-import com.utsman.kemana.base.toast
+import com.utsman.kemana.base.ext.ProgressHelper
+import com.utsman.kemana.base.ext.loge
+import com.utsman.kemana.base.ext.logi
+import com.utsman.kemana.base.ext.toast
 import com.utsman.kemana.maputil.MarkerBuilder
-import com.utsman.kemana.maputil.addMarker
+import com.utsman.kemana.maputil.MarkerUtil
 import com.utsman.kemana.places.PlaceRouteApp
 import com.utsman.kemana.places.Route
 import io.reactivex.disposables.CompositeDisposable
@@ -130,21 +130,28 @@ class MapsOrder(
         }
 
         val markerBuilder = MarkerBuilder(activity, style)
-        val fromMarker =
+        /*val fromMarker =
             markerBuilder.newMarker(
                 "${fromLatLng.latitude}-${toLatLng.latitude}",
                 fromLatLng,
                 R.drawable.ic_person_location,
                 true
             )
-        style.addMarker(fromMarker)
+        style.addMarker(fromMarker)*/
 
-        val toMarker = markerBuilder.newMarker(
-            "to-${fromLatLng.latitude}-${toLatLng.latitude}",
-            toLatLng,
-            R.drawable.ic_dest_location,
-            true
-        )
-        style.addMarker(toMarker)
+        // val markerDriver = MarkerUtil(activity, driverLatLng)
+        //             markerDriver.addMarker("driver", style, R.drawable.ic_marker_driver, true) {
+        //                 return@addMarker driverLatLng
+        //             }
+
+        val fromMarker = MarkerUtil(activity, fromLatLng)
+        fromMarker.addMarker("from", style, R.drawable.ic_person_location, true) {
+            return@addMarker fromLatLng
+        }
+
+        val toMarker = MarkerUtil(activity, toLatLng)
+        toMarker.addMarker("to", style, R.drawable.ic_dest_location, true) {
+            return@addMarker toLatLng
+        }
     }
 }
