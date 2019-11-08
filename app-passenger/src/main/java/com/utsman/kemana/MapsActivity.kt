@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Muhammad Utsman
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.utsman.kemana
 
 import android.app.Dialog
@@ -38,6 +54,7 @@ import com.utsman.kemana.message.toJSONObject
 import com.utsman.rmqa.Rmqa
 import com.utsman.rmqa.RmqaConnection
 import com.utsman.smartmarker.location.LocationWatcher
+import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.toLatLngMapbox
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
@@ -58,6 +75,7 @@ class MapsActivity : RxAppCompatActivity() {
     private var dialog: Dialog? = null
     private var position = 0
     private var finderStatus = false
+    private var markerDriver: Marker? = null
 
     private val progressHelper by lazy { ProgressHelper(this) }
     private val bottomSheetLayout by lazy {
@@ -127,10 +145,11 @@ class MapsActivity : RxAppCompatActivity() {
             if (dialog != null) {
                 dialog!!.show()
             }
+
             if (i < listDriver.size) {
                 finder(distance, listDriver, i)
             } else {
-                toast("cannot finding ojek")
+
                 if (dialog != null) {
                     dialog!!.dismiss()
                 }
@@ -163,7 +182,7 @@ class MapsActivity : RxAppCompatActivity() {
                 Rmqa.publishTo(listDriver[i]!!.userId, orderData.userId, findingData)
                 finderStatus = true
             } catch (e: IndexOutOfBoundsException) {
-                toast("cannot finding ojek")
+                toast("cannot finding ojek --> ${e.printStackTrace()}")
                 if (dialog != null) {
                     dialog!!.dismiss()
                 }
@@ -206,9 +225,9 @@ class MapsActivity : RxAppCompatActivity() {
 
     private fun messageConnection() {
         Rmqa.connect(rmqaConnection, userPassenger.userId, Rmqa.TYPE.DIRECT) { senderId, jsonObject ->
-            val jsonData = jsonObject.getBoolean("confirm")
+            val jsonData = jsonObject.getString("status")
 
-            if (jsonData && finderStatus) {
+            if (jsonData == "accepted" && finderStatus) {
                 val data = jsonObject.getJSONObject("driver").toUser()
                 if (dialog != null) {
                     dialog!!.dismiss()
@@ -224,17 +243,27 @@ class MapsActivity : RxAppCompatActivity() {
                     bottomOrder.startOrder(position)
                 }, 800)
             }
+
+            if (jsonData == "tracking") {
+                val lat = jsonObject.getDouble("lat")
+                val lon = jsonObject.getDouble("lon")
+                val newLatLng = LatLng(lat, lon)
+
+                markerDriver?.moveMarkerSmoothly(newLatLng)
+            }
         }
     }
 
     private fun setupMapWithDriver(data: User) {
-        val mapWithDriver = MapsWithDriver(this, compositeDisposable, data, userPassenger) { driver ->
+        val mapWithDriver = MapsWithDriver(this, compositeDisposable, data, userPassenger) { markerDriver ->
 
             val dataConfirm = JSONObject()
             dataConfirm.put("status", "passenger_confirm")
             dataConfirm.put("data", userPassenger.toJSONObject())
 
             Rmqa.publishTo(data.userId, orderData.userId, dataConfirm)
+
+            this.markerDriver = markerDriver
         }
         mapWithDriver.setPaddingBottom(dp(280))
 

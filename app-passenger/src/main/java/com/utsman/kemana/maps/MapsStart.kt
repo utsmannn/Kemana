@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Muhammad Utsman
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.utsman.kemana.maps
 
 import androidx.fragment.app.FragmentActivity
@@ -27,6 +43,7 @@ class MapsStart(private val activity: FragmentActivity, private val disposable: 
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         val backendlessApp = BackendlessApp(activity.application, disposable)
+
         mapboxMap.setStyle(Style.OUTDOORS) { style ->
             val position = CameraPosition.Builder()
                 .target(currentLatLng)
@@ -36,7 +53,6 @@ class MapsStart(private val activity: FragmentActivity, private val disposable: 
 
             mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position))
             mapboxMap.uiSettings.setLogoMargins(30, 30, 30,paddingBottom + 30)
-
 
             val markerOption = MarkerOptions.Builder()
                 .setId("device")
