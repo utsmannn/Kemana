@@ -1,29 +1,8 @@
 package com.utsman.kemana.maputil
 
-import android.animation.TypeEvaluator
-import android.content.Context
 import android.location.Location
-import com.google.android.gms.location.LocationRequest
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
-import com.utsman.kemana.base.ext.loge
-import com.utsman.kemana.base.ext.logi
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import pl.charmas.android.reactivelocation2.ReactiveLocationProvider
-
-val latLngEvaluator = object : TypeEvaluator<LatLng> {
-    val latLng = LatLng()
-
-    override fun evaluate(f: Float, startLatLng: LatLng, endLatlng: LatLng): LatLng {
-        latLng.latitude = startLatLng.latitude + (endLatlng.latitude - startLatLng.latitude) * f
-        latLng.longitude = startLatLng.longitude + (endLatlng.longitude - startLatLng.longitude) * f
-        return latLng
-    }
-}
-
-fun Location.toLatlng() = LatLng(latitude, longitude)
 
 fun LatLng.toLocation(): Location {
     val location = Location("")
@@ -31,60 +10,6 @@ fun LatLng.toLocation(): Location {
     location.longitude = longitude
 
     return location
-}
-
-fun Context.getLocationDebounce(disposable: CompositeDisposable, oldLocation: (Location) -> Unit, newLocation: (Location) -> Unit) {
-    val request = LocationRequest.create()
-        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-        .setInterval(100)
-
-    val provider = ReactiveLocationProvider(this)
-    val subscription = provider.getUpdatedLocation(request)
-        .subscribeOn(Schedulers.io())
-        .doOnNext {  oldLoc ->
-            logi("old loc is -> ${oldLoc.toLatlng()}")
-            oldLocation.invoke(oldLoc)
-        }
-        .buffer(2)
-        .doOnNext { updateLocation ->
-            logi("old loc is -> ${updateLocation[0].toLatlng()}")
-            oldLocation.invoke(updateLocation[0])
-        }
-        .doOnNext { updateLocation ->
-            logi("new loc is -> ${updateLocation[1].toLatlng()}")
-            newLocation.invoke(updateLocation[1])
-        }
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe()
-
-    disposable.add(subscription)
-}
-
-fun Context.getLocation(disposable: CompositeDisposable, update: Boolean, locationListener: (latLng: LatLng) -> Unit) {
-    val request = if (!update) {
-        LocationRequest.create()
-            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-            .setNumUpdates(1)
-            .setInterval(100)
-    } else {
-        LocationRequest.create()
-            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-            .setInterval(100)
-    }
-
-    val provider = ReactiveLocationProvider(this)
-    val subscription = provider.getUpdatedLocation(request)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .map { it.toLatlng() }
-        .subscribe({ updateLocation ->
-            locationListener.invoke(updateLocation)
-
-        }, {  thr ->
-            loge(thr.localizedMessage)
-        })
-
-    disposable.add(subscription)
 }
 
 fun calculateBound(center: LatLng, latDistanceInKm: Float, lngDistanceInKm: Float): LatLngBounds {

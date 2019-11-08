@@ -2,6 +2,7 @@ package com.utsman.kemana.driver.service
 
 import android.app.Service
 import android.content.Intent
+import android.location.Location
 import android.os.IBinder
 import androidx.lifecycle.MutableLiveData
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -14,21 +15,21 @@ import com.utsman.kemana.base.ext.logi
 import com.utsman.kemana.base.ext.preferences
 import com.utsman.kemana.maputil.EventTracking
 import com.utsman.kemana.maputil.LatLngUpdater
-import com.utsman.kemana.maputil.MarkerUtil
-import com.utsman.kemana.maputil.getAngle
-import com.utsman.kemana.maputil.getLocationDebounce
-import com.utsman.kemana.maputil.toLatlng
 import com.utsman.kemana.message.EventOrderData
 import com.utsman.kemana.message.toOrderData
 import com.utsman.rmqa.Rmqa
 import com.utsman.rmqa.RmqaConnection
+import com.utsman.smartmarker.SmartLatLon
+import com.utsman.smartmarker.SmartUtil
+import com.utsman.smartmarker.location.LocationUpdateListener
+import com.utsman.smartmarker.location.LocationWatcher
+import com.utsman.smartmarker.mapbox.toLatLngMapbox
 import io.reactivex.disposables.CompositeDisposable
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
 class MapsServiceLocator : Service() {
     private lateinit var currentLatLng: LatLng
-    private lateinit var markerUtil: MarkerUtil
     private lateinit var backendlessApp: BackendlessApp
 
     private val disposable = CompositeDisposable()
@@ -37,6 +38,11 @@ class MapsServiceLocator : Service() {
 
     private var rmqaConnection: RmqaConnection? = null
     private var user: User? = null
+
+
+    private val locationWatcher by lazy {
+        LocationWatcher(this)
+    }
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
@@ -57,7 +63,48 @@ class MapsServiceLocator : Service() {
             .setAutoClearQueue(true)
             .build()
 
-        getLocationDebounce(disposable, { oldLocation ->
+        locationWatcher.getLocationUpdate(object : LocationUpdateListener {
+            override fun newLocation(newLocation: Location) {
+                val latLngUpdater = LatLngUpdater(currentLatLng, newLocation.toLatLngMapbox())
+
+                //markerUtil = MarkerUtil(this, currentLatLng)
+
+                val angle = SmartUtil.getAngle(
+                    SmartLatLon(currentLatLng.latitude, currentLatLng.longitude),
+                    SmartLatLon(newLocation.latitude, newLocation.longitude)
+                ).toFloat()
+
+                val eventTracking = EventTracking(latLngUpdater)
+                EventBus.getDefault().post(eventTracking)
+
+                val token = preferences("account").getString("token", "token") ?: "null-token"
+
+                if (trackingActive) {
+                    user?.let { usr ->
+                        usr.angle = angle.toDouble()
+                        usr.lon = newLocation.longitude
+                        usr.lat = newLocation.latitude
+                        backendlessApp.updateDriverLocation("driver_active", usr.objectId!!, usr, token, {
+                            logi("update success")
+                        }, {
+                            loge("update fail --> ${it?.message}")
+                        })
+                    }
+                }
+
+                logi("ppp --> event is --> $trackingActive --> ${user?.objectId}")
+            }
+
+            override fun failed(throwable: Throwable?) {
+
+            }
+
+            override fun oldLocation(oldLocation: Location) {
+                currentLatLng = oldLocation.toLatLngMapbox()
+            }
+        })
+
+        /*getLocationDebounce(disposable, { oldLocation ->
             currentLatLng = oldLocation.toLatlng()
         }, { newLocation ->
             val latLngUpdater = LatLngUpdater(currentLatLng, newLocation.toLatlng())
@@ -84,7 +131,7 @@ class MapsServiceLocator : Service() {
             }
 
             logi("ppp --> event is --> $trackingActive --> ${user?.objectId}")
-        })
+        })*/
 
         val queueName = preferences("account").getString("user-id", "user")
         Rmqa.connect(rmqaConnection, queueName, Rmqa.TYPE.DIRECT) { senderId, data ->

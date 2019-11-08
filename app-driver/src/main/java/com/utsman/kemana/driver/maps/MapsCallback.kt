@@ -9,15 +9,16 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.utsman.kemana.driver.R
 import com.utsman.kemana.maputil.EventTracking
-import com.utsman.kemana.maputil.MarkerUtil
+import com.utsman.smartmarker.mapbox.Marker
+import com.utsman.smartmarker.mapbox.MarkerOptions
+import com.utsman.smartmarker.mapbox.addMarker
 
 class MapsCallback(private val context: Context,
                    private val currentLatLng: LatLng,
                    private val onReady: () -> Unit) : OnMapReadyCallback {
 
-    private val markerUtil = MarkerUtil(context)
     private lateinit var style: Style
-    private lateinit var marker: MarkerUtil.Marker
+    private var marker: Marker? = null
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         mapboxMap.setStyle(Style.OUTDOORS) { style ->
@@ -30,13 +31,20 @@ class MapsCallback(private val context: Context,
 
             mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position))
 
-            marker = markerUtil.addMarker("driver", style, R.drawable.ic_marker_driver, true, currentLatLng)
+            val markerOption = MarkerOptions.Builder()
+                .setId("driver")
+                .addIcon(R.drawable.ic_marker_driver, true)
+                .addPosition(currentLatLng)
+                .build(context)
+
+            val markerLayer = mapboxMap.addMarker(markerOption)
+            marker = markerLayer.get("driver")
 
             onReady.invoke()
         }
     }
 
     fun onEventTracker(eventTracking: EventTracking) {
-        marker.moveMarkerAnimation(eventTracking.latLngUpdater.newLatLng)
+        marker?.moveMarkerSmoothly(eventTracking.latLngUpdater.newLatLng)
     }
 }

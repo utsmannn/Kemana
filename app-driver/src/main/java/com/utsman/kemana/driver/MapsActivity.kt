@@ -26,11 +26,12 @@ import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.driver.maps.MapsCallback
 import com.utsman.kemana.driver.service.MapsServiceLocator
 import com.utsman.kemana.maputil.EventTracking
-import com.utsman.kemana.maputil.getLocation
 import com.utsman.kemana.maputil.toLocation
 import com.utsman.kemana.message.EventOrderData
 import com.utsman.kemana.places.PlaceRouteApp
 import com.utsman.rmqa.Rmqa
+import com.utsman.smartmarker.location.LocationWatcher
+import com.utsman.smartmarker.mapbox.toLatLngMapbox
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
 import kotlinx.android.synthetic.main.dialog_offering.view.*
@@ -47,6 +48,10 @@ class MapsActivity : RxAppCompatActivity() {
         BottomSheetBehavior.from(main_bottom_sheet) as BottomSheetUnDrag<*>
     }
 
+    private val locationWatcher by lazy {
+        LocationWatcher(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, Key.MAP_KEY)
@@ -58,8 +63,8 @@ class MapsActivity : RxAppCompatActivity() {
         backendlessApp = BackendlessApp(application, compositeDisposable)
         userDriver = (intent.getStringExtra("user") ?: "").stringToUser()
 
-        getLocation(compositeDisposable, false) { loc ->
-            mapsCallback = MapsCallback(this, loc) {
+        locationWatcher.getLocation(this) { loc ->
+            mapsCallback = MapsCallback(this, loc.toLatLngMapbox()) {
                 startService(intentService)
             }
 
@@ -175,6 +180,8 @@ class MapsActivity : RxAppCompatActivity() {
                 userDriver.onOrder = true
                 logi("aa --> ${userDriver.lat} --> ${userDriver.toJSONObject()}")
                 Rmqa.publishTo(orderData.userId, userDriver.userId, userDriver.toJSONObject())
+
+
             }
         }
 

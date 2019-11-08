@@ -32,11 +32,12 @@ import com.utsman.kemana.fragment.callback.CallbackFragmentStart
 import com.utsman.kemana.maps.MapsOrder
 import com.utsman.kemana.maps.MapsStart
 import com.utsman.kemana.maps.MapsWithDriver
-import com.utsman.kemana.maputil.getLocation
 import com.utsman.kemana.message.OrderData
 import com.utsman.kemana.message.toJSONObject
 import com.utsman.rmqa.Rmqa
 import com.utsman.rmqa.RmqaConnection
+import com.utsman.smartmarker.location.LocationWatcher
+import com.utsman.smartmarker.mapbox.toLatLngMapbox
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
 
@@ -57,6 +58,10 @@ class MapsActivity : RxAppCompatActivity() {
     private val progressHelper by lazy { ProgressHelper(this) }
     private val bottomSheetLayout by lazy {
         BottomSheetBehavior.from(main_bottom_sheet) as BottomSheetUnDrag<*>
+    }
+
+    private val locationWatcher by lazy {
+        LocationWatcher(this)
     }
 
     private val callbackFragment = object : CallbackFragment {
@@ -262,11 +267,12 @@ class MapsActivity : RxAppCompatActivity() {
             mapStart.setCurrentLatLng(fromLatLng!!)
             bottomStart.setCurrentLatLng(fromLatLng!!)
         } else {
-            getLocation(compositeDisposable, false) { latLng ->
+
+            locationWatcher.getLocation(this) { location ->
                 progressHelper.hideProgressDialog()
                 map_view.getMapAsync(mapStart)
-                mapStart.setCurrentLatLng(latLng)
-                bottomStart.setCurrentLatLng(latLng)
+                mapStart.setCurrentLatLng(location.toLatLngMapbox())
+                bottomStart.setCurrentLatLng(location.toLatLngMapbox())
             }
         }
     }
@@ -292,6 +298,7 @@ class MapsActivity : RxAppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         map_view.onDestroy()
+        locationWatcher.stopLocationWatcher()
         Rmqa.disconnect(rmqaConnection)
     }
 

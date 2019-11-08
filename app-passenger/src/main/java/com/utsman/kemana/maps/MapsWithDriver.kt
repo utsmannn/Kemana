@@ -7,10 +7,10 @@ import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.utsman.kemana.R
 import com.utsman.kemana.auth.User
-import com.utsman.kemana.maputil.MarkerUtil
+import com.utsman.smartmarker.mapbox.MarkerOptions
+import com.utsman.smartmarker.mapbox.addMarker
 import io.reactivex.disposables.CompositeDisposable
 
 class MapsWithDriver(
@@ -37,17 +37,25 @@ class MapsWithDriver(
                 .include(passengerLatLng)
                 .build()
 
-            val markerDriver = MarkerUtil(activity, driverLatLng)
-            markerDriver.addMarker("driver", style, R.drawable.ic_marker_driver, true, symbolLayer = {
-                it.withProperties(PropertyFactory.iconRotate(user.angle!!.toFloat()))
-            }) {
-                return@addMarker driverLatLng
-            }
+            /*val markerDriver = MarkerUtil(activity)
+            markerDriver.addMarker("driver", style, R.drawable.ic_marker_driver, true, driverLatLng)
 
-            val markerPassenger = MarkerUtil(activity, passengerLatLng)
-            markerPassenger.addMarker("passenger", style, R.drawable.ic_person_location, true) {
-                return@addMarker passengerLatLng
-            }
+            val markerPassenger = MarkerUtil(activity)
+            markerPassenger.addMarker("passenger", style, R.drawable.ic_person_location, true, passengerLatLng)*/
+
+            val markerDriver = MarkerOptions.Builder()
+                .addIcon(R.drawable.ic_marker_driver, true)
+                .addPosition(driverLatLng)
+                .setId("driver")
+                .build(activity)
+
+            val markerPassenger = MarkerOptions.Builder()
+                .addIcon(R.drawable.ic_person_location, true)
+                .addPosition(passengerLatLng)
+                .setId("passenger")
+                .build(activity)
+
+            val markerLayer = mapboxMap.addMarker(markerDriver, markerPassenger)
 
             val cameraPosition = CameraUpdateFactory.newLatLngBounds(
                 position, 200, 200, 200, paddingBottom + 200)

@@ -41,7 +41,11 @@ dependencies {
     implementation Core.multidex
 
     implementation Design.material
+
     implementation Maps.mapbox
+    implementation Maps.smartMarker
+    implementation Maps.smartMarkerMapbox
+    implementation Maps.smartMarkerLocation
 
     implementation Rx.rxJava
     implementation Rx.rxAndroid

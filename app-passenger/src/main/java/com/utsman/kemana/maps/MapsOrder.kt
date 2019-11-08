@@ -24,10 +24,10 @@ import com.utsman.kemana.base.ext.ProgressHelper
 import com.utsman.kemana.base.ext.loge
 import com.utsman.kemana.base.ext.logi
 import com.utsman.kemana.base.ext.toast
-import com.utsman.kemana.maputil.MarkerBuilder
-import com.utsman.kemana.maputil.MarkerUtil
 import com.utsman.kemana.places.PlaceRouteApp
 import com.utsman.kemana.places.Route
+import com.utsman.smartmarker.mapbox.MarkerOptions
+import com.utsman.smartmarker.mapbox.addMarkers
 import io.reactivex.disposables.CompositeDisposable
 
 class MapsOrder(
@@ -129,29 +129,18 @@ class MapsOrder(
             loge("anjay ada layer")
         }
 
-        val markerBuilder = MarkerBuilder(activity, style)
-        /*val fromMarker =
-            markerBuilder.newMarker(
-                "${fromLatLng.latitude}-${toLatLng.latitude}",
-                fromLatLng,
-                R.drawable.ic_person_location,
-                true
-            )
-        style.addMarker(fromMarker)*/
+        val markerFrom = MarkerOptions.Builder()
+            .addIcon(R.drawable.ic_person_location, true)
+            .addPosition(fromLatLng)
+            .setId("from")
+            .build(activity)
 
-        // val markerDriver = MarkerUtil(activity, driverLatLng)
-        //             markerDriver.addMarker("driver", style, R.drawable.ic_marker_driver, true) {
-        //                 return@addMarker driverLatLng
-        //             }
+        val markerTo = MarkerOptions.Builder()
+            .addIcon(R.drawable.ic_dest_location, true)
+            .addPosition(toLatLng)
+            .setId("to")
+            .build(activity)
 
-        val fromMarker = MarkerUtil(activity, fromLatLng)
-        fromMarker.addMarker("from", style, R.drawable.ic_person_location, true) {
-            return@addMarker fromLatLng
-        }
-
-        val toMarker = MarkerUtil(activity, toLatLng)
-        toMarker.addMarker("to", style, R.drawable.ic_dest_location, true) {
-            return@addMarker toLatLng
-        }
+        mapboxMap.addMarkers(markerFrom, markerTo)
     }
 }

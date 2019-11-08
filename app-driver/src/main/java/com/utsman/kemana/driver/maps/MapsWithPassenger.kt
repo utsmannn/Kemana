@@ -9,12 +9,11 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.utsman.kemana.auth.User
 import com.utsman.kemana.driver.R
-import com.utsman.kemana.maputil.MarkerUtil
-import io.reactivex.disposables.CompositeDisposable
+import com.utsman.smartmarker.mapbox.MarkerOptions
+import com.utsman.smartmarker.mapbox.addMarker
 
 class MapsWithPassenger(
     private val activity: FragmentActivity,
-    private val disposable: CompositeDisposable,
     private val driver: User,
     private val user: User,
     private val ready: (driver: User) -> Unit
@@ -36,13 +35,21 @@ class MapsWithPassenger(
                 .include(passengerLatLng)
                 .build()
 
-            val markerUtil = MarkerUtil(activity)
+            val markerOptionDriver = MarkerOptions.Builder()
+                .addPosition(driverLatLng)
+                .addIcon(R.drawable.ic_marker_driver, true)
+                .setId("driver")
+                .build(activity)
 
-            //val markerDriver = MarkerUtil(activity, driverLatLng)
-            markerUtil.addMarker("driver", style, R.drawable.ic_marker_driver, true, driverLatLng)
+            val markerOptionsPassenger = MarkerOptions.Builder()
+                .addPosition(passengerLatLng)
+                .addIcon(R.drawable.ic_person_location, true)
+                .setId("passenger")
+                .build(activity)
 
-            //val markerPassenger = MarkerUtil(activity, passengerLatLng)
-            markerUtil.addMarker("passenger", style, R.drawable.ic_person_location, true, passengerLatLng)
+            ready.invoke(driver)
+
+            mapboxMap.addMarker(markerOptionDriver, markerOptionsPassenger)
 
             val cameraPosition = CameraUpdateFactory.newLatLngBounds(
                 position, 200, 200, 200, paddingBottom + 200)
