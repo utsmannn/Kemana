@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2019 Muhammad Utsman
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -8,166 +24,96 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:padding="12dp"
             android:text="Anterin dong mas!"
             android:textSize="18sp" />
 
-        <LinearLayout
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:layout_marginBottom="6dp"
+            app:cardBackgroundColor="#D8D8D8"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="0dp">
 
-            <ImageView
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/ic_person_location" />
-
-            <com.google.android.material.textfield.TextInputLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                app:boxCollapsedPaddingTop="2dp"
-                app:boxBackgroundColor="#00FFFFFF"
                 android:gravity="center"
-                app:boxBackgroundMode="outline"
-                app:boxCornerRadiusBottomEnd="0dp"
-                app:boxCornerRadiusBottomStart="0dp"
-                app:boxCornerRadiusTopEnd="0dp"
-                app:boxCornerRadiusTopStart="0dp"
-                android:layout_marginRight="12dp">
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="23dp"
+                    android:layout_height="23dp"
+                    android:layout_marginLeft="12dp"
+                    android:src="@drawable/ic_person_location"
+                    android:tint="@color/textColor"
+                    android:layout_marginStart="12dp" />
 
                 <EditText
                     android:id="@+id/input_from_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Dari mana?"
                     android:background="#00FFFFFF"
+                    android:textColor="@color/textColor"
+                    android:hint="Dari mana?"
                     android:inputType="textShortMessage|textCapWords"
                     android:padding="12dp"
                     android:selectAllOnFocus="true"
                     android:textSize="14sp" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
-        </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-        <LinearLayout
-            android:layout_width="35dp"
-            android:layout_height="22dp"
-            android:gravity="center">
-
-            <View
-                android:layout_width="2dp"
-                android:layout_height="match_parent"
-                android:background="#F44336" />
-        </LinearLayout>
-
-        <LinearLayout
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="#D8D8D8"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="0dp">
 
-            <ImageView
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/ic_dest_location" />
-
-            <com.google.android.material.textfield.TextInputLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp"
                 android:layout_height="wrap_content"
-                app:boxBackgroundColor="#00FFFFFF"
                 android:gravity="center"
-                app:boxBackgroundMode="outline"
-                app:boxCornerRadiusBottomEnd="0dp"
-                app:boxCornerRadiusBottomStart="0dp"
-                app:boxCornerRadiusTopEnd="0dp"
-                app:boxCornerRadiusTopStart="0dp">
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="23dp"
+                    android:layout_height="23dp"
+                    android:layout_marginLeft="12dp"
+                    android:src="@drawable/ic_dest_location"
+                    android:tint="@color/textColor"
+                    android:layout_marginStart="12dp" />
 
                 <EditText
                     android:id="@+id/input_to_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Menuju"
-                    android:imeOptions="actionSearch"
-                    android:background="#00FFFFFF"
                     android:layout_margin="0dp"
+                    android:background="#00FFFFFF"
+                    android:hint="Menuju"
+                    android:textColor="@color/textColor"
+                    android:imeOptions="actionSearch"
                     android:inputType="textShortMessage|textCapWords"
                     android:padding="12dp"
                     android:selectAllOnFocus="true"
                     android:textSize="14sp" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/pricing_container"
-        android:paddingLeft="12dp"
-        android:paddingStart="12dp"
-        android:paddingRight="12dp"
-        android:paddingEnd="12dp"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:adjustViewBounds="true"
-                android:src="@drawable/ic_offer_price" />
-
-            <TextView
-                android:id="@+id/text_pricing"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginLeft="12dp"
-                android:textStyle="bold"
-                android:text="Rp 12.000"
-                android:textSize="22sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:adjustViewBounds="true"
-                android:src="@drawable/ic_direction" />
-
-            <TextView
-                android:id="@+id/text_distance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginLeft="12dp"
-                android:text="12 KM"
-                android:textSize="22sp" />
-
-        </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Muhammad Utsman
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 const val kotlin_version = "1.3.50"
 
 object Sdk {
@@ -20,6 +36,9 @@ object Maps {
     val mapbox              = "com.mapbox.mapboxsdk:mapbox-android-sdk:8.4.0"
     val gmsLocationService  = "com.google.android.gms:play-services-location:17.0.0"
     val rxLocation          = "pl.charmas.android:android-reactive-location2:2.1@aar"
+    val smartMarker         = "com.utsman.smartmarker:core:1.0.4@aar"
+    val smartMarkerMapbox   = "com.utsman.smartmarker:ext-mapbox:1.0.4@aar"
+    val smartMarkerLocation = "com.utsman.smartmarker:ext-location:1.0.4@aar"
 }
 
 object Design {
@@ -27,6 +46,7 @@ object Design {
     val recycling           = "com.utsman.recycling:recycling:1.3.8"
     val glide               = "com.github.bumptech.glide:glide:4.10.0"
     val glideKapt           = "com.github.bumptech.glide:compiler:4.10.0"
+    val fonty               = "com.anggun.fonty:fonty:0.1"
 }
 
 object Lifecycle {
@@ -53,24 +73,15 @@ object Retrofit {
     val loggingInterceptor  = "com.squareup.okhttp3:logging-interceptor:4.0.1"
 }
 
-object Koin {
-    val koin                = "org.koin:koin-android:2.0.1"
-    val koinViewModel       = "org.koin:koin-androidx-viewmodel:2.0.1"
-}
-
-object Firebase {
-    val firestore           = "com.google.firebase:firebase-firestore:21.1.1"
-    val auth                = "com.utsman:easygooglelogin:1.0.10"
-    val authUi              = "com.firebaseui:firebase-ui-auth:4.3.0"
-    val fcm                 = "com.google.firebase:firebase-messaging:20.0.0"
+object Message {
+    val rmqa                = "com.utsman.rmqa:rmqa:0.0.2"
 }
 
 object Module {
     val base                = ":base"
     val feature_auth        = ":feature:auth"
     val feature_map_util    = ":feature:maputil"
-    val feature_firestore   = ":feature:firestore"
     val feature_place       = ":feature:places"
-    val feature_fcm         = ":feature:fcm"
+    val feature_message     = ":feature:message"
     val feature_backendless = ":feature:backendless"
 }
