@@ -37,12 +37,6 @@ class MapsWithDriver(
                 .include(passengerLatLng)
                 .build()
 
-            /*val markerDriver = MarkerUtil(activity)
-            markerDriver.addMarker("driver", style, R.drawable.ic_marker_driver, true, driverLatLng)
-
-            val markerPassenger = MarkerUtil(activity)
-            markerPassenger.addMarker("passenger", style, R.drawable.ic_person_location, true, passengerLatLng)*/
-
             val markerDriver = MarkerOptions.Builder()
                 .addIcon(R.drawable.ic_marker_driver, true)
                 .addPosition(driverLatLng)
@@ -56,6 +50,8 @@ class MapsWithDriver(
                 .build(activity)
 
             val markerLayer = mapboxMap.addMarker(markerDriver, markerPassenger)
+
+            ready.invoke(driver)
 
             val cameraPosition = CameraUpdateFactory.newLatLngBounds(
                 position, 200, 200, 200, paddingBottom + 200)

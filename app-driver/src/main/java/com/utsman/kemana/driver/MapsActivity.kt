@@ -23,7 +23,9 @@ import com.utsman.kemana.base.ext.logi
 import com.utsman.kemana.base.ext.preferences
 import com.utsman.kemana.base.rx.RxAppCompatActivity
 import com.utsman.kemana.base.view.BottomSheetUnDrag
-import com.utsman.kemana.driver.maps.MapsCallback
+import com.utsman.kemana.driver.event.EventPassengerConfirm
+import com.utsman.kemana.driver.maps.MapsMain
+import com.utsman.kemana.driver.maps.MapsPickup
 import com.utsman.kemana.driver.service.MapsServiceLocator
 import com.utsman.kemana.maputil.EventTracking
 import com.utsman.kemana.maputil.toLocation
@@ -37,12 +39,22 @@ import kotlinx.android.synthetic.main.bottom_sheet.*
 import kotlinx.android.synthetic.main.dialog_offering.view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import org.json.JSONObject
 
 class MapsActivity : RxAppCompatActivity() {
 
+    private val MAIN_MAP = "main_map"
+    private val PICKUP_MAP = "pickup_map"
+
     private lateinit var userDriver: User
-    private lateinit var mapsCallback: MapsCallback
+    private lateinit var mainMaps: MapsMain
+    private lateinit var pickupMaps: MapsPickup
     private lateinit var backendlessApp: BackendlessApp
+    private var mapActive = MAIN_MAP
+
+    private val intentService by lazy {
+        Intent(this, MapsServiceLocator::class.java)
+    }
 
     private val bottomSheetLayout by lazy {
         BottomSheetBehavior.from(main_bottom_sheet) as BottomSheetUnDrag<*>
@@ -56,7 +68,6 @@ class MapsActivity : RxAppCompatActivity() {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, Key.MAP_KEY)
         setContentView(R.layout.activity_map)
-        val intentService = Intent(this, MapsServiceLocator::class.java)
 
         bottomSheetLayout.hidden()
 
@@ -64,11 +75,11 @@ class MapsActivity : RxAppCompatActivity() {
         userDriver = (intent.getStringExtra("user") ?: "").stringToUser()
 
         locationWatcher.getLocation(this) { loc ->
-            mapsCallback = MapsCallback(this, loc.toLatLngMapbox()) {
+            mainMaps = MapsMain(this, loc.toLatLngMapbox()) {
                 startService(intentService)
+                mapActive = MAIN_MAP
             }
-
-            map_view.getMapAsync(mapsCallback)
+            map_view.getMapAsync(mainMaps)
         }
 
         setupTopView(userDriver)
@@ -97,14 +108,6 @@ class MapsActivity : RxAppCompatActivity() {
         logi("user email --> ${userDriver.email}")
         logi("anjaylah --> $userDriver")
 
-        /*user = User(
-            userId = userDriver.userId,
-            name = userDriver.name,
-            email = userDriver.email,
-            vehiclesType = userDriver.vehiclesType,
-            vehiclesPlat = userDriver.vehiclesPlat
-        )*/
-
         userDriver.token = null
         backendlessApp.saveUserToType(token, "driver_active", userDriver, {
             logi("saving table success with resp -> $it")
@@ -129,9 +132,23 @@ class MapsActivity : RxAppCompatActivity() {
     fun onTrackingUpdate(eventTracking: EventTracking) {
         userDriver.lat = eventTracking.latLngUpdater.newLatLng.latitude
         userDriver.lon = eventTracking.latLngUpdater.newLatLng.longitude
-        mapsCallback.onEventTracker(eventTracking)
+
+        if (mapActive == MAIN_MAP) {
+            try {
+                mainMaps.onEventTracker(eventTracking)
+            } catch (e: Error) {
+                e.printStackTrace()
+            }
+        } else {
+            try {
+                pickupMaps.onEventTracker(eventTracking)
+            } catch (e: Error) {
+                e.printStackTrace()
+            }
+        }
     }
 
+    @SuppressLint("InflateParams")
     @Subscribe
     fun onOrderComing(eventOrderData: EventOrderData) {
 
@@ -172,23 +189,41 @@ class MapsActivity : RxAppCompatActivity() {
             btn_order_reject.setOnClickListener {
                 dialogBuilder.dismiss()
                 userDriver.onOrder = false
-                Rmqa.publishTo(orderData.userId, userDriver.userId, userDriver.toJSONObject())
+
+                val data = JSONObject()
+                data.put("confirm", false)
+
+                Rmqa.publishTo(orderData.userId, userDriver.userId, data)
             }
 
             btn_order_accept.setOnClickListener {
                 dialogBuilder.dismiss()
                 userDriver.onOrder = true
                 logi("aa --> ${userDriver.lat} --> ${userDriver.toJSONObject()}")
-                Rmqa.publishTo(orderData.userId, userDriver.userId, userDriver.toJSONObject())
 
+                val data = JSONObject()
+                data.put("confirm", true)
+                data.put("driver", userDriver.toJSONObject())
+
+                Rmqa.publishTo(orderData.userId, userDriver.userId, data)
 
             }
         }
 
-
         if (!dialogBuilder.isShowing) {
             dialogBuilder.show()
         }
+    }
+
+    @Subscribe
+    fun onPassengerConfirm(passengerConfirm: EventPassengerConfirm) {
+        logi("passenger confirm map update")
+
+        pickupMaps = MapsPickup(this, userDriver, passengerConfirm.passengerData) {
+
+        }
+        map_view.getMapAsync(pickupMaps)
+        mapActive = PICKUP_MAP
     }
 
     override fun onStart() {

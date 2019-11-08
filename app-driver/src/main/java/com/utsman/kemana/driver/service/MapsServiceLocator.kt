@@ -9,10 +9,12 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.auth.EventUser
 import com.utsman.kemana.auth.User
 import com.utsman.kemana.auth.stringToUser
+import com.utsman.kemana.auth.toUser
 import com.utsman.kemana.backendless.BackendlessApp
 import com.utsman.kemana.base.ext.loge
 import com.utsman.kemana.base.ext.logi
 import com.utsman.kemana.base.ext.preferences
+import com.utsman.kemana.driver.event.EventPassengerConfirm
 import com.utsman.kemana.maputil.EventTracking
 import com.utsman.kemana.maputil.LatLngUpdater
 import com.utsman.kemana.message.EventOrderData
@@ -67,8 +69,6 @@ class MapsServiceLocator : Service() {
             override fun newLocation(newLocation: Location) {
                 val latLngUpdater = LatLngUpdater(currentLatLng, newLocation.toLatLngMapbox())
 
-                //markerUtil = MarkerUtil(this, currentLatLng)
-
                 val angle = SmartUtil.getAngle(
                     SmartLatLon(currentLatLng.latitude, currentLatLng.longitude),
                     SmartLatLon(newLocation.latitude, newLocation.longitude)
@@ -104,38 +104,22 @@ class MapsServiceLocator : Service() {
             }
         })
 
-        /*getLocationDebounce(disposable, { oldLocation ->
-            currentLatLng = oldLocation.toLatlng()
-        }, { newLocation ->
-            val latLngUpdater = LatLngUpdater(currentLatLng, newLocation.toLatlng())
-
-            //markerUtil = MarkerUtil(this, currentLatLng)
-
-            val angle = getAngle(currentLatLng, newLocation.toLatlng()).toFloat()
-            val eventTracking = EventTracking(latLngUpdater)
-            EventBus.getDefault().post(eventTracking)
-
-            val token = preferences("account").getString("token", "token") ?: "null-token"
-
-            if (trackingActive) {
-                user?.let { usr ->
-                    usr.angle = angle.toDouble()
-                    usr.lon = newLocation.longitude
-                    usr.lat = newLocation.latitude
-                    backendlessApp.updateDriverLocation("driver_active", usr.objectId!!, usr, token, {
-                        logi("update success")
-                    }, {
-                        loge("update fail --> ${it?.message}")
-                    })
-                }
-            }
-
-            logi("ppp --> event is --> $trackingActive --> ${user?.objectId}")
-        })*/
-
         val queueName = preferences("account").getString("user-id", "user")
         Rmqa.connect(rmqaConnection, queueName, Rmqa.TYPE.DIRECT) { senderId, data ->
-            EventBus.getDefault().post(EventOrderData(data.toOrderData()))
+            logi("connection to user --> $data")
+
+            val status = data.getString("status")
+
+            if (status == "finding") {
+                val orderData = data.getJSONObject("data")
+                EventBus.getDefault().post(EventOrderData(orderData.toOrderData()))
+            }
+
+            if (status == "passenger_confirm") {
+                logi("passenger is confirm")
+                val passengerData = data.getJSONObject("data")
+                EventBus.getDefault().post(EventPassengerConfirm(passengerData.toUser()))
+            }
         }
 
         return START_STICKY

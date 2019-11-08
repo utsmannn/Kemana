@@ -13,9 +13,9 @@ import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker
 
-class MapsCallback(private val context: Context,
-                   private val currentLatLng: LatLng,
-                   private val onReady: () -> Unit) : OnMapReadyCallback {
+class MapsMain(private val context: Context,
+               private val currentLatLng: LatLng,
+               private val onReady: () -> Unit) : OnMapReadyCallback {
 
     private lateinit var style: Style
     private var marker: Marker? = null

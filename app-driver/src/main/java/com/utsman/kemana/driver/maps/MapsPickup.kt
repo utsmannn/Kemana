@@ -9,10 +9,12 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.utsman.kemana.auth.User
 import com.utsman.kemana.driver.R
+import com.utsman.kemana.maputil.EventTracking
+import com.utsman.smartmarker.mapbox.MarkerLayer
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker
 
-class MapsWithPassenger(
+class MapsPickup(
     private val activity: FragmentActivity,
     private val driver: User,
     private val user: User,
@@ -20,6 +22,7 @@ class MapsWithPassenger(
 ) : OnMapReadyCallback {
 
     private var paddingBottom = 0
+    private lateinit var markerLayer: MarkerLayer
 
     fun setPaddingBottom(paddingBottom: Int) {
         this.paddingBottom = paddingBottom
@@ -49,12 +52,17 @@ class MapsWithPassenger(
 
             ready.invoke(driver)
 
-            mapboxMap.addMarker(markerOptionDriver, markerOptionsPassenger)
+            markerLayer = mapboxMap.addMarker(markerOptionDriver, markerOptionsPassenger)
 
             val cameraPosition = CameraUpdateFactory.newLatLngBounds(
                 position, 200, 200, 200, paddingBottom + 200)
             mapboxMap.animateCamera(cameraPosition)
 
         }
+    }
+
+    fun onEventTracker(eventTracking: EventTracking) {
+        val markerDriver = markerLayer.get("driver")
+        markerDriver?.moveMarkerSmoothly(eventTracking.latLngUpdater.newLatLng)
     }
 }

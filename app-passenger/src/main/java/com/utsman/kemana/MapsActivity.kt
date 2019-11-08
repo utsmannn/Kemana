@@ -9,6 +9,7 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.auth.User
 import com.utsman.kemana.auth.stringToUser
+import com.utsman.kemana.auth.toJSONObject
 import com.utsman.kemana.auth.toUser
 import com.utsman.kemana.base.Key
 import com.utsman.kemana.base.ext.ProgressHelper
@@ -40,12 +41,14 @@ import com.utsman.smartmarker.location.LocationWatcher
 import com.utsman.smartmarker.mapbox.toLatLngMapbox
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
+import org.json.JSONObject
 
 class MapsActivity : RxAppCompatActivity() {
 
     private lateinit var bottomStart: StartBottomFragment
     private lateinit var bottomOrder: OrderBottomFragment
     private lateinit var userPassenger: User
+    private lateinit var orderData: OrderData
 
     private var fromLatLng: LatLng? = null
     private var toLatLng: LatLng? = null
@@ -54,6 +57,7 @@ class MapsActivity : RxAppCompatActivity() {
 
     private var dialog: Dialog? = null
     private var position = 0
+    private var finderStatus = false
 
     private val progressHelper by lazy { ProgressHelper(this) }
     private val bottomSheetLayout by lazy {
@@ -126,6 +130,7 @@ class MapsActivity : RxAppCompatActivity() {
             if (i < listDriver.size) {
                 finder(distance, listDriver, i)
             } else {
+                toast("cannot finding ojek")
                 if (dialog != null) {
                     dialog!!.dismiss()
                 }
@@ -138,7 +143,7 @@ class MapsActivity : RxAppCompatActivity() {
     }
 
     private fun finder(distance: Double, listDriver: List<User?>, i: Int) {
-        val orderData = OrderData(
+        orderData = OrderData (
             userPassenger.userId,
             userPassenger.name,
             userPassenger.photoProfile!!,
@@ -151,8 +156,14 @@ class MapsActivity : RxAppCompatActivity() {
 
         if (!listDriver.isNullOrEmpty()) {
             try {
-                Rmqa.publishTo(listDriver[i]!!.userId, orderData.userId, orderData.toJSONObject())
+                val findingData = JSONObject()
+                findingData.put("status", "finding")
+                findingData.put("data", orderData.toJSONObject())
+
+                Rmqa.publishTo(listDriver[i]!!.userId, orderData.userId, findingData)
+                finderStatus = true
             } catch (e: IndexOutOfBoundsException) {
+                toast("cannot finding ojek")
                 if (dialog != null) {
                     dialog!!.dismiss()
                 }
@@ -195,16 +206,16 @@ class MapsActivity : RxAppCompatActivity() {
 
     private fun messageConnection() {
         Rmqa.connect(rmqaConnection, userPassenger.userId, Rmqa.TYPE.DIRECT) { senderId, jsonObject ->
-            val data = jsonObject.toUser()
+            val jsonData = jsonObject.getBoolean("confirm")
 
-            if (data.onOrder) {
+            if (jsonData && finderStatus) {
+                val data = jsonObject.getJSONObject("driver").toUser()
                 if (dialog != null) {
                     dialog!!.dismiss()
+
                     // accept here
                     logi(data.toString())
-                    logi("userr --> $userPassenger")
-                    toast("${data.lat} -- ${data.lon}")
-                    toast("${userPassenger.lat} -- ${userPassenger.lon}")
+                    logi("user --> $userPassenger")
                     setupMapWithDriver(data)
                 }
             } else {
@@ -219,6 +230,11 @@ class MapsActivity : RxAppCompatActivity() {
     private fun setupMapWithDriver(data: User) {
         val mapWithDriver = MapsWithDriver(this, compositeDisposable, data, userPassenger) { driver ->
 
+            val dataConfirm = JSONObject()
+            dataConfirm.put("status", "passenger_confirm")
+            dataConfirm.put("data", userPassenger.toJSONObject())
+
+            Rmqa.publishTo(data.userId, orderData.userId, dataConfirm)
         }
         mapWithDriver.setPaddingBottom(dp(280))
 
@@ -227,9 +243,7 @@ class MapsActivity : RxAppCompatActivity() {
 
     private fun setupVariable() {
         bottomSheetLayout.setAllowUserDragging(false)
-
         userPassenger = (intent.getStringExtra("user") ?: "").stringToUser()
-
         rmqaConnection = RmqaConnection.Builder(this)
             .setServer("woodpecker.rmq.cloudamqp.com")
             .setUsername("edafafqh")
@@ -243,7 +257,10 @@ class MapsActivity : RxAppCompatActivity() {
 
         dialog = Dialog(this).apply {
             setContentView(R.layout.dialog_finding_driver)
-            setCancelable(false)
+            setCancelable(true)
+            setOnDismissListener {
+                finderStatus = false
+            }
         }
 
         bottomStart = StartBottomFragment(callbackFragment, callbackFragmentStart)
