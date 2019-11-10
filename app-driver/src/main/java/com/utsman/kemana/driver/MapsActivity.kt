@@ -33,13 +33,16 @@ import com.utsman.kemana.backendless.BackendlessApp
 import com.utsman.kemana.base.Key
 import com.utsman.kemana.base.ext.calculateDistanceKm
 import com.utsman.kemana.base.ext.calculatePricing
+import com.utsman.kemana.base.ext.collapse
 import com.utsman.kemana.base.ext.hidden
 import com.utsman.kemana.base.ext.loadCircleUrl
 import com.utsman.kemana.base.ext.logi
 import com.utsman.kemana.base.ext.preferences
+import com.utsman.kemana.base.ext.replaceFragment
 import com.utsman.kemana.base.rx.RxAppCompatActivity
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.driver.event.EventPassengerConfirm
+import com.utsman.kemana.driver.fragment.PickupFragment
 import com.utsman.kemana.driver.maps.MapsMain
 import com.utsman.kemana.driver.maps.MapsPickup
 import com.utsman.kemana.driver.service.MapsServiceLocator
@@ -50,16 +53,12 @@ import com.utsman.kemana.places.PlaceRouteApp
 import com.utsman.rmqa.Rmqa
 import com.utsman.smartmarker.location.LocationWatcher
 import com.utsman.smartmarker.mapbox.toLatLngMapbox
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
 import kotlinx.android.synthetic.main.dialog_offering.view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.json.JSONObject
-import java.util.concurrent.TimeUnit
 
 class MapsActivity : RxAppCompatActivity() {
 
@@ -83,6 +82,9 @@ class MapsActivity : RxAppCompatActivity() {
     private val locationWatcher by lazy {
         LocationWatcher(this)
     }
+
+    //private var pickupFragment: PickupFragment? = null
+    private lateinit var pickupFragment: PickupFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -218,6 +220,7 @@ class MapsActivity : RxAppCompatActivity() {
 
             btn_order_accept.setOnClickListener {
                 dialogBuilder.dismiss()
+                pickupFragment = PickupFragment(orderData)
                 userDriver.onOrder = true
                 logi("aa --> ${userDriver.lat} --> ${userDriver.toJSONObject()}")
 
@@ -239,24 +242,14 @@ class MapsActivity : RxAppCompatActivity() {
     fun onPassengerConfirm(passengerConfirm: EventPassengerConfirm) {
         logi("passenger confirm map update")
 
-        pickupMaps = MapsPickup(this, userDriver, passengerConfirm.passengerData) {
-
+        pickupMaps = MapsPickup(this, userDriver, passengerConfirm.passengerData, compositeDisposable) {
+            //pickupFragment.setDistance(it.routes[0].distance)
+            replaceFragment(pickupFragment, R.id.main_frame_bottom)
+            bottomSheetLayout.collapse()
         }
+        pickupMaps.setPaddingBottom(250)
         map_view.getMapAsync(pickupMaps)
         mapActive = PICKUP_MAP
-    }
-
-    private fun timer(time :(LatLng) -> Unit) {
-        val timer = Observable.interval(5000, TimeUnit.MILLISECONDS)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                locationWatcher.getLocation {
-                    time.invoke(it.toLatLngMapbox())
-                }
-            }
-
-        compositeDisposable.add(timer)
     }
 
     override fun onStart() {

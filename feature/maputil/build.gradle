@@ -53,9 +53,6 @@ dependencies {
     implementation Rx.rxAndroid
 
     implementation Maps.mapbox
-    implementation "com.utsman.smartmarker:core:1.0.3@aar"
-    implementation "com.utsman.smartmarker:ext-mapbox:1.0.3@aar"
-    implementation "com.utsman.smartmarker:ext-location:1.0.3@aar"
 
     implementation Maps.gmsLocationService
     implementation Maps.rxLocation
