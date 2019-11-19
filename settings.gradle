@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-include ':app-passenger', ':app-driver', ':base', ':feature:auth', ':feature:backendless', ':feature:maputil', ':feature:places', ':feature:message'
+include ':app-passenger', ':app-driver', ':base', ':feature:auth', ':feature:backendless', ':feature:maputil', ':feature:places', ':feature:message', ':backend'
 rootProject.name='Kemana'

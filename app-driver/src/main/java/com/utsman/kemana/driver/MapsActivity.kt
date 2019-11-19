@@ -23,7 +23,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.camera.CameraPosition
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.utsman.kemana.auth.EventUser
 import com.utsman.kemana.auth.User
 import com.utsman.kemana.auth.stringToUser
@@ -31,14 +34,7 @@ import com.utsman.kemana.auth.toJSONObject
 import com.utsman.kemana.auth.userToString
 import com.utsman.kemana.backendless.BackendlessApp
 import com.utsman.kemana.base.Key
-import com.utsman.kemana.base.ext.calculateDistanceKm
-import com.utsman.kemana.base.ext.calculatePricing
-import com.utsman.kemana.base.ext.collapse
-import com.utsman.kemana.base.ext.hidden
-import com.utsman.kemana.base.ext.loadCircleUrl
-import com.utsman.kemana.base.ext.logi
-import com.utsman.kemana.base.ext.preferences
-import com.utsman.kemana.base.ext.replaceFragment
+import com.utsman.kemana.base.ext.*
 import com.utsman.kemana.base.rx.RxAppCompatActivity
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.driver.event.EventPassengerConfirm
@@ -52,6 +48,7 @@ import com.utsman.kemana.message.EventOrderData
 import com.utsman.kemana.places.PlaceRouteApp
 import com.utsman.rmqa.Rmqa
 import com.utsman.smartmarker.location.LocationWatcher
+import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.toLatLngMapbox
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
@@ -97,11 +94,18 @@ class MapsActivity : RxAppCompatActivity() {
         userDriver = (intent.getStringExtra("user") ?: "").stringToUser()
 
         locationWatcher.getLocation(this) { loc ->
-            mainMaps = MapsMain(this, loc.toLatLngMapbox()) { marker ->
+            mainMaps = MapsMain(
+                this,
+                compositeDisposable,
+                locationWatcher,
+                loc.toLatLngMapbox()
+            ) { marker ->
                 startService(intentService)
                 mapActive = MAIN_MAP
+
             }
             map_view.getMapAsync(mainMaps)
+
         }
 
         setupTopView(userDriver)
@@ -170,7 +174,6 @@ class MapsActivity : RxAppCompatActivity() {
         }
     }
 
-    @SuppressLint("InflateParams")
     @Subscribe
     fun onOrderComing(eventOrderData: EventOrderData) {
 
@@ -242,12 +245,14 @@ class MapsActivity : RxAppCompatActivity() {
     fun onPassengerConfirm(passengerConfirm: EventPassengerConfirm) {
         logi("passenger confirm map update")
 
-        pickupMaps = MapsPickup(this, userDriver, passengerConfirm.passengerData, compositeDisposable) {
-            //pickupFragment.setDistance(it.routes[0].distance)
-            replaceFragment(pickupFragment, R.id.main_frame_bottom)
-            bottomSheetLayout.collapse()
-        }
-        pickupMaps.setPaddingBottom(250)
+        pickupMaps =
+            MapsPickup(this, userDriver, passengerConfirm.passengerData, compositeDisposable) {
+                //pickupFragment.setDistance(it.routes[0].distance)
+                replaceFragment(pickupFragment, R.id.main_frame_bottom)
+                bottomSheetLayout.collapse()
+
+            }
+        pickupMaps.setPaddingBottom(550)
         map_view.getMapAsync(pickupMaps)
         mapActive = PICKUP_MAP
     }
