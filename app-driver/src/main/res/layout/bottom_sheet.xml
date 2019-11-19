@@ -22,7 +22,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:behavior_hideable="true"
-    app:behavior_peekHeight="200dp"
+    app:behavior_peekHeight="250dp"
     app:cardCornerRadius="16dp"
     app:cardElevation="5dp"
     app:layout_behavior="com.utsman.kemana.base.view.BottomSheetUnDrag">

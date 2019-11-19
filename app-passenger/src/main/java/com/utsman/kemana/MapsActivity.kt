@@ -181,6 +181,7 @@ class MapsActivity : RxAppCompatActivity() {
 
                 Rmqa.publishTo(listDriver[i]!!.userId, orderData.userId, findingData)
                 finderStatus = true
+                position = i
             } catch (e: IndexOutOfBoundsException) {
                 toast("cannot finding ojek --> ${e.printStackTrace()}")
                 if (dialog != null) {
@@ -298,10 +299,11 @@ class MapsActivity : RxAppCompatActivity() {
 
     private fun userStarted() {
         bottomSheetLayout.hidden()
+        onOrder = false
+        position = 0
+
         val mapStart = MapsStart(this, compositeDisposable) {
             bottomSheetLayout.peekHeight = dp(200)
-            onOrder = false
-            position = 0
             replaceFragment(bottomStart, R.id.main_frame_bottom)
         }
         mapStart.setPaddingBottom(dp(200))

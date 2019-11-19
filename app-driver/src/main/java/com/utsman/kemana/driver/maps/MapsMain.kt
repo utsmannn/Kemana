@@ -20,23 +20,35 @@ import android.content.Context
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
+import com.mapbox.mapboxsdk.location.LocationComponentOptions
+import com.mapbox.mapboxsdk.location.modes.CameraMode
+import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.utsman.kemana.base.ext.addTimer
 import com.utsman.kemana.driver.R
 import com.utsman.kemana.maputil.EventTracking
+import com.utsman.smartmarker.location.LocationWatcher
 import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker
+import com.utsman.smartmarker.mapbox.toLatLngMapbox
+import io.reactivex.disposables.CompositeDisposable
 
 class MapsMain(private val context: Context,
+               private val disposable: CompositeDisposable,
+               private val locationWatcher: LocationWatcher,
                private val currentLatLng: LatLng,
-               private val onReady: (Marker?) -> Unit) : OnMapReadyCallback {
+               private val onReady: (MapboxMap?) -> Unit) : OnMapReadyCallback {
 
     private lateinit var style: Style
     private var marker: Marker? = null
+    private var map: MapboxMap? = null
 
     override fun onMapReady(mapboxMap: MapboxMap) {
+        map = mapboxMap
         mapboxMap.setStyle(Style.OUTDOORS) { style ->
             this.style = style
 
@@ -56,11 +68,38 @@ class MapsMain(private val context: Context,
             val markerLayer = mapboxMap.addMarker(markerOption)
             marker = markerLayer.get("driver")
 
-            onReady.invoke(marker)
+            onReady.invoke(mapboxMap)
+
+            /*disposable.addTimer(5) {
+                locationWatcher.getLocation {
+                    val newPosition = CameraPosition.Builder()
+                        .target(it.toLatLngMapbox())
+                        .build()
+
+                    val cameraPosition = CameraUpdateFactory.newCameraPosition(newPosition)
+                    map?.animateCamera(cameraPosition)
+                }
+            }*/
+
+            val locationComponentOption = LocationComponentOptions.builder(context)
+                .bearingTintColor(R.color.colorPrimary)
+                .accuracyAlpha(0.8f) // 0.0f - 1.0f
+                .build()
+
+            val locationComponentActivationOptions = LocationComponentActivationOptions
+                .builder(context, style)
+                .locationComponentOptions(locationComponentOption)
+                .useDefaultLocationEngine(true)
+                .build()
+
+            val locationComponent = mapboxMap.locationComponent
+            locationComponent.activateLocationComponent(locationComponentActivationOptions)
+
+            locationComponent.isLocationComponentEnabled = true
+            locationComponent.cameraMode = CameraMode.TRACKING_GPS
+            locationComponent.renderMode = RenderMode.NORMAL
         }
     }
-
-
 
     fun onEventTracker(eventTracking: EventTracking) {
         marker?.moveMarkerSmoothly(eventTracking.latLngUpdater.newLatLng)

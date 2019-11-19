@@ -16,48 +16,52 @@
 
 package com.utsman.kemana.driver.maps
 
+import android.graphics.Color
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Observer
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.LineString
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.layers.CannotAddLayerException
+import com.mapbox.mapboxsdk.style.layers.LineLayer
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory
+import com.mapbox.mapboxsdk.style.sources.CannotAddSourceException
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import com.mapbox.mapboxsdk.utils.ColorUtils
 import com.utsman.kemana.auth.User
+import com.utsman.kemana.base.ext.loge
+import com.utsman.kemana.base.ext.logi
 import com.utsman.kemana.driver.R
 import com.utsman.kemana.maputil.EventTracking
+import com.utsman.kemana.places.PlaceRouteApp
+import com.utsman.kemana.places.Route
 import com.utsman.rmqa.Rmqa
-import com.utsman.rmqa.RmqaConnection
 import com.utsman.smartmarker.mapbox.MarkerLayer
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker
+import io.reactivex.disposables.CompositeDisposable
 import org.json.JSONObject
 
 class MapsPickup(
     private val activity: FragmentActivity,
     private val driver: User,
     private val user: User,
-    private val ready: (driver: User) -> Unit
+    private val disposable: CompositeDisposable,
+    private val ready: (route: Route) -> Unit
 ) : OnMapReadyCallback {
 
     private var paddingBottom = 0
     private lateinit var markerLayer: MarkerLayer
 
+    private val placeRouteApp = PlaceRouteApp(disposable)
+
     fun setPaddingBottom(paddingBottom: Int) {
         this.paddingBottom = paddingBottom
-    }
-
-    private val trackerConnection by lazy {
-        RmqaConnection.Builder(activity)
-            .setServer("orangutan.rmq.cloudamqp.com")
-            .setUsername("wtivlbpg")
-            .setPassword("Iy9YuSSjFqPX9aBYH0A7dzA67ViJrWiv")
-            .setVhost("wtivlbpg")
-            .setExchangeName("exchange_tracker")
-            .setConnectionName("connection_tracker")
-            .setRoutingKey("route_key")
-            .setAutoClearQueue(true) // By default it is `false`, when the connection is closed, the queue will be cleared
-            .build()
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -82,13 +86,23 @@ class MapsPickup(
                 .setId("passenger")
                 .build(activity)
 
-            ready.invoke(driver)
-
-            markerLayer = mapboxMap.addMarker(markerOptionDriver, markerOptionsPassenger)
-
             val cameraPosition = CameraUpdateFactory.newLatLngBounds(
                 position, 200, 200, 200, paddingBottom + 200)
             mapboxMap.animateCamera(cameraPosition)
+
+            val bodyString = "coordinates=" +
+                "${driverLatLng.longitude}," +
+                "${driverLatLng.latitude};" +
+                "${passengerLatLng.longitude}," +
+                "${passengerLatLng.latitude}"
+
+            placeRouteApp.getRoute(bodyString).observe(activity, Observer {
+                it?.let { route ->
+                    ready.invoke(route)
+                    getRouteLine(driverLatLng, passengerLatLng, route, mapboxMap, style)
+                    markerLayer = mapboxMap.addMarker(markerOptionDriver, markerOptionsPassenger)
+                }
+            })
         }
     }
 
@@ -102,5 +116,53 @@ class MapsPickup(
         jsonTracker.put("lon", eventTracking.latLngUpdater.newLatLng.longitude)
 
         Rmqa.publishTo(user.userId, driver.userId, jsonTracker)
+    }
+
+    private fun getRouteLine(fromLatLng: LatLng, toLatLng: LatLng, route: Route, mapboxMap: MapboxMap, style: Style) {
+        val geometry = route.routes[0].geometry
+        val id = "source-route"
+
+        logi(route.routes[0].geometry)
+
+        val lineString = LineString.fromPolyline(geometry, 5)
+        val featureRoute = Feature.fromGeometry(lineString)
+        val sourceRoute = GeoJsonSource(id, featureRoute)
+
+        val latLngBounds = LatLngBounds.Builder()
+            .include(LatLng(route.waypoints[0].location[1], route.waypoints[0].location[0]))
+            .include(LatLng(route.waypoints[1].location[1], route.waypoints[1].location[0]))
+            .include(fromLatLng)
+            .include(toLatLng)
+            .build()
+
+        mapboxMap.animateCamera(
+            CameraUpdateFactory.newLatLngBounds(
+                latLngBounds,
+                200, 200, 200, paddingBottom + 200
+            )
+        )
+
+        try {
+            style.addSource(sourceRoute)
+        } catch (e: IllegalStateException) {
+            logi("tai")
+        } catch (e: CannotAddSourceException) {
+            loge("anjay ada source")
+        }
+
+        val lineLayer = LineLayer(id, id).apply {
+            withProperties(
+                PropertyFactory.lineColor(ColorUtils.colorToRgbaString(Color.parseColor("#3bb2d0"))),
+                PropertyFactory.lineWidth(3f)
+            )
+        }
+
+        try {
+            style.addLayer(lineLayer)
+        } catch (e: IllegalStateException) {
+            logi("layer")
+        } catch (e: CannotAddLayerException) {
+            loge("anjay ada layer")
+        }
     }
 }

@@ -51,5 +51,6 @@ dependencies {
     kapt Design.glideKapt
 
     implementation Rx.rxJava
+    implementation Rx.rxAndroid
     api Design.fonty
 }
