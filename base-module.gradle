@@ -28,4 +28,6 @@ dependencies {
 
     implementation Rx.rxJava
     implementation Rx.rxAndroid
+
+    implementation Design.material
 }
