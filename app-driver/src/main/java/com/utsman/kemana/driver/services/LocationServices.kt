@@ -41,6 +41,7 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
     override fun onLocationReady(latLng: LatLng) {
         val locationSubs = LocationSubs(latLng)
         Notify.send(locationSubs)
+
     }
 
     override fun onLocationUpdate(newLatLng: LatLng) {
