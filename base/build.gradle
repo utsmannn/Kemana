@@ -5,7 +5,6 @@ apply plugin: 'kotlin-kapt'
 
 
 dependencies {
-
     api Design.glide
     kapt Design.glideKapt
 }

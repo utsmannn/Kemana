@@ -40,8 +40,6 @@ dependencies {
     implementation Design.material
     implementation Design.slideButton
 
-    implementation 'com.ebanx:swipe-button:0.8.3'
-
     implementation Rx.rxJava
     implementation Rx.rxAndroid
 
