@@ -20,6 +20,12 @@ build/
 *.iml
 *.ipr
 out/
+/build/classes
+/build/kotlin
+/build/reports
+/build/resources
+/build/test-results
+/build/tmp
 
 ### NetBeans ###
 /nbproject/private/
