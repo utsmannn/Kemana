@@ -30,6 +30,7 @@ object Core {
     val permission          = "com.karumi:dexter:5.0.0"
     val multidex            = "androidx.multidex:multidex:2.0.1"
     val eventBus            = "org.greenrobot:eventbus:3.1.1"
+    val notify              = "com.github.isfaaghyth:notify:1.0"
 }
 
 object Maps {

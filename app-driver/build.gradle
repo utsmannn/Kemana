@@ -6,10 +6,6 @@ ext {
     appId = "com.utsman.kemana.driver"
 }
 
-android {
-
-}
-
 dependencies {
     implementation project(":base")
 }

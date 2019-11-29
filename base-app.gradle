@@ -5,7 +5,7 @@ android {
 
     defaultConfig {
         applicationId appId
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -31,6 +31,8 @@ dependencies {
     implementation Core.kotlin
     implementation Core.appCompat
     implementation Core.ktx
+    implementation Core.permission
+    implementation Core.notify
 
     implementation Rx.rxJava
     implementation Rx.rxAndroid
@@ -38,7 +40,10 @@ dependencies {
     implementation Maps.mapbox
     implementation Maps.smartMarker
     implementation Maps.smartMarkerMapbox
+    implementation Maps.smartMarkerLocation
 
     implementation Maps.gmsLocationService
     implementation Maps.rxLocation
+
+
 }
