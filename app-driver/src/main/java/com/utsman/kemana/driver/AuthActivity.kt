@@ -25,7 +25,6 @@ class AuthActivity : AppCompatActivity(), LoginResultListener {
 
         btn_google_sign.setOnClickListener {
             googleLogin.signIn(this)
-            finish()
         }
     }
 
@@ -42,6 +41,7 @@ class AuthActivity : AppCompatActivity(), LoginResultListener {
     override fun onLoginSuccess(user: FirebaseUser?) {
         logi("login success")
         intentTo(MainActivity::class.java)
+        finish()
     }
 
     override fun onLogoutSuccess(task: Task<Void>?) {
