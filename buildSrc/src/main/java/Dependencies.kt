@@ -33,6 +33,12 @@ object Core {
     val notify              = "com.github.isfaaghyth:notify:1.0"
 }
 
+object Firebase {
+    val google_auth         = "com.google.firebase:firebase-auth:19.2.0"
+    val google_auth_ui      = "com.firebaseui:firebase-ui-auth:4.3.0"
+    val google_auth_helper  = "com.utsman:easygooglelogin:1.0.10"
+}
+
 object Maps {
     val mapbox              = "com.mapbox.mapboxsdk:mapbox-android-sdk:8.4.0"
     val gmsLocationService  = "com.google.android.gms:play-services-location:17.0.0"

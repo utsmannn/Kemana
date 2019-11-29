@@ -12,6 +12,11 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 fun Context.toast(msg: String?) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 
@@ -43,4 +48,19 @@ fun Fragment.intentTo(c: Class<*>, bundle: Bundle? = null)  {
             putExtras(bundle)
     }
     startActivity(intent)
+}
+
+fun CompositeDisposable.timer(interval: Long, action: () -> Unit) {
+
+    val subs = Observable.interval(interval, TimeUnit.MILLISECONDS)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe ({
+            action.invoke()
+        }, {
+            loge(it.localizedMessage)
+            it.printStackTrace()
+        })
+
+    add(subs)
 }

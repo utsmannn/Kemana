@@ -17,6 +17,7 @@ import isfaaghyth.app.notify.NotifyProvider
 class LocationServices : RxService(), ILocationView, ILocationUpdateView {
 
     private lateinit var locationPresenter: LocationPresenter
+    private var defaultLatLng = LatLng()
 
     override fun onCreate() {
         super.onCreate()
@@ -45,5 +46,13 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
     override fun onLocationUpdate(newLatLng: LatLng) {
         val updateLocationSubs = UpdateLocationSubs(newLatLng)
         Notify.send(updateLocationSubs)
+    }
+
+    override fun onLocationUpdateOld(oldLatLng: LatLng) {
+        defaultLatLng = oldLatLng
+    }
+
+    override fun getNowLocation() {
+        logi("anjay")
     }
 }
