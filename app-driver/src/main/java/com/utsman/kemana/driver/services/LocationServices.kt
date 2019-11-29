@@ -1,8 +1,7 @@
 package com.utsman.kemana.driver.services
 
-import android.content.Intent
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.utsman.kemana.base.KEY
+import com.utsman.kemana.base.NotifyState
 import com.utsman.kemana.base.RxService
 import com.utsman.kemana.base.loge
 import com.utsman.kemana.base.logi
@@ -10,6 +9,7 @@ import com.utsman.kemana.driver.impl.ILocationUpdateView
 import com.utsman.kemana.driver.impl.ILocationView
 import com.utsman.kemana.driver.presenter.LocationPresenter
 import com.utsman.kemana.driver.subscriber.LocationSubs
+import com.utsman.kemana.driver.subscriber.UpdateLocationSubs
 import io.reactivex.functions.Consumer
 import isfaaghyth.app.notify.Notify
 import isfaaghyth.app.notify.NotifyProvider
@@ -23,11 +23,11 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         locationPresenter = LocationPresenter(this)
         locationPresenter.initLocation(this)
 
-        Notify.listen(Int::class.java, NotifyProvider(), Consumer { value ->
+        Notify.listen(NotifyState::class.java, NotifyProvider(), Consumer { value ->
             logi("location update started")
 
-            when (value) {
-                KEY.UPDATE_LOCATION -> {
+            when (value.state) {
+                NotifyState.UPDATE_LOCATION -> {
                     locationPresenter.startLocationUpdate(this)
                 }
             }
@@ -37,13 +37,13 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         })
     }
 
-    override fun locationReady(latLng: LatLng) {
-        val updateLocationSubs = LocationSubs(latLng)
-        Notify.send(updateLocationSubs)
+    override fun onLocationReady(latLng: LatLng) {
+        val locationSubs = LocationSubs(latLng)
+        Notify.send(locationSubs)
     }
 
     override fun onLocationUpdate(newLatLng: LatLng) {
-        val updateLocationSubs = LocationSubs(newLatLng)
+        val updateLocationSubs = UpdateLocationSubs(newLatLng)
         Notify.send(updateLocationSubs)
     }
 }

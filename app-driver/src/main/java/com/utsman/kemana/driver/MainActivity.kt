@@ -30,9 +30,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : RxAppCompatActivity(), IMapView {
 
-
     private lateinit var mapsPresenter: MapsPresenter
-    private lateinit var marker: Marker
+    private var marker: Marker? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +46,7 @@ class MainActivity : RxAppCompatActivity(), IMapView {
 
             Handler().postDelayed({
                 logi("location update started --> activity")
-                Notify.send(KEY.UPDATE_LOCATION)
+                Notify.send(NotifyState(NotifyState.UPDATE_LOCATION))
             }, 200)
         }
 
@@ -74,7 +73,7 @@ class MainActivity : RxAppCompatActivity(), IMapView {
                     .setId("me")
                     .build(this)
 
-                marker = mapbox.addMarker(markerOption).get("me")!!
+                marker = mapbox.addMarker(markerOption).get("me")
 
                 mapbox.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17.0))
             }
@@ -82,7 +81,7 @@ class MainActivity : RxAppCompatActivity(), IMapView {
     }
 
     override fun onLocationUpdate(newLatLng: LatLng) {
-        marker.moveMarkerSmoothly(newLatLng)
+        marker?.moveMarkerSmoothly(newLatLng)
     }
 
     private fun setupPermission(ready: () -> Unit) {
