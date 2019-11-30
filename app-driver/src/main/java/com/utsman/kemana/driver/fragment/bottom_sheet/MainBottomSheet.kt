@@ -8,9 +8,11 @@ import androidx.core.content.ContextCompat
 import com.ncorti.slidetoact.SlideToActView
 import com.utsman.kemana.base.RxFragment
 import com.utsman.kemana.driver.R
+import com.utsman.kemana.driver.impl.view_state.IActiveState
+import com.utsman.kemana.remote.Driver
 import kotlinx.android.synthetic.main.bottom_sheet_frg_main.view.*
 
-class MainBottomSheet : RxFragment() {
+class MainBottomSheet(private val iActiveState: IActiveState) : RxFragment() {
 
     private var orderReady = false
 
@@ -33,13 +35,12 @@ class MainBottomSheet : RxFragment() {
                     view.text = "Aktifkan Order"
                     view.outerColor = ContextCompat.getColor(context!!, R.color.colorAccent)
                     view.iconColor = ContextCompat.getColor(context!!, R.color.colorAccent)
-
-
-
+                    iActiveState.deactiveState()
                 } else {
                     view.text = "Order Aktif"
                     view.outerColor = ContextCompat.getColor(context!!, R.color.colorPrimary)
                     view.iconColor = ContextCompat.getColor(context!!, R.color.colorPrimary)
+                    iActiveState.activeState()
                 }
             }
         }

@@ -3,12 +3,17 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
-
 dependencies {
+    implementation project(":base")
+
     implementation Retrofit.retrofit
     implementation Retrofit.loggingInterceptor
     implementation Retrofit.rxAdapter
     implementation Retrofit.gsonConverter
+}
+
+androidExtensions {
+    experimental = true
 }
 
 apply from: '../../base-module.gradle'

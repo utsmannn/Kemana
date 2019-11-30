@@ -7,6 +7,8 @@ apply plugin: 'kotlin-kapt'
 dependencies {
     api Design.glide
     kapt Design.glideKapt
+
+    implementation Core.notify
 }
 
 apply from: '../base-module.gradle'

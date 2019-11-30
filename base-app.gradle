@@ -55,5 +55,4 @@ dependencies {
     implementation Firebase.google_auth_ui
     implementation Firebase.google_auth_helper
 
-
 }

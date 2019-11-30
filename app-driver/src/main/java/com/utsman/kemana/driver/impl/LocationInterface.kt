@@ -1,6 +1,5 @@
 package com.utsman.kemana.driver.impl
 
-import android.content.Context
 import com.mapbox.mapboxsdk.geometry.LatLng
 
 interface LocationInterface {

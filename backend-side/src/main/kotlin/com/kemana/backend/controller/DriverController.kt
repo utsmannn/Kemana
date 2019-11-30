@@ -1,7 +1,8 @@
 package com.kemana.backend.controller
 
+import com.kemana.backend.model.Position
 import com.kemana.backend.model.Responses
-import com.kemana.backend.model.User
+import com.kemana.backend.model.Driver
 import com.kemana.backend.repository.DriverRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
@@ -21,7 +22,7 @@ class DriverController {
     }
 
     @RequestMapping(value = ["/"], method = [RequestMethod.POST])
-    fun saveDriver(@Valid @RequestBody driver: User): Responses {
+    fun saveDriver(@Valid @RequestBody driver: Driver): Responses {
         driver.id = UUID.randomUUID().toString()
         driverRepository.save(driver)
         return Responses("OK", listOf(driver))
@@ -31,5 +32,25 @@ class DriverController {
     fun getDriver(@PathVariable("id") id: String): Responses {
         val driver = driverRepository.findDriverById(id)
         return Responses("OK", listOf(driver))
+    }
+
+    @RequestMapping(value = ["/{id}"], method = [RequestMethod.PUT])
+    fun editPosition(@PathVariable("id") id: String, @Valid @RequestBody position: Position): Responses {
+        val driver = driverRepository.findDriverById(id)
+        driver?.position = position
+        driverRepository.save(driver!!)
+        return Responses("OK", listOf(driver))
+    }
+
+    @RequestMapping(value = ["/{id}"], method = [RequestMethod.DELETE])
+    fun deleteDriver(@PathVariable("id") id: String): Responses {
+        val driver = driverRepository.findDriverById(id)
+
+        return if (driver != null) {
+            driver.let { driverRepository.delete(it) }
+            Responses("OK", listOf(null))
+        } else {
+            Responses("FAILED", listOf(null))
+        }
     }
 }

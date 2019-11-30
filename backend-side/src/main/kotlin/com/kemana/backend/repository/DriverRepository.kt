@@ -1,9 +1,9 @@
 package com.kemana.backend.repository
 
-import com.kemana.backend.model.User
+import com.kemana.backend.model.Driver
 import org.springframework.data.mongodb.repository.MongoRepository
 
-interface DriverRepository : MongoRepository<User, String> {
-    fun findDriverById(id: String) : User
-    fun findDriverByEmail(email: String) : User
+interface DriverRepository : MongoRepository<Driver, String> {
+    fun findDriverById(id: String) : Driver?
+    fun findDriverByEmail(email: String) : Driver
 }

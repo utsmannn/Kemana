@@ -3,12 +3,14 @@ package com.utsman.kemana.driver
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseUser
 import com.utsman.easygooglelogin.EasyGoogleLogin
 import com.utsman.easygooglelogin.LoginResultListener
 import com.utsman.kemana.base.intentTo
 import com.utsman.kemana.base.logi
+import com.utsman.kemana.remote.Driver
 import kotlinx.android.synthetic.main.component_login_screen.*
 
 class AuthActivity : AppCompatActivity(), LoginResultListener {
@@ -38,9 +40,16 @@ class AuthActivity : AppCompatActivity(), LoginResultListener {
         googleLogin.onActivityResult(this, requestCode, data)
     }
 
-    override fun onLoginSuccess(user: FirebaseUser?) {
+    override fun onLoginSuccess(user: FirebaseUser) {
         logi("login success")
-        intentTo(MainActivity::class.java)
+        val driver = Driver(
+            name = user.displayName,
+            email = user.email,
+            photoUrl = user.photoUrl.toString()
+        )
+
+        val bundle = bundleOf("driver" to driver)
+        intentTo(MainActivity::class.java, bundle)
         finish()
     }
 

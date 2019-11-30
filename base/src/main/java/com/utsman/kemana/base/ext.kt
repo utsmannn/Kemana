@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -15,8 +16,13 @@ import com.bumptech.glide.Glide
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
+import isfaaghyth.app.notify.Notify
+import isfaaghyth.app.notify.NotifyProvider
 import java.util.concurrent.TimeUnit
+import android.os.Handler
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 fun Context.toast(msg: String?) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 
@@ -50,6 +56,8 @@ fun Fragment.intentTo(c: Class<*>, bundle: Bundle? = null)  {
     startActivity(intent)
 }
 
+fun <T: Parcelable>Activity.getBundleFrom(key: String): T? = intent.extras?.getParcelable(key)
+
 fun CompositeDisposable.timer(interval: Long, action: () -> Unit) {
 
     val subs = Observable.interval(interval, TimeUnit.MILLISECONDS)
@@ -63,4 +71,48 @@ fun CompositeDisposable.timer(interval: Long, action: () -> Unit) {
         })
 
     add(subs)
+}
+
+fun Notify.listen(state: (Int) -> Unit) {
+    listen(NotifyState::class.java, NotifyProvider(), Consumer { value ->
+        logi("notify receiving")
+        state.invoke(value.state)
+    }, Consumer {
+        loge(it.localizedMessage)
+        it.printStackTrace()
+    })
+}
+
+fun BottomSheetBehavior<*>.expand() {
+    isHideable = true
+    state = BottomSheetBehavior.STATE_EXPANDED
+
+    Handler().postDelayed({
+        isHideable = false
+    }, 500)
+}
+
+fun BottomSheetBehavior<*>.hidden() {
+    isHideable = true
+    state = BottomSheetBehavior.STATE_HIDDEN
+}
+
+fun BottomSheetBehavior<*>.collapse() {
+    isHideable = true
+    state = BottomSheetBehavior.STATE_COLLAPSED
+    Handler().postDelayed({
+        isHideable = false
+    }, 500)
+}
+
+fun BottomSheetBehavior<*>.isExpand(): Boolean {
+    return state == BottomSheetBehavior.STATE_EXPANDED
+}
+
+fun BottomSheetBehavior<*>.isCollapse(): Boolean {
+    return state == BottomSheetBehavior.STATE_COLLAPSED
+}
+
+fun BottomSheetBehavior<*>.isHidden(): Boolean {
+    return state == BottomSheetBehavior.STATE_HIDDEN
 }

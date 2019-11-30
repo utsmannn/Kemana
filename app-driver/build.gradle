@@ -9,6 +9,7 @@ ext {
 
 dependencies {
     implementation project(":base")
+    implementation project(":feature:remote")
 }
 
 apply from: '../base-app.gradle'

@@ -5,6 +5,7 @@ package com.utsman.kemana.driver
 import android.Manifest
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.karumi.dexter.Dexter
@@ -14,21 +15,23 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import com.mapbox.mapboxsdk.Mapbox
-import com.utsman.kemana.base.MAPKEY
-import com.utsman.kemana.base.RxAppCompatActivity
-import com.utsman.kemana.base.loge
-import com.utsman.kemana.base.replaceFragment
+import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.driver.fragment.MainFragment
 import com.utsman.kemana.driver.fragment.bottom_sheet.MainBottomSheet
+import com.utsman.kemana.driver.impl.view_state.IActiveState
 import com.utsman.kemana.driver.services.LocationServices
+import com.utsman.kemana.remote.Driver
+import com.utsman.kemana.remote.RemoteState
+import isfaaghyth.app.notify.Notify
 import kotlinx.android.synthetic.main.bottom_sheet.*
 
-class MainActivity : RxAppCompatActivity() {
+class MainActivity : RxAppCompatActivity(), IActiveState {
 
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
     private lateinit var mainFragment: MainFragment
     private lateinit var mainBottomSheetFragment: MainBottomSheet
+    private var driver: Driver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,19 +40,52 @@ class MainActivity : RxAppCompatActivity() {
 
         bottomSheet = BottomSheetBehavior.from(main_bottom_sheet) as BottomSheetUnDrag<View>
         bottomSheet.setAllowUserDragging(false)
+        bottomSheet.hidden()
 
         mainFragment = MainFragment()
-
-        mainBottomSheetFragment = MainBottomSheet()
+        mainBottomSheetFragment = MainBottomSheet(this)
+        driver = getBundleFrom("driver")
 
         setupPermission {
             val service = LocationServices()
             val intentService = Intent(this, service.javaClass)
             startService(intentService)
+
+            Handler().postDelayed({
+                driver?.let {
+                    Notify.send(it)
+                }
+            }, 900)
         }
 
         replaceFragment(mainFragment, R.id.main_frame)
         replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
+
+        Notify.listen { state ->
+            when (state) {
+                NotifyState.READY -> {
+                    bottomSheet.collapse()
+                }
+            }
+        }
+    }
+
+    override fun activeState() {
+        logi("state --> driver active")
+        Notify.send(NotifyState(RemoteState.EDIT_DRIVER))
+
+        Handler().postDelayed({
+            Notify.send(NotifyState(RemoteState.INSERT_DRIVER))
+        }, 200)
+    }
+
+    override fun deactiveState() {
+        logi("state --> drive deactive")
+        Notify.send(NotifyState(RemoteState.STOP_EDIT_DRIVER))
+
+        Handler().postDelayed({
+            Notify.send(NotifyState(RemoteState.DELETE_DRIVER))
+        }, 200)
     }
 
     private fun setupPermission(ready: () -> Unit) {
