@@ -67,6 +67,7 @@ data class OriginPlaces(
 data class Places(
         val id: String?,
         val placeName: String?,
+        val addressName: String?,
         val geometry: List<Double?>?
 )
 

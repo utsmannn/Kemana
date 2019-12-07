@@ -61,6 +61,7 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
         replaceFragment(mainFragment, R.id.main_frame)
         replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
 
+
         Notify.listenNotifyState { state ->
             when (state) {
                 NotifyState.READY -> {
