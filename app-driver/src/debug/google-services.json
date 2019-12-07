@@ -15,6 +15,51 @@
       },
       "oauth_client": [
         {
+          "client_id": "669132824190-37n909lm3mulal35dfl5t7mminl2bpus.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.utsman.kemana",
+            "certificate_hash": "312738dc9706bf9e44ff87300d346dcdaf7eb91d"
+          }
+        },
+        {
+          "client_id": "669132824190-2c93ab68asfu6bv5gpv30o8565ge5rlr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBniJZ_naF3arQW-jzn-1ywwBkiproS7KE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "669132824190-2c93ab68asfu6bv5gpv30o8565ge5rlr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:669132824190:android:c6023c9152c67397c4422f",
+        "android_client_info": {
+          "package_name": "com.utsman.kemana.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "669132824190-129vgf3rao3hqe647assc780d8j3udph.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.utsman.kemana.debug",
+            "certificate_hash": "312738dc9706bf9e44ff87300d346dcdaf7eb91d"
+          }
+        },
+        {
           "client_id": "669132824190-2c93ab68asfu6bv5gpv30o8565ge5rlr.apps.googleusercontent.com",
           "client_type": 3
         }
