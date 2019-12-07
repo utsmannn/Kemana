@@ -23,7 +23,7 @@ class DriverController {
 
     @RequestMapping(value = ["/"], method = [RequestMethod.POST])
     fun saveDriver(@Valid @RequestBody driver: Driver): Responses {
-        driver.id = UUID.randomUUID().toString()
+        driver.id = UUID.nameUUIDFromBytes(driver.email.toByteArray()).toString()
         driverRepository.save(driver)
         return Responses("OK", listOf(driver))
     }

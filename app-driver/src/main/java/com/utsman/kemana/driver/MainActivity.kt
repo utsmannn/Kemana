@@ -3,6 +3,7 @@
 package com.utsman.kemana.driver
 
 import android.Manifest
+import android.app.IntentService
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -31,12 +32,14 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
     private lateinit var mainFragment: MainFragment
     private lateinit var mainBottomSheetFragment: MainBottomSheet
+    private lateinit var locationServices: Intent
     private var driver: Driver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, MAPKEY)
         setContentView(R.layout.activity_main)
+        locationServices = Intent(this, LocationServices::class.java)
 
         bottomSheet = BottomSheetBehavior.from(main_bottom_sheet) as BottomSheetUnDrag<View>
         bottomSheet.setAllowUserDragging(false)
@@ -47,9 +50,7 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
         driver = getBundleFrom("driver")
 
         setupPermission {
-            val service = LocationServices()
-            val intentService = Intent(this, service.javaClass)
-            startService(intentService)
+            startService(locationServices)
 
             Handler().postDelayed({
                 driver?.let {
@@ -61,7 +62,7 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
         replaceFragment(mainFragment, R.id.main_frame)
         replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
 
-        Notify.listen { state ->
+        Notify.listenNotifyState { state ->
             when (state) {
                 NotifyState.READY -> {
                     bottomSheet.collapse()
@@ -73,19 +74,11 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
     override fun activeState() {
         logi("state --> driver active")
         Notify.send(NotifyState(RemoteState.INSERT_DRIVER))
-
-        Handler().postDelayed({
-        }, 200)
     }
 
     override fun deactiveState() {
         logi("state --> drive deactive")
-        //Notify.send(NotifyState(RemoteState.STOP_EDIT_DRIVER))
         Notify.send(NotifyState(RemoteState.DELETE_DRIVER))
-
-
-        /*Handler().postDelayed({
-        }, 200)*/
     }
 
     private fun setupPermission(ready: () -> Unit) {
@@ -109,5 +102,14 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
 
             })
             .check()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        deactiveState()
+
+        Handler().postDelayed({
+            stopService(locationServices)
+        },  800)
     }
 }

@@ -6,5 +6,8 @@ data class NotifyState(val state: Int) {
         const val UPDATE_LOCATION = 0
         const val UPDATE_CAMERA = 1
         const val READY = 2
+
+        const val DRIVER_READY = 1100
+        const val DRIVER_UNREADY = 1101
     }
 }

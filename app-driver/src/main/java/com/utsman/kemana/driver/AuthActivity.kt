@@ -48,6 +48,7 @@ class AuthActivity : AppCompatActivity(), LoginResultListener {
             photoUrl = user.photoUrl.toString()
         )
 
+        saveEmail(user.email!!)
         val bundle = bundleOf("driver" to driver)
         intentTo(MainActivity::class.java, bundle)
         finish()

@@ -1,7 +1,7 @@
 package com.utsman.kemana.remote
 
 interface RemoteListener {
-    fun insertDriver(driverItem: Driver, driver: (Driver?) -> Unit)
+    fun insertDriver(driverItem: Driver, driver: (success: Boolean, driver: Driver?) -> Unit)
     fun getDriversActive(list: (List<Driver>?) -> Unit)
     fun getDriver(id: String, driver: (Driver?) -> Unit)
     fun getDriver(id: String) : Driver?

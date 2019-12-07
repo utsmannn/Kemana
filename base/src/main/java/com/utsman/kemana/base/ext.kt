@@ -73,7 +73,7 @@ fun CompositeDisposable.timer(interval: Long, action: () -> Unit) {
     add(subs)
 }
 
-fun Notify.listen(state: (Int) -> Unit) {
+fun Notify.listenNotifyState(state: (Int) -> Unit) {
     listen(NotifyState::class.java, NotifyProvider(), Consumer { value ->
         logi("notify receiving")
         state.invoke(value.state)

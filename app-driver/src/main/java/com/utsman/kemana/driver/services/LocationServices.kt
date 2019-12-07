@@ -1,13 +1,12 @@
 package com.utsman.kemana.driver.services
 
+import android.content.Intent
 import android.os.Handler
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.utsman.kemana.base.NotifyState
-import com.utsman.kemana.base.RxService
-import com.utsman.kemana.base.listen
-import com.utsman.kemana.base.logi
+import com.utsman.kemana.base.*
+import com.utsman.kemana.driver.getEmail
 import com.utsman.kemana.driver.impl.ILocationUpdateView
 import com.utsman.kemana.driver.impl.ILocationView
 import com.utsman.kemana.driver.presenter.LocationPresenter
@@ -46,7 +45,6 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         super.onCreate()
         ready.postValue(false)
         onActive.postValue(false)
-        //livePosition.postValue(null)
 
         locationPresenter = LocationPresenter(this)
         locationPresenter.initLocation(this)
@@ -68,8 +66,12 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         }
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY
+    }
+
     private fun notifyListener() {
-        Notify.listen { state ->
+        Notify.listenNotifyState { state ->
             logi("location update started, state is --> $state")
 
             when (state) {
@@ -80,13 +82,22 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
                 RemoteState.INSERT_DRIVER -> {
                     livePosition.removeObserver(observerPosition)
 
-                    remotePresenter.insertDriver(driver!!) {
-                        email = it?.email
-                        driverId = it?.id
-                        logi("driver inserted --> id: ${it?.id}")
-                        onActive.postValue(true)
+                    remotePresenter.insertDriver(driver!!) { success, driver ->
+                        logi("driver == ${driver.toString()}, success == $success")
 
-                        livePosition.observeForever(observerPosition)
+                        if (!success) {
+                            logi("driver ready")
+                            Notify.send(NotifyState(NotifyState.DRIVER_UNREADY))
+                        } else {
+                            logi("driver unready")
+                            Notify.send(NotifyState(NotifyState.DRIVER_READY))
+                            email = driver!!.email
+                            driverId = driver.id
+                            logi("driver inserted --> id: ${driver.id}")
+                            onActive.postValue(true)
+
+                            livePosition.observeForever(observerPosition)
+                        }
                     }
                 }
 
@@ -114,12 +125,6 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
                     onActive.postValue(false)
 
                     logi("deleted --> ${driverId.toString()}")
-                    /*driverId?.let { id ->
-                        remotePresenter.deleteDriver(id) { status ->
-
-                            //onActive.postValue(false)
-                        }
-                    }*/
 
                     if (email != null) {
                         livePosition.removeObserver(observerPosition).apply {
@@ -130,7 +135,6 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
                                 email = null
                             }
                         }
-
                     }
                 }
             }
@@ -149,26 +153,6 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
 
         val position = Position(newLatLng.latitude, newLatLng.longitude)
         livePosition.postValue(position)
-
-        /*onActive.observeForever { active ->
-            if (active) {
-                *//*driverId?.let { id ->
-                    logi("activated status --> $active --> $driverId")
-                    remotePresenter.editDriver(id, Position(newLatLng.latitude, newLatLng.longitude)) {
-                        logi("driver edited --> id: ${it?.id}, position: ${it?.position.toString()}")
-                    }
-                }*//*
-
-                logi("email is --> $email")
-
-                email?.let { mail ->
-                    logi("activated status --> $active --> $mail")
-                    remotePresenter.editDriverByEmail(mail, Position(newLatLng.latitude, newLatLng.longitude)) {
-                        logi("driver edited --> id: ${it?.id}, position: ${it?.position.toString()}")
-                    }
-                }
-            }
-        }*/
     }
 
     override fun onLocationUpdateOld(oldLatLng: LatLng) {

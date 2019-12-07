@@ -11,20 +11,22 @@ class RemotePresenter : RemoteListener {
     private val disposable = CompositeDisposable()
     private val remoteInstance = RemoteInstance.create()
 
-    override fun insertDriver(driverItem: Driver, driver: (Driver?) -> Unit) {
+    override fun insertDriver(driverItem: Driver, driver: (success: Boolean, driver: Driver?) -> Unit) {
         val action = remoteInstance.insertDriver(driverItem)
             .subscribeOn(Schedulers.io())
             .map { it.data }
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnError {
+
+            }
             .subscribe({
                 if (!it.isNullOrEmpty()) {
-                    driver.invoke(it[0])
+                    driver.invoke(true, it[0])
                     logi("driver is ${it[0]}")
-                } else {
-                    driver.invoke(null)
                 }
             }, {
                 it.printThrow("insert driver")
+                driver.invoke(false,null)
             })
 
         disposable.add(action)
