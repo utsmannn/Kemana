@@ -18,6 +18,7 @@ import com.utsman.kemana.driver.impl.IMapView
 import com.utsman.kemana.driver.maps_callback.MainMaps
 import com.utsman.kemana.driver.presenter.MapsPresenter
 import com.utsman.kemana.driver.subscriber.LocationSubs
+import com.utsman.kemana.driver.subscriber.RotationSubs
 import com.utsman.kemana.driver.subscriber.UpdateLocationSubs
 import com.utsman.kemana.remote.RemoteState
 import com.utsman.smartmarker.mapbox.Marker
@@ -85,6 +86,8 @@ class MainFragment : RxFragment(), IMapView {
     override fun onLocationUpdate(newLatLng: LatLng) {
         this.newLatLng = newLatLng
         marker?.moveMarkerSmoothly(newLatLng)
+
+        Notify.send(RotationSubs(marker?.getRotation()))
     }
 
 }

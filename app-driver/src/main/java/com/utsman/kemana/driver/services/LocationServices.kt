@@ -11,6 +11,7 @@ import com.utsman.kemana.driver.impl.ILocationUpdateView
 import com.utsman.kemana.driver.impl.ILocationView
 import com.utsman.kemana.driver.presenter.LocationPresenter
 import com.utsman.kemana.driver.subscriber.LocationSubs
+import com.utsman.kemana.driver.subscriber.RotationSubs
 import com.utsman.kemana.driver.subscriber.UpdateLocationSubs
 import com.utsman.kemana.remote.*
 import io.reactivex.functions.Consumer
@@ -151,8 +152,10 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         val updateLocationSubs = UpdateLocationSubs(newLatLng)
         Notify.send(updateLocationSubs)
 
-        val position = Position(newLatLng.latitude, newLatLng.longitude)
-        livePosition.postValue(position)
+        Notify.listen(RotationSubs::class.java, NotifyProvider(), Consumer {
+            val position = Position(newLatLng.latitude, newLatLng.longitude, it.double)
+            livePosition.postValue(position)
+        })
     }
 
     override fun onLocationUpdateOld(oldLatLng: LatLng) {

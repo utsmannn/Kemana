@@ -4,25 +4,42 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-open class Driver(var id: String? = null,
-                  val name: String?,
-                  val email: String?,
-                  val photoUrl: String?,
-                  var position: Position? = null,
-                  var attribute: Attribute? = null) : Parcelable
+open class Driver(
+    var id: String? = null,
+    val name: String?,
+    val email: String?,
+    val photoUrl: String?,
+    var position: Position? = null,
+    var attribute: Attribute? = null
+) : Parcelable
 
 @Parcelize
-data class Position(var lat: Double? = 0.0,
-                    var lon: Double? = 0.0,
-                    var angle: Double? = 0.0) : Parcelable
+data class Passenger(
+    var id: String? = null,
+    val name: String?,
+    val email: String?,
+    val photoUrl: String?,
+    var position: Position? = null
+) : Parcelable
 
 @Parcelize
-data class Attribute(var vehiclesType: String? = "passenger",
-                     var vehiclesPlat: String? = "passenger",
-                     var onOrder: Boolean = false) : Parcelable
+data class Position(
+    var lat: Double? = 0.0,
+    var lon: Double? = 0.0,
+    var angle: Double? = 0.0
+) : Parcelable
 
-data class Responses(val message: String,
-                     val data: List<Driver>? = null)
+@Parcelize
+data class Attribute(
+    var vehiclesType: String? = "passenger",
+    var vehiclesPlat: String? = "passenger",
+    var onOrder: Boolean = false
+) : Parcelable
+
+data class Responses(
+    val message: String,
+    val data: List<Driver>? = null
+)
 
 object RemoteState {
     const val INSERT_DRIVER = 10

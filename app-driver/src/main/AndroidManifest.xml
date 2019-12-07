@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.utsman.kemana.driver">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:name="androidx.multidex.MultiDexApplication"

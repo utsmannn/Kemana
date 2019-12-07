@@ -1,4 +1,4 @@
-package com.utsman.kemana.driver.maps_callback
+package com.utsman.kemana.maps_callback
 
 import android.content.Context
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -6,7 +6,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.utsman.kemana.driver.R
+import com.utsman.kemana.R
 import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker

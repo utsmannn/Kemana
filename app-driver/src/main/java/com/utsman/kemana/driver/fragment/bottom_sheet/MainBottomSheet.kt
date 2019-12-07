@@ -1,13 +1,10 @@
 package com.utsman.kemana.driver.fragment.bottom_sheet
 
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.ncorti.slidetoact.SlideToActView
 import com.utsman.kemana.base.*
 import com.utsman.kemana.driver.R
@@ -38,7 +35,7 @@ class MainBottomSheet(private val iActiveState: IActiveState) : RxFragment() {
 
                 if (!orderReady) {
                     view.slideInActive()
-                    iActiveState.deactiveState()
+                    iActiveState.deactivateState()
                 } else {
                     view.slideActive()
                     iActiveState.activeState()

@@ -3,7 +3,6 @@
 package com.utsman.kemana.driver
 
 import android.Manifest
-import android.app.IntentService
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -76,7 +75,7 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
         Notify.send(NotifyState(RemoteState.INSERT_DRIVER))
     }
 
-    override fun deactiveState() {
+    override fun deactivateState() {
         logi("state --> drive deactive")
         Notify.send(NotifyState(RemoteState.DELETE_DRIVER))
     }
@@ -106,7 +105,7 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
 
     override fun onDestroy() {
         super.onDestroy()
-        deactiveState()
+        deactivateState()
 
         Handler().postDelayed({
             stopService(locationServices)
