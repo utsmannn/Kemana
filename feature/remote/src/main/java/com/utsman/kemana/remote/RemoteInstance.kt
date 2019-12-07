@@ -13,30 +13,32 @@ import retrofit2.http.*
 
 interface RemoteInstance {
 
-    @POST("/api/v1/")
+    // 124 000 715 7721
+
+    @POST("/api/v1/driver/")
     fun insertDriver(@Body driver: Driver): Flowable<Responses>
 
-    @GET("/api/v1/active")
+    @GET("/api/v1/driver/active")
     fun getAllDriver(): Flowable<Responses>
 
-    @GET("/api/v1/{id}")
+    @GET("/api/v1/driver/{id}")
     fun getDriver(@Path("id") id: String): Flowable<Responses>
 
-    @DELETE("/api/v1/{id}")
+    @DELETE("/api/v1/driver/{id}")
     fun deleteDriver(@Path("id") id: String): Flowable<Responses>
 
-    @DELETE("/api/v1")
+    @DELETE("/api/v1/driver")
     fun deleteDriverByEmail(
         @Query("email") email: String
     ): Flowable<Responses>
 
-    @PUT("/api/v1/{id}")
+    @PUT("/api/v1/driver/{id}")
     fun editDriver(
         @Path("id") id: String,
         @Body position: Position
     ): Flowable<Responses>
 
-    @PUT("/api/v1")
+    @PUT("/api/v1/driver")
     fun editDriverByEmail(
         @Query("email") email: String,
         @Body position: Position

@@ -11,7 +11,6 @@ import org.springframework.web.client.RestTemplate
 @RestController
 @RequestMapping("/api/v1/place")
 class PlaceController {
-
     private val restTemplate = RestTemplate()
 
     @RequestMapping(value = ["/search"], method = [RequestMethod.GET])

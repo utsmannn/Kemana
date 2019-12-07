@@ -10,7 +10,7 @@ import java.util.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/driver")
 class DriverController {
     @Autowired
     lateinit var driverRepository: DriverRepository

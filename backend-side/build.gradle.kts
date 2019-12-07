@@ -24,12 +24,6 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
-
-	implementation("com.google.code.gson:gson:2.8.6")
-	implementation("com.squareup.retrofit2:retrofit:2.6.2")
-	implementation("com.squareup.retrofit2:converter-gson:2.6.2")
-
-	implementation("io.reactivex.rxjava2:rxjava:2.2.15")
 }
 
 tasks.withType<Test> {
