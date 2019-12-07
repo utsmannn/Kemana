@@ -7,7 +7,6 @@ import com.kemana.backend.model.PlacesResponses
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 
-
 @RestController
 @RequestMapping("/api/v1/place")
 class PlaceController {

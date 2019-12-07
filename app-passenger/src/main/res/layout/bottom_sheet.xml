@@ -6,16 +6,14 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     app:behavior_hideable="false"
-    android:padding="12dp"
-    app:cardCornerRadius="16dp"
-    android:layout_margin="12dp"
+    android:padding="6dp"
     app:cardElevation="5dp"
+    app:cardCornerRadius="0dp"
     app:layout_behavior="com.utsman.kemana.base.view.BottomSheetUnDrag">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
         android:id="@+id/main_frame_bottom_sheet"/>
 
 </com.google.android.material.card.MaterialCardView>

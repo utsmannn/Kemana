@@ -16,9 +16,6 @@ class RemotePresenter : RemoteListener {
             .subscribeOn(Schedulers.io())
             .map { it.data }
             .observeOn(AndroidSchedulers.mainThread())
-            .doOnError {
-
-            }
             .subscribe({
                 if (!it.isNullOrEmpty()) {
                     driver.invoke(true, it[0])

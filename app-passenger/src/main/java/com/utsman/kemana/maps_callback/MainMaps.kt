@@ -1,12 +1,16 @@
 package com.utsman.kemana.maps_callback
 
 import android.content.Context
+import android.os.Handler
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.utsman.kemana.R
+import com.utsman.kemana.base.logi
+import com.utsman.kemana.remote.RemotePresenter
 import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker
@@ -19,17 +23,41 @@ class MainMaps(
 
     override fun onMapReady(mapbox: MapboxMap) {
 
+        val remotePresenter = RemotePresenter()
+
         mapbox.setStyle(Style.MAPBOX_STREETS) { style ->
             val markerOption = MarkerOptions.Builder()
-                .addIcon(R.drawable.mapbox_marker_icon_default)
-                .addPosition(startLatLng)
+                .setIcon(R.drawable.mapbox_marker_icon_default)
+                .setPosition(startLatLng)
                 .setId("me")
                 .build(context!!)
 
             val marker = mapbox.addMarker(markerOption).get("me")
 
             mapbox.animateCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 17.0))
-            layer.invoke(mapbox, marker)
+
+            remotePresenter.getDriversActive { drivers ->
+                logi("driver found --> ${drivers?.size}")
+                drivers?.forEachIndexed { index, driver ->
+                    if (driver.position != null) {
+                        val latLngDriver = LatLng(driver.position!!.lat!!, driver.position!!.lon!!)
+                        val rotation = driver.position?.angle
+
+                        logi("driver location --> $latLngDriver, id --> ${driver.id}, rotation -> $rotation from ${driver.position?.angle}")
+
+                        val markerDriverOption = MarkerOptions.Builder()
+                            .setId(driver.id!!)
+                            .setIcon(R.drawable.mapbox_marker_icon_default, true)
+                            .setPosition(latLngDriver)
+                            .setRotation(rotation)
+                            .build(context)
+
+                        mapbox.addMarker(markerDriverOption).get(driver.id!!)
+                    }
+                }
+
+                layer.invoke(mapbox, marker)
+            }
         }
     }
 }

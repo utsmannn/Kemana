@@ -19,7 +19,6 @@ import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.fragment.MainFragment
 import com.utsman.kemana.fragment.bottom_sheet.MainBottomSheet
 import kotlinx.android.synthetic.main.bottom_sheet.*
-import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,13 +26,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mainBottomSheetFragment: MainBottomSheet
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, MAPKEY)
         setContentView(R.layout.activity_main)
-
-        //val json = JSONObject
 
         mainFragment = MainFragment()
         mainBottomSheetFragment = MainBottomSheet()
