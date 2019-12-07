@@ -26,7 +26,7 @@ class LocationPresenter(private val context: Context) : LocationInterface {
     }
 
     override fun startLocationUpdate(iLocationUpdateView: ILocationUpdateView) {
-        locationWatcher.getLocationUpdate(object : LocationUpdateListener {
+        locationWatcher.getLocationUpdate(LocationWatcher.Priority.LOW, object : LocationUpdateListener {
             override fun newLocation(newLocation: Location) {
                 iLocationUpdateView.onLocationUpdate(newLocation.toLatLngMapbox())
                 logi("location update started")

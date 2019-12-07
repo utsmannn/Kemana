@@ -107,8 +107,43 @@ class RemotePresenter : RemoteListener {
         disposable.add(action)
     }
 
+    override fun editDriverByEmail(email: String, position: Position, driver: (Driver?) -> Unit) {
+        val action = remoteInstance.editDriverByEmail(email, position)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                val list = it.data
+                if (!list.isNullOrEmpty()) {
+                    driver.invoke(list[0])
+                } else {
+                    driver.invoke(null)
+                }
+
+            }, {
+                it.printThrow("get driver edit")
+            })
+
+        disposable.add(action)
+    }
+
     override fun deleteDriver(id: String, status: (Boolean?) -> Unit) {
         val action = remoteInstance.deleteDriver(id)
+            .subscribeOn(Schedulers.io())
+            .map { it.message }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                if (it == "OK") status.invoke(true)
+                else status.invoke(null)
+            }, {
+                status.invoke(false)
+                it.printThrow("delete fail")
+            })
+
+        disposable.add(action)
+    }
+
+    override fun deleteDriverByEmail(email: String, status: (Boolean?) -> Unit) {
+        val action = remoteInstance.deleteDriverByEmail(email)
             .subscribeOn(Schedulers.io())
             .map { it.message }
             .observeOn(AndroidSchedulers.mainThread())

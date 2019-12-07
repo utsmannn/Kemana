@@ -72,20 +72,20 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
 
     override fun activeState() {
         logi("state --> driver active")
-        Notify.send(NotifyState(RemoteState.EDIT_DRIVER))
+        Notify.send(NotifyState(RemoteState.INSERT_DRIVER))
 
         Handler().postDelayed({
-            Notify.send(NotifyState(RemoteState.INSERT_DRIVER))
         }, 200)
     }
 
     override fun deactiveState() {
         logi("state --> drive deactive")
-        Notify.send(NotifyState(RemoteState.STOP_EDIT_DRIVER))
+        //Notify.send(NotifyState(RemoteState.STOP_EDIT_DRIVER))
+        Notify.send(NotifyState(RemoteState.DELETE_DRIVER))
 
-        Handler().postDelayed({
-            Notify.send(NotifyState(RemoteState.DELETE_DRIVER))
-        }, 200)
+
+        /*Handler().postDelayed({
+        }, 200)*/
     }
 
     private fun setupPermission(ready: () -> Unit) {

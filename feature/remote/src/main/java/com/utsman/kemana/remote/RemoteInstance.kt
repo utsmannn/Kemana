@@ -25,11 +25,22 @@ interface RemoteInstance {
     @DELETE("/api/v1/{id}")
     fun deleteDriver(@Path("id") id: String): Flowable<Responses>
 
+    @DELETE("/api/v1")
+    fun deleteDriverByEmail(
+        @Query("email") email: String
+    ): Flowable<Responses>
+
     @PUT("/api/v1/{id}")
     fun editDriver(
         @Path("id") id: String,
         @Body position: Position
     ): Flowable<Responses>
+
+    @PUT("/api/v1")
+    fun editDriverByEmail(
+        @Query("email") email: String,
+        @Body position: Position
+    ) : Flowable<Responses>
 
     companion object {
 
