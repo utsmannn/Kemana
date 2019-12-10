@@ -12,8 +12,9 @@ data class OriginPlaces(
     val query: List<String?>?,
     @JsonProperty("type")
     val type: String?
-) {
-    data class Feature(
+)
+
+data class Feature(
         @JsonProperty("center")
         val center: List<Double?>?,
         @JsonProperty("context")
@@ -34,35 +35,34 @@ data class OriginPlaces(
         val text: String?,
         @JsonProperty("type")
         val type: String?
-    ) {
-        data class Context(
-            @JsonProperty("id")
-            val id: String?,
-            @JsonProperty("short_code")
-            val shortCode: String?,
-            @JsonProperty("text")
-            val text: String?,
-            @JsonProperty("wikidata")
-            val wikidata: String?
-        )
+)
 
-        data class Geometry(
-            @JsonProperty("coordinates")
-            val coordinates: List<Double?>?,
-            @JsonProperty("type")
-            val type: String?
-        )
+data class Context(
+        @JsonProperty("id")
+        val id: String?,
+        @JsonProperty("short_code")
+        val shortCode: String?,
+        @JsonProperty("text")
+        val text: String?,
+        @JsonProperty("wikidata")
+        val wikidata: String?
+)
 
-        data class Properties(
-            @JsonProperty("address")
-            val address: String?,
-            @JsonProperty("category")
-            val category: String?,
-            @JsonProperty("landmark")
-            val landmark: Boolean?
-        )
-    }
-}
+data class Geometry(
+        @JsonProperty("coordinates")
+        val coordinates: List<Double?>?,
+        @JsonProperty("type")
+        val type: String?
+)
+
+data class Properties(
+        @JsonProperty("address")
+        val address: String?,
+        @JsonProperty("category")
+        val category: String?,
+        @JsonProperty("landmark")
+        val landmark: Boolean?
+)
 
 data class Places(
         val id: String?,
