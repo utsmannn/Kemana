@@ -41,18 +41,18 @@ class PlaceController {
         val listFeature = originPlaceResponses?.features
 
         val listPlaces = listFeature?.map {
-            val headers = HttpHeaders()
-            headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
-
             val toLat = it?.geometry?.coordinates?.get(1)
             val toLon = it?.geometry?.coordinates?.get(0)
-            return@map Places(it?.id, it?.text, it?.placeName, listOf(toLat, toLon))
+
+            val geometryDrawUrl = "/api/v1/place/direction?from=$coordinate&to=$toLat,$toLon"
+
+            return@map Places(it?.id, it?.text, it?.placeName, listOf(toLat, toLon), geometryDrawUrl)
         }
 
         return PlacesResponses(listPlaces?.size, listPlaces)
     }
 
-    @RequestMapping(value = ["/direction"], method = [RequestMethod.GET])
+    @RequestMapping(value = ["/direction"], method = [RequestMethod.POST])
     fun getDirection(
             @RequestParam("from") from: String,
             @RequestParam("to") to: String

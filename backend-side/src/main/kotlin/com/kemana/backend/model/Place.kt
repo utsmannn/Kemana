@@ -68,7 +68,8 @@ data class Places(
         val id: String?,
         val placeName: String?,
         val addressName: String?,
-        val geometry: List<Double?>?
+        val geometry: List<Double?>?,
+        val geometry_draw_url: String?
 )
 
 data class PlacesResponses(
