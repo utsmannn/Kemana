@@ -10,6 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
+import java.util.concurrent.TimeUnit
 
 interface PlaceInterface {
 
@@ -41,6 +42,8 @@ interface PlaceInterface {
 
             val client = OkHttpClient.Builder()
                 .addInterceptor(logging)
+                .callTimeout(10000, TimeUnit.MILLISECONDS)
+                .connectTimeout(10000, TimeUnit.MILLISECONDS)
                 .build()
 
             val retrofit = Retrofit.Builder()

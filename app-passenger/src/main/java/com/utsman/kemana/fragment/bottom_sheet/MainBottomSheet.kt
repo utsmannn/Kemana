@@ -47,6 +47,8 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter) : RxFragment() {
     ): View? {
         val v = inflater.inflate(R.layout.bottom_sheet_frg_main, container, false)
 
+        v.text_from.text = "Your location"
+
         Notify.listen(LocationSubs::class.java, NotifyProvider(), Consumer {
             startLatLng = it.latLng
 

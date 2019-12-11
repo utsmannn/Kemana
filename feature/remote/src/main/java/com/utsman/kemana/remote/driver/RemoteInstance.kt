@@ -8,6 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
+import java.util.concurrent.TimeUnit
 
 interface RemoteInstance {
 
@@ -38,7 +39,7 @@ interface RemoteInstance {
     fun editDriverByEmail(
         @Query("email") email: String,
         @Body position: Position
-    ) : Flowable<Responses>
+    ): Flowable<Responses>
 
     companion object {
 
@@ -48,6 +49,8 @@ interface RemoteInstance {
 
             val client = OkHttpClient.Builder()
                 .addInterceptor(logging)
+                .callTimeout(10000, TimeUnit.MILLISECONDS)
+                .connectTimeout(10000, TimeUnit.MILLISECONDS)
                 .build()
 
             val retrofit = Retrofit.Builder()
