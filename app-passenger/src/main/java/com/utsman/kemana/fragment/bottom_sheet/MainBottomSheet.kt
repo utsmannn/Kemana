@@ -10,6 +10,8 @@ import com.jakewharton.rxbinding3.widget.afterTextChangeEvents
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.R
 import com.utsman.kemana.base.RxFragment
+import com.utsman.kemana.base.calculateDistanceKm
+import com.utsman.kemana.base.calculatePricing
 import com.utsman.kemana.base.logi
 import com.utsman.kemana.presenter.MapsPresenter
 import com.utsman.kemana.remote.place.PlacePresenter
@@ -47,6 +49,7 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter) : RxFragment() {
     ): View? {
         val v = inflater.inflate(R.layout.bottom_sheet_frg_main, container, false)
 
+        v.detail_pricing_container.visibility = View.GONE
         v.text_from.text = "Your location"
 
         Notify.listen(LocationSubs::class.java, NotifyProvider(), Consumer {
@@ -74,7 +77,9 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter) : RxFragment() {
 
                     placePresenter.getPolyline(from, to) { poly ->
                         polyline = poly
-                        mapsPresenter.mapReady(startPlace!!, destinationPlace!!, poly)
+                        mapsPresenter.mapReady(startPlace!!, destinationPlace!!, poly).apply {
+                            setupPricing(v, poly)
+                        }
                     }
 
                     v.btn_order.isEnabled = true
@@ -96,7 +101,9 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter) : RxFragment() {
 
                     placePresenter.getPolyline(from, to) { poly ->
                         polyline = poly
-                        mapsPresenter.mapReady(startPlace!!, destinationPlace!!, poly)
+                        mapsPresenter.mapReady(startPlace!!, destinationPlace!!, poly).apply {
+                            setupPricing(v, poly)
+                        }
                     }
 
                     v.btn_order.isEnabled = true
@@ -138,7 +145,7 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter) : RxFragment() {
                     list?.clear()
                     adapter.notifyDataSetChanged()
                 }
-                .debounce(2, TimeUnit.SECONDS)
+                .debounce(1, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext {
                     submitNetworkState(NetworkState.LOADING)
@@ -158,5 +165,11 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter) : RxFragment() {
         }
 
         bottomSheetDialog.show()
+    }
+
+    private fun setupPricing(v: View, poly: PolylineResponses) {
+        v.detail_pricing_container.visibility = View.VISIBLE
+        v.text_price.text = poly.distance?.calculatePricing()
+        v.text_distance.text = poly.distance?.calculateDistanceKm()
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.LineString
+import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
@@ -17,6 +18,7 @@ import com.mapbox.mapboxsdk.style.sources.CannotAddSourceException
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.utils.ColorUtils
 import com.utsman.kemana.R
+import com.utsman.kemana.base.dp
 import com.utsman.kemana.base.loge
 import com.utsman.kemana.base.logi
 import com.utsman.smartmarker.mapbox.Marker
@@ -30,7 +32,11 @@ class ReadyMaps(
     private val polyString: String?,
     private val layer: (map: MapboxMap) -> Unit
 ) : OnMapReadyCallback {
+
+    private lateinit var mapbox: MapboxMap
+
     override fun onMapReady(mapbox: MapboxMap) {
+        this.mapbox = mapbox
 
         mapbox.setStyle(Style.MAPBOX_STREETS) { style ->
             val markerOptionStart = MarkerOptions.Builder()
@@ -54,17 +60,6 @@ class ReadyMaps(
                 }
 
             }
-            val latLngBounds = LatLngBounds.Builder()
-                .include(startLatLng)
-                .include(destinationLatLng)
-                .build()
-
-            mapbox.animateCamera(
-                CameraUpdateFactory.newLatLngBounds(
-                    latLngBounds,
-                    200, 200, 200, 200
-                )
-            )
         }
     }
 
@@ -100,5 +95,21 @@ class ReadyMaps(
         }
 
         ok.invoke()
+    }
+
+    fun setPaddingBottom(padding: Int) {
+        mapbox.uiSettings.setLogoMargins(30, 30, 30,(context!!.dp(padding)) + 30)
+
+        val latLngBounds = LatLngBounds.Builder()
+            .include(startLatLng)
+            .include(destinationLatLng)
+            .build()
+
+        mapbox.animateCamera(
+            CameraUpdateFactory.newLatLngBounds(
+                latLngBounds,
+                200, 200, 200, (context.dp(padding)) + 200
+            )
+        )
     }
 }

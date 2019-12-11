@@ -1,18 +1,25 @@
 package com.utsman.kemana.maps_callback
 
 import android.content.Context
+import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.utsman.kemana.R
+import com.utsman.kemana.base.dp
 import com.utsman.kemana.base.logi
 import com.utsman.kemana.remote.driver.RemotePresenter
+import com.utsman.kemana.subscriber.PaddingMapsSubs
 import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Consumer
+import isfaaghyth.app.notify.Notify
+import isfaaghyth.app.notify.NotifyProvider
 
 class StartMaps(
     private val disposable: CompositeDisposable,
@@ -21,7 +28,10 @@ class StartMaps(
     private val layer: (map: MapboxMap, marker: Marker?) -> Unit
 ) : OnMapReadyCallback {
 
+    private lateinit var mapbox: MapboxMap
+
     override fun onMapReady(mapbox: MapboxMap) {
+        this.mapbox = mapbox
 
         val remotePresenter =
             RemotePresenter(disposable)
@@ -60,5 +70,17 @@ class StartMaps(
                 layer.invoke(mapbox, marker)
             }
         }
+    }
+
+    fun setPaddingBottom(padding: Int) {
+        mapbox.uiSettings.setLogoMargins(30, 30, 30,(context!!.dp(padding)) + 30)
+
+        val position = CameraPosition.Builder()
+            .target(startLatLng)
+            .zoom(17.0)
+            .padding(0.0, 0.0, 0.0,  padding.toDouble())
+            .build()
+
+        mapbox.animateCamera(CameraUpdateFactory.newCameraPosition(position))
     }
 }

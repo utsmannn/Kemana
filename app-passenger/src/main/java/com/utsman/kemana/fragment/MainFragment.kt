@@ -64,12 +64,14 @@ class MainFragment : RxFragment(), ILocationView, IMapView {
 
     override fun mapStart(startLatLng: LatLng) {
         startMaps = StartMaps(compositeDisposable, context, startLatLng) { map, marker ->
-
+            // map ready from invoke
         }
 
         Notify.send(LocationSubs(startLatLng))
 
         mapView.getMapAsync(startMaps)
+
+        startMaps.setPaddingBottom(200)
     }
 
     override fun mapReady(start: Places, destination: Places, polyline: PolylineResponses) {
@@ -79,10 +81,11 @@ class MainFragment : RxFragment(), ILocationView, IMapView {
         logi("poly is --> ${polyline.geometry}")
 
         readyMaps = ReadyMaps(context, startLatLng, destinationLatLng, polyline.geometry) { map ->
-
+            // map ready from invoke
         }
 
         mapView.getMapAsync(readyMaps)
+        readyMaps.setPaddingBottom(300)
     }
 
     override fun mapOrder() {
