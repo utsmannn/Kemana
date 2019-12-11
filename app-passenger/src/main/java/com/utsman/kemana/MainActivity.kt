@@ -24,9 +24,6 @@ import kotlinx.android.synthetic.main.bottom_sheet.*
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mainFragment: MainFragment
-    private lateinit var mainBottomSheetFragment: MainBottomSheet
-    private lateinit var bottomSheet: BottomSheetUnDrag<View>
-    private lateinit var mapsPresenter: MapsPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,19 +31,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         mainFragment = MainFragment()
-        mapsPresenter = MapsPresenter(mainFragment)
-
-        mainBottomSheetFragment = MainBottomSheet(mapsPresenter)
-
-        bottomSheet = BottomSheetBehavior.from(main_bottom_sheet) as BottomSheetUnDrag<View>
-        bottomSheet.setAllowUserDragging(false)
-        bottomSheet.hidden()
 
         setupPermission {
             replaceFragment(mainFragment, R.id.main_frame)
-            replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
-
-            bottomSheet.collapse()
         }
 
     }

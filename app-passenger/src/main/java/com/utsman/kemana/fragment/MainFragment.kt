@@ -4,39 +4,38 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
-import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.utsman.kemana.R
-import com.utsman.kemana.base.RxFragment
-import com.utsman.kemana.base.logi
-import com.utsman.kemana.base.timer
-import com.utsman.kemana.base.toast
+import com.utsman.kemana.base.*
+import com.utsman.kemana.base.view.BottomSheetUnDrag
+import com.utsman.kemana.fragment.bottom_sheet.MainBottomSheet
 import com.utsman.kemana.impl.ILocationView
 import com.utsman.kemana.impl.IMapView
 import com.utsman.kemana.maps_callback.ReadyMaps
 import com.utsman.kemana.maps_callback.StartMaps
 import com.utsman.kemana.presenter.LocationPresenter
+import com.utsman.kemana.presenter.MapsPresenter
 import com.utsman.kemana.remote.place.Places
 import com.utsman.kemana.remote.place.PolylineResponses
 import com.utsman.kemana.subscriber.LocationSubs
-import com.utsman.smartmarker.mapbox.Marker
 import isfaaghyth.app.notify.Notify
+import kotlinx.android.synthetic.main.bottom_sheet.view.*
 import kotlinx.android.synthetic.main.fragment_main.view.*
 
 class MainFragment : RxFragment(), ILocationView, IMapView {
 
+
+    private lateinit var mainBottomSheetFragment: MainBottomSheet
+    private lateinit var bottomSheet: BottomSheetUnDrag<View>
+    private lateinit var mapsPresenter: MapsPresenter
+
     private lateinit var mapView: MapView
-    //private lateinit var mapbox: MapboxMap
     private lateinit var startMaps: StartMaps
     private lateinit var readyMaps: ReadyMaps
 
     private lateinit var locationPresenter: LocationPresenter
-
-    //private var marker: Marker? = null
     private var latLng = LatLng()
 
     override fun onCreateView(
@@ -49,6 +48,18 @@ class MainFragment : RxFragment(), ILocationView, IMapView {
 
         locationPresenter = LocationPresenter(context!!)
         locationPresenter.initLocation(this)
+
+        mapsPresenter = MapsPresenter(this)
+
+        mainBottomSheetFragment = MainBottomSheet(mapsPresenter)
+
+        bottomSheet = BottomSheetBehavior.from(v.main_bottom_sheet) as BottomSheetUnDrag<View>
+        bottomSheet.setAllowUserDragging(false)
+        bottomSheet.hidden()
+
+        replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
+
+        bottomSheet.collapse()
 
         return v
     }
@@ -70,7 +81,6 @@ class MainFragment : RxFragment(), ILocationView, IMapView {
         Notify.send(LocationSubs(startLatLng))
 
         mapView.getMapAsync(startMaps)
-
         startMaps.setPaddingBottom(200)
     }
 
@@ -86,6 +96,8 @@ class MainFragment : RxFragment(), ILocationView, IMapView {
 
         mapView.getMapAsync(readyMaps)
         readyMaps.setPaddingBottom(300)
+
+
     }
 
     override fun mapOrder() {
