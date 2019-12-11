@@ -13,8 +13,6 @@ import retrofit2.http.*
 
 interface RemoteInstance {
 
-    // 124 000 715 7721
-
     @POST("/api/v1/driver/")
     fun insertDriver(@Body driver: Driver): Flowable<Responses>
 

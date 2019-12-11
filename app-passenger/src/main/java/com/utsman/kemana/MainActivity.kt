@@ -18,6 +18,7 @@ import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.fragment.MainFragment
 import com.utsman.kemana.fragment.bottom_sheet.MainBottomSheet
+import com.utsman.kemana.presenter.MapsPresenter
 import kotlinx.android.synthetic.main.bottom_sheet.*
 
 class MainActivity : AppCompatActivity() {
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mainFragment: MainFragment
     private lateinit var mainBottomSheetFragment: MainBottomSheet
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
+    private lateinit var mapsPresenter: MapsPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +34,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         mainFragment = MainFragment()
-        mainBottomSheetFragment = MainBottomSheet()
+        mapsPresenter = MapsPresenter(mainFragment)
+
+        mainBottomSheetFragment = MainBottomSheet(mapsPresenter)
 
         bottomSheet = BottomSheetBehavior.from(main_bottom_sheet) as BottomSheetUnDrag<View>
         bottomSheet.setAllowUserDragging(false)

@@ -2,8 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/white"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp">
 
     <LinearLayout
         android:id="@+id/container_from"
@@ -58,5 +61,14 @@
             android:textSize="18sp" />
 
     </LinearLayout>
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_order"
+        android:layout_width="match_parent"
+        android:layout_margin="12dp"
+        android:theme="@style/Widget.MaterialComponents.Button"
+        android:layout_height="wrap_content"
+        android:text="Order" />
 
 </LinearLayout>

@@ -50,7 +50,7 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         locationPresenter = LocationPresenter(this)
         locationPresenter.initLocation(this)
 
-        remotePresenter = RemotePresenter()
+        remotePresenter = RemotePresenter(compositeDisposable)
 
         Notify.listen(Driver::class.java, NotifyProvider(), Consumer {
             logi("receiving driver model")

@@ -6,9 +6,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
-class RemotePresenter : RemoteListener {
-
-    private val disposable = CompositeDisposable()
+class RemotePresenter(private val disposable: CompositeDisposable) : RemoteListener {
     private val remoteInstance = RemoteInstance.create()
 
     override fun insertDriver(driverItem: Driver, driver: (success: Boolean, driver: Driver?) -> Unit) {
@@ -155,15 +153,6 @@ class RemotePresenter : RemoteListener {
             })
 
         disposable.add(action)
-    }
-
-    override fun detachPresenter() {
-        disposable.dispose()
-    }
-
-    private fun Throwable.printThrow(state: String) {
-        loge("$state failed --> ${this.localizedMessage}")
-        this.printStackTrace()
     }
 
 }

@@ -39,9 +39,11 @@ dependencies {
 
     implementation Design.material
     implementation Design.slideButton
+    implementation Design.recycling
 
     implementation Rx.rxJava
     implementation Rx.rxAndroid
+    implementation Rx.rxBinding3
 
     implementation Maps.mapbox
     implementation Maps.smartMarker

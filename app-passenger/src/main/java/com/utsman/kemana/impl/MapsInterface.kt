@@ -1,7 +1,10 @@
 package com.utsman.kemana.impl
 
-import com.utsman.kemana.subscriber.LocationSubs
+import com.mapbox.mapboxsdk.geometry.LatLng
+import com.utsman.kemana.remote.place.Places
 
 interface MapsInterface {
-    fun initMap(locationSubs: LocationSubs)
+    fun mapStart(startLatLng: LatLng)
+    fun mapReady(start: Places, destination: Places)
+    fun mapOrder()
 }

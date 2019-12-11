@@ -1,21 +1,21 @@
 package com.utsman.kemana.maps_callback
 
 import android.content.Context
-import android.os.Handler
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.utsman.kemana.R
 import com.utsman.kemana.base.logi
 import com.utsman.kemana.remote.RemotePresenter
 import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker
+import io.reactivex.disposables.CompositeDisposable
 
 class MainMaps(
+    private val disposable: CompositeDisposable,
     private val context: Context?,
     private val startLatLng: LatLng,
     private val layer: (map: MapboxMap, marker: Marker?) -> Unit
@@ -23,7 +23,7 @@ class MainMaps(
 
     override fun onMapReady(mapbox: MapboxMap) {
 
-        val remotePresenter = RemotePresenter()
+        val remotePresenter = RemotePresenter(disposable)
 
         mapbox.setStyle(Style.MAPBOX_STREETS) { style ->
             val markerOption = MarkerOptions.Builder()

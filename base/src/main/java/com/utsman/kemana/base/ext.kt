@@ -25,6 +25,9 @@ import android.os.Handler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 fun Context.toast(msg: String?) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+fun Fragment.toast(msg: String?) = Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+
+
 
 fun logi(msg: String?) = Log.i("KEMANA-INFO", msg)
 fun loge(msg: String?) = Log.e("KEMANA-ERROR", msg)

@@ -1,10 +1,7 @@
 package com.kemana.backend.controller
 
 import com.kemana.backend.maputil.Bounding
-import com.kemana.backend.model.DirectionOrigin
-import com.kemana.backend.model.OriginPlaces
-import com.kemana.backend.model.Places
-import com.kemana.backend.model.PlacesResponses
+import com.kemana.backend.model.*
 import org.springframework.http.*
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
@@ -71,6 +68,23 @@ class PlaceController {
         println(request.body.toString())
         val responses = restTemplate.exchange(url, HttpMethod.POST, request, DirectionOrigin::class.java)
         return responses.body?.routes?.get(0)?.geometry
+    }
+
+    @RequestMapping(value = [""], method = [RequestMethod.GET])
+    fun getPlace(@RequestParam("from") from: String): PlacesResponses? {
+        val listCoordinate = from.split(",")
+        val lat = listCoordinate[0].toDouble()
+        val lon = listCoordinate[1].toDouble()
+        val url = "https://api.mapbox.com/geocoding/v5/mapbox.places/$lon,$lat.json?access_token=pk.eyJ1Ijoia3VjaW5nYXBlcyIsImEiOiJjazFjZXB4aDIyb3gwM2Nxajlza2c2aG8zIn0.htmYJKp9aaJnh-JhWZA85Q"
+
+        val originPlaceResponses = restTemplate.getForObject(url, OriginPlaces::class.java)
+        val listFeature = originPlaceResponses?.features
+
+        val listPlaces = listFeature?.map {
+            return@map Places(it?.id, it?.text, it?.placeName, listOf(lat, lon), null)
+        }
+
+        return PlacesResponses(1, listOf(listPlaces?.get(0)))
     }
 
     private fun String.reverseString(): String {

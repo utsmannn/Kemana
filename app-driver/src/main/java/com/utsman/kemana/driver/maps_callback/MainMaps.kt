@@ -21,8 +21,8 @@ class MainMaps(
 
         mapbox.setStyle(Style.MAPBOX_STREETS) { style ->
             val markerOption = MarkerOptions.Builder()
-                .addIcon(R.drawable.mapbox_marker_icon_default)
-                .addPosition(startLatLng)
+                .setIcon(R.drawable.mapbox_marker_icon_default)
+                .setPosition(startLatLng)
                 .setId("me")
                 .build(context!!)
 

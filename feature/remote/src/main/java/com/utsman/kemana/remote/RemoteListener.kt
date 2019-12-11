@@ -9,5 +9,4 @@ interface RemoteListener {
     fun editDriverByEmail(email: String, position: Position, driver: (Driver?) -> Unit)
     fun deleteDriver(id: String, status: (Boolean?) -> Unit)
     fun deleteDriverByEmail(email: String, status: (Boolean?) -> Unit)
-    fun detachPresenter()
 }
