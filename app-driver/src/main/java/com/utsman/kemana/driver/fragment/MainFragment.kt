@@ -12,7 +12,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.utsman.kemana.base.NotifyState
 import com.utsman.kemana.base.RxFragment
 import com.utsman.kemana.base.logi
-import com.utsman.kemana.base.timer
 import com.utsman.kemana.driver.R
 import com.utsman.kemana.driver.impl.IMapView
 import com.utsman.kemana.driver.maps_callback.MainMaps
@@ -20,7 +19,6 @@ import com.utsman.kemana.driver.presenter.MapsPresenter
 import com.utsman.kemana.driver.subscriber.LocationSubs
 import com.utsman.kemana.driver.subscriber.RotationSubs
 import com.utsman.kemana.driver.subscriber.UpdateLocationSubs
-import com.utsman.kemana.remote.RemoteState
 import com.utsman.smartmarker.mapbox.Marker
 import io.reactivex.functions.Consumer
 import isfaaghyth.app.notify.Notify

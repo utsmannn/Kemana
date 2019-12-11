@@ -10,8 +10,7 @@ import com.utsman.easygooglelogin.EasyGoogleLogin
 import com.utsman.easygooglelogin.LoginResultListener
 import com.utsman.kemana.base.intentTo
 import com.utsman.kemana.base.logi
-import com.utsman.kemana.base.toast
-import com.utsman.kemana.remote.Passenger
+import com.utsman.kemana.remote.driver.Passenger
 import kotlinx.android.synthetic.main.activity_auth.*
 
 class AuthActivity : AppCompatActivity(), LoginResultListener {

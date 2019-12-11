@@ -39,4 +39,18 @@ class PlacePresenter(private val disposable: CompositeDisposable) : PlaceListene
         disposable.add(action)
 
     }
+
+    override fun getPolyline(from: String, to: String, result: (PolylineResponses) -> Unit) {
+        val action = placeInterface.getPolyline(from, to)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                logi("get direction success")
+                result.invoke(it)
+            }, {
+                it.printThrow("get direction failed")
+            })
+
+        disposable.add(action)
+    }
 }

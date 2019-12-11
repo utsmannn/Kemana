@@ -15,3 +15,8 @@ data class PlacesResponses(
     val size: Int?,
     val places: List<Places?>?
 )
+
+data class PolylineResponses(
+    val distance: Double?,
+    val geometry: String?
+)

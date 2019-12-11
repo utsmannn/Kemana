@@ -53,7 +53,7 @@ class PlaceController {
     fun getDirection(
             @RequestParam("from") from: String,
             @RequestParam("to") to: String
-    ): String? {
+    ): ResponsesDirection? {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
 
@@ -62,12 +62,15 @@ class PlaceController {
 
         val map = LinkedMultiValueMap<String, String>()
         map.add("coordinates", "$fromReverse;$toReverse")
-        val url = "https://api.mapbox.com/directions/v5/mapbox/driving-traffic?access_token=pk.eyJ1Ijoia3VjaW5nYXBlcyIsImEiOiJjazFjZXB4aDIyb3gwM2Nxajlza2c2aG8zIn0.htmYJKp9aaJnh-JhWZA85Q&exclude=motorway"
+        val url = "https://api.mapbox.com/directions/v5/mapbox/driving?access_token=pk.eyJ1Ijoia3VjaW5nYXBlcyIsImEiOiJjazFjZXB4aDIyb3gwM2Nxajlza2c2aG8zIn0.htmYJKp9aaJnh-JhWZA85Q&exclude=toll"
 
         val request = HttpEntity<MultiValueMap<String, String>>(map, headers)
         println(request.body.toString())
         val responses = restTemplate.exchange(url, HttpMethod.POST, request, DirectionOrigin::class.java)
-        return responses.body?.routes?.get(0)?.geometry
+
+        val responsesDirection = ResponsesDirection(responses.body?.routes?.get(0)?.distance, responses.body?.routes?.get(0)?.geometry)
+
+        return responsesDirection
     }
 
     @RequestMapping(value = [""], method = [RequestMethod.GET])

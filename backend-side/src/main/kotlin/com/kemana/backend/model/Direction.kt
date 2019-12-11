@@ -50,3 +50,8 @@ data class Waypoint(
         @JsonProperty("name")
         val name: String?
 )
+
+data class ResponsesDirection(
+        val distance: Double?,
+        val geometry: String?
+)

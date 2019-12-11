@@ -23,6 +23,7 @@ import isfaaghyth.app.notify.NotifyProvider
 import java.util.concurrent.TimeUnit
 import android.os.Handler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import io.reactivex.disposables.Disposable
 
 fun Context.toast(msg: String?) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 fun Fragment.toast(msg: String?) = Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
@@ -61,7 +62,7 @@ fun Fragment.intentTo(c: Class<*>, bundle: Bundle? = null)  {
 
 fun <T: Parcelable>Activity.getBundleFrom(key: String): T? = intent.extras?.getParcelable(key)
 
-fun CompositeDisposable.timer(interval: Long, action: () -> Unit) {
+fun timer(interval: Long, action: () -> Unit): Disposable {
 
     val subs = Observable.interval(interval, TimeUnit.MILLISECONDS)
         .subscribeOn(Schedulers.io())
@@ -73,7 +74,7 @@ fun CompositeDisposable.timer(interval: Long, action: () -> Unit) {
             it.printStackTrace()
         })
 
-    add(subs)
+    return subs
 }
 
 fun Notify.listenNotifyState(state: (Int) -> Unit) {

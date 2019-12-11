@@ -1,19 +1,20 @@
 package com.utsman.kemana.driver.services
 
 import android.content.Intent
-import android.os.Handler
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.base.*
-import com.utsman.kemana.driver.getEmail
 import com.utsman.kemana.driver.impl.ILocationUpdateView
 import com.utsman.kemana.driver.impl.ILocationView
 import com.utsman.kemana.driver.presenter.LocationPresenter
 import com.utsman.kemana.driver.subscriber.LocationSubs
 import com.utsman.kemana.driver.subscriber.RotationSubs
 import com.utsman.kemana.driver.subscriber.UpdateLocationSubs
-import com.utsman.kemana.remote.*
+import com.utsman.kemana.remote.driver.Driver
+import com.utsman.kemana.remote.driver.Position
+import com.utsman.kemana.remote.driver.RemotePresenter
+import com.utsman.kemana.remote.driver.RemoteState
 import io.reactivex.functions.Consumer
 import isfaaghyth.app.notify.Notify
 import isfaaghyth.app.notify.NotifyProvider
@@ -50,7 +51,8 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         locationPresenter = LocationPresenter(this)
         locationPresenter.initLocation(this)
 
-        remotePresenter = RemotePresenter(compositeDisposable)
+        remotePresenter =
+            RemotePresenter(compositeDisposable)
 
         Notify.listen(Driver::class.java, NotifyProvider(), Consumer {
             logi("receiving driver model")
@@ -153,7 +155,11 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         Notify.send(updateLocationSubs)
 
         Notify.listen(RotationSubs::class.java, NotifyProvider(), Consumer {
-            val position = Position(newLatLng.latitude, newLatLng.longitude, it.double)
+            val position = Position(
+                newLatLng.latitude,
+                newLatLng.longitude,
+                it.double
+            )
             livePosition.postValue(position)
         })
     }

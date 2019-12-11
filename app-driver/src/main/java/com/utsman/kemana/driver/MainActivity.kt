@@ -21,8 +21,8 @@ import com.utsman.kemana.driver.fragment.MainFragment
 import com.utsman.kemana.driver.fragment.bottom_sheet.MainBottomSheet
 import com.utsman.kemana.driver.impl.view_state.IActiveState
 import com.utsman.kemana.driver.services.LocationServices
-import com.utsman.kemana.remote.Driver
-import com.utsman.kemana.remote.RemoteState
+import com.utsman.kemana.remote.driver.Driver
+import com.utsman.kemana.remote.driver.RemoteState
 import isfaaghyth.app.notify.Notify
 import kotlinx.android.synthetic.main.bottom_sheet.*
 

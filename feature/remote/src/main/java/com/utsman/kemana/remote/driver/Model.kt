@@ -1,4 +1,4 @@
-package com.utsman.kemana.remote
+package com.utsman.kemana.remote.driver
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize

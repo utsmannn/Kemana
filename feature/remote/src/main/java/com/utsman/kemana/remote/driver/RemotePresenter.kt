@@ -1,12 +1,13 @@
-package com.utsman.kemana.remote
+package com.utsman.kemana.remote.driver
 
-import com.utsman.kemana.base.loge
 import com.utsman.kemana.base.logi
+import com.utsman.kemana.remote.printThrow
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
-class RemotePresenter(private val disposable: CompositeDisposable) : RemoteListener {
+class RemotePresenter(private val disposable: CompositeDisposable) :
+    RemoteListener {
     private val remoteInstance = RemoteInstance.create()
 
     override fun insertDriver(driverItem: Driver, driver: (success: Boolean, driver: Driver?) -> Unit) {

@@ -8,13 +8,13 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.utsman.kemana.R
 import com.utsman.kemana.base.logi
-import com.utsman.kemana.remote.RemotePresenter
+import com.utsman.kemana.remote.driver.RemotePresenter
 import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker
 import io.reactivex.disposables.CompositeDisposable
 
-class MainMaps(
+class StartMaps(
     private val disposable: CompositeDisposable,
     private val context: Context?,
     private val startLatLng: LatLng,
@@ -23,7 +23,8 @@ class MainMaps(
 
     override fun onMapReady(mapbox: MapboxMap) {
 
-        val remotePresenter = RemotePresenter(disposable)
+        val remotePresenter =
+            RemotePresenter(disposable)
 
         mapbox.setStyle(Style.MAPBOX_STREETS) { style ->
             val markerOption = MarkerOptions.Builder()

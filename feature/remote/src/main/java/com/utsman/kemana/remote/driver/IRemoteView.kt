@@ -1,4 +1,4 @@
-package com.utsman.kemana.remote
+package com.utsman.kemana.remote.driver
 
 interface IRemoteView {
     fun getAllDriver()
