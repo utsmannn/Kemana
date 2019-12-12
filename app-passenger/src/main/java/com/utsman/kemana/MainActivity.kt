@@ -14,6 +14,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import com.mapbox.mapboxsdk.Mapbox
+import com.utsman.featurerabbitmq.Rabbit
 import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.fragment.MainFragment
@@ -21,7 +22,7 @@ import com.utsman.kemana.fragment.bottom_sheet.MainBottomSheet
 import com.utsman.kemana.presenter.MapsPresenter
 import kotlinx.android.synthetic.main.bottom_sheet.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : RxAppCompatActivity() {
 
     private lateinit var mainFragment: MainFragment
 

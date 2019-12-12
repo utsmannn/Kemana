@@ -15,7 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning"
+        tools:ignore="GoogleAppIndexingWarning,UnusedAttribute"
         tools:targetApi="m">
         <activity android:name=".AuthActivity">
             <intent-filter>
@@ -26,6 +26,7 @@
         </activity>
 
         <activity android:name=".MainActivity"/>
+        <service android:name=".MessagingServices"/>
     </application>
 
 </manifest>

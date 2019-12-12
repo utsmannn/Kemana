@@ -53,8 +53,11 @@ dependencies {
     implementation Maps.gmsLocationService
     implementation Maps.rxLocation
 
+    implementation Message.rmqa
+
     implementation Firebase.google_auth
     implementation Firebase.google_auth_ui
     implementation Firebase.google_auth_helper
 
+    implementation project(Module.feature_rabbitmq)
 }

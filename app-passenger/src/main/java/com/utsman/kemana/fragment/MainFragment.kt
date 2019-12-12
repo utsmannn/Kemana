@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.utsman.kemana.fragment
 
 import android.os.Bundle
@@ -25,7 +27,6 @@ import kotlinx.android.synthetic.main.bottom_sheet.view.*
 import kotlinx.android.synthetic.main.fragment_main.view.*
 
 class MainFragment : RxFragment(), ILocationView, IMapView {
-
 
     private lateinit var mainBottomSheetFragment: MainBottomSheet
     private lateinit var bottomSheet: BottomSheetUnDrag<View>

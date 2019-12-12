@@ -3,12 +3,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
-
 dependencies {
-    api Design.glide
-    kapt Design.glideKapt
-
-    implementation Core.notify
+    implementation project(":base")
+    implementation Message.rabbitmq
 }
 
-apply from: '../base-module.gradle'
+androidExtensions {
+    experimental = true
+}
+
+apply from: '../../base-module.gradle'

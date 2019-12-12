@@ -69,9 +69,9 @@ class MainFragment : RxFragment(), IMapView {
             this.mapbox = map
             this.marker = marker
 
-            compositeDisposable.timer(5000) {
+            /*compositeDisposable.timer(5000) {
                 mapbox.animateCamera(CameraUpdateFactory.newLatLng(newLatLng))
-            }
+            }*/
         }
 
         mapView.getMapAsync(mainMaps)

@@ -82,6 +82,7 @@ object Retrofit {
 
 object Message {
     val rmqa                = "com.utsman.rmqa:rmqa:0.0.2"
+    val rabbitmq            = "com.rabbitmq:amqp-client:4.11.3"
 }
 
 object Module {
@@ -91,4 +92,6 @@ object Module {
     val feature_place       = ":feature:places"
     val feature_message     = ":feature:message"
     val feature_backendless = ":feature:backendless"
+
+    val feature_rabbitmq    = ":feature:rabbitmq"
 }

@@ -17,7 +17,7 @@ interface PlaceInterface {
     // localhost:8800/api/v1/place/search?q=mon&from=-6.1767059,106.828464&radius=30000
     // localhost:8800/api/v1/place/direction?from=-6.1767059,106.828464&to=-6.247402,106.79111
 
-    @GET("/api/v1/place/search")
+    @GET("/api/v1/here/search")
     fun search(
         @Query("q") query: String,
         @Query("from") from: String,

@@ -8,11 +8,9 @@ import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.jakewharton.rxbinding3.widget.afterTextChangeEvents
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.utsman.featurerabbitmq.Rabbit
 import com.utsman.kemana.R
-import com.utsman.kemana.base.RxFragment
-import com.utsman.kemana.base.calculateDistanceKm
-import com.utsman.kemana.base.calculatePricing
-import com.utsman.kemana.base.logi
+import com.utsman.kemana.base.*
 import com.utsman.kemana.presenter.MapsPresenter
 import com.utsman.kemana.remote.place.PlacePresenter
 import com.utsman.kemana.remote.place.Places
@@ -110,12 +108,19 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter) : RxFragment() {
                 }
             }
         }
+
+        v.btn_order.setOnClickListener {
+            //toast("test rabbit is --> ${Rabbit.sent()}")
+
+        }
+
         return v
     }
 
     private fun showLocationPicker(placeName: (Places?, LatLng) -> Unit) {
         val bottomSheetDialog = BottomSheetDialog(context!!)
-        val viewDialog = LayoutInflater.from(context).inflate(R.layout.bottoh_sheet_location_picker, null)
+        val viewDialog =
+            LayoutInflater.from(context).inflate(R.layout.bottoh_sheet_location_picker, null)
         bottomSheetDialog.setContentView(viewDialog)
 
         viewDialog?.rv_location?.setupAdapter<Places>(R.layout.item_location) { adapter, context, list ->
@@ -151,8 +156,11 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter) : RxFragment() {
                     submitNetworkState(NetworkState.LOADING)
                 }
                 .subscribe({
-                    placePresenter.search(it, "${startLatLng.latitude},${startLatLng.longitude}") { places ->
-                        places?.let {  results ->
+                    placePresenter.search(
+                        it,
+                        "${startLatLng.latitude},${startLatLng.longitude}"
+                    ) { places ->
+                        places?.let { results ->
                             submitNetworkState(NetworkState.LOADED)
                             submitList(results)
                         }
