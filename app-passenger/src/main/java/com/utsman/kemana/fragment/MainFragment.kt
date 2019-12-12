@@ -85,18 +85,26 @@ class MainFragment : RxFragment(), ILocationView, IMapView {
         startMaps.setPaddingBottom(200)
     }
 
-    override fun mapReady(start: Places, destination: Places, polyline: PolylineResponses) {
+    override fun mapReady(start: Places, destination: Places, polyline: PolylineResponses?) {
         val startLatLng = LatLng(start.geometry!![0]!!, start.geometry!![1]!!)
         val destinationLatLng = LatLng(destination.geometry!![0]!!, destination.geometry!![1]!!)
 
-        logi("poly is --> ${polyline.geometry}")
+        logi("poly is --> ${polyline?.geometry}")
 
-        readyMaps = ReadyMaps(context, startLatLng, destinationLatLng, polyline.geometry) { map ->
-            // map ready from invoke
+        if (polyline == null) {
+            toast("failed")
+            mapView.getMapAsync(startMaps)
+            startMaps.setPaddingBottom(200)
+            mainBottomSheetFragment.pricingGone()
+        } else {
+            readyMaps = ReadyMaps(context, startLatLng, destinationLatLng, polyline.geometry) { map ->
+                // map ready from invoke
+            }
+
+            mapView.getMapAsync(readyMaps)
+            readyMaps.setPaddingBottom(300)
+            mainBottomSheetFragment.pricingVisible()
         }
-
-        mapView.getMapAsync(readyMaps)
-        readyMaps.setPaddingBottom(300)
 
 
     }

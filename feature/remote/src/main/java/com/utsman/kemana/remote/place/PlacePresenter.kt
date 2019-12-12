@@ -10,7 +10,7 @@ class PlacePresenter(private val disposable: CompositeDisposable) : PlaceListene
     private val placeInterface = PlaceInterface.create()
 
     override fun search(query: String, from: String, places: (List<Places?>?) -> Unit) {
-        val action = placeInterface.search(query, from, 30000)
+        val action = placeInterface.search(query, from)
             .subscribeOn(Schedulers.io())
             .map { it.places }
             .observeOn(AndroidSchedulers.mainThread())
@@ -40,7 +40,7 @@ class PlacePresenter(private val disposable: CompositeDisposable) : PlaceListene
 
     }
 
-    override fun getPolyline(from: String, to: String, result: (PolylineResponses) -> Unit) {
+    override fun getPolyline(from: String, to: String, result: (PolylineResponses?) -> Unit) {
         val action = placeInterface.getPolyline(from, to)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -48,6 +48,7 @@ class PlacePresenter(private val disposable: CompositeDisposable) : PlaceListene
                 logi("get direction success")
                 result.invoke(it)
             }, {
+                result.invoke(null)
                 it.printThrow("get direction failed")
             })
 

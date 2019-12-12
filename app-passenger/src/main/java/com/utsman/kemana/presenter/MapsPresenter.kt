@@ -11,7 +11,7 @@ class MapsPresenter(private val iMapView: IMapView) : MapsInterface {
         iMapView.mapStart(startLatLng)
     }
 
-    override fun mapReady(start: Places, destination: Places, polyline: PolylineResponses) {
+    override fun mapReady(start: Places, destination: Places, polyline: PolylineResponses?) {
         iMapView.mapReady(start, destination, polyline)
     }
 

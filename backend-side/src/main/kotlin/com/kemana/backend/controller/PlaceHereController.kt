@@ -1,10 +1,7 @@
 package com.kemana.backend.controller
 
 import com.kemana.backend.maputil.Bounding
-import com.kemana.backend.model.OriginPlaces
-import com.kemana.backend.model.PlaceHere
-import com.kemana.backend.model.Places
-import com.kemana.backend.model.PlacesResponses
+import com.kemana.backend.model.*
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
@@ -41,5 +38,25 @@ class PlaceHereController {
         val listResult = listRaw?.filter { it.id != null }
 
         return PlacesResponses(listResult?.size, listResult)
+    }
+
+    @RequestMapping(value = [""], method = [RequestMethod.GET])
+    fun getPlace(@RequestParam("from") from: String): Responses? {
+        val listCoordinate = from.split(",")
+        val lat = listCoordinate[0].toDouble()
+        val lon = listCoordinate[1].toDouble()
+        val url = "https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox=$lat,$lon&mode=retrieveAddresses&maxresults=3&apiKey=EKZhNIBtjrjeYxqdyhCMQ1kxVc_O4QGfxEJLqWt0Hp0"
+
+        val originAddress = restTemplate.getForObject(url, AddressResponses::class.java)
+        val listAddress = originAddress?.response?.view?.get(0)?.result?.map {
+            it?.location?.address?.label
+        }
+
+        return listAddress?.let { Responses("OK", it) }
+    }
+
+    private fun String.reverseString(): String {
+        val raw = split(",")
+        return "${raw[1]},${raw[0]}"
     }
 }

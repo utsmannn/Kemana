@@ -1,6 +1,5 @@
 package com.kemana.backend.controller
 
-import com.kemana.backend.maputil.Bounding
 import com.kemana.backend.model.*
 import org.springframework.http.*
 import org.springframework.util.LinkedMultiValueMap
@@ -16,37 +15,26 @@ class PlaceController {
     @RequestMapping(value = ["/search"], method = [RequestMethod.GET])
     fun getPlaceBounding(
             @RequestParam("q") placeName: String,
-            @RequestParam("from") coordinate: String,
-            @RequestParam("radius") radius: Double): PlacesResponses? {
+            @RequestParam("from") coordinate: String): PlacesResponses? {
 
         val listCoordinate = coordinate.split(",")
         val lat = listCoordinate[0].toDouble()
         val lon = listCoordinate[1].toDouble()
 
-        val bound = Bounding(radius)
-        val bounding = bound.calculate(lat, lon)
+        val url = "https://places.sit.ls.hereapi.com/places/v1/autosuggest?at=$lat,$lon&q=$placeName&apikey=EKZhNIBtjrjeYxqdyhCMQ1kxVc_O4QGfxEJLqWt0Hp0"
 
-        val minLon = bounding.getLonMin()
-        val minLat = bounding.getLatMin()
-        val maxLon = bounding.getLonMax()
-        val maxLat = bounding.getLatMax()
-
-        val boundingString = "$minLon,$minLat,$maxLon,$maxLat"
-
-        val url = "https://api.mapbox.com/geocoding/v5/mapbox.places/$placeName.json?bbox=$boundingString&access_token=pk.eyJ1Ijoia3VjaW5nYXBlcyIsImEiOiJjazFjZXB4aDIyb3gwM2Nxajlza2c2aG8zIn0.htmYJKp9aaJnh-JhWZA85Q"
-        val originPlaceResponses = restTemplate.getForObject(url, OriginPlaces::class.java)
-        val listFeature = originPlaceResponses?.features
-
-        val listPlaces = listFeature?.map {
-            val toLat = it?.geometry?.coordinates?.get(1)
-            val toLon = it?.geometry?.coordinates?.get(0)
+        val respon = restTemplate.getForObject(url, PlaceHere::class.java)
+        val listRaw = respon?.results?.map {
+            val toLat = it?.position?.get(0)
+            val toLon = it?.position?.get(1)
 
             val geometryDrawUrl = "/api/v1/place/direction?from=$coordinate&to=$toLat,$toLon"
-
-            return@map Places(it?.id, it?.text, it?.placeName, listOf(toLat, toLon), geometryDrawUrl)
+            return@map Places(it?.id, it?.title, it?.vicinity?.replace("<br/>", ", "), listOf(toLat, toLon), geometryDrawUrl)
         }
 
-        return PlacesResponses(listPlaces?.size, listPlaces)
+        val listResult = listRaw?.filter { it.id != null }
+
+        return PlacesResponses(listResult?.size, listResult)
     }
 
     @RequestMapping(value = ["/direction"], method = [RequestMethod.POST])
@@ -68,9 +56,7 @@ class PlaceController {
         println(request.body.toString())
         val responses = restTemplate.exchange(url, HttpMethod.POST, request, DirectionOrigin::class.java)
 
-        val responsesDirection = ResponsesDirection(responses.body?.routes?.get(0)?.distance, responses.body?.routes?.get(0)?.geometry)
-
-        return responsesDirection
+        return ResponsesDirection(responses.body?.routes?.get(0)?.distance, responses.body?.routes?.get(0)?.geometry)
     }
 
     @RequestMapping(value = [""], method = [RequestMethod.GET])
@@ -78,16 +64,23 @@ class PlaceController {
         val listCoordinate = from.split(",")
         val lat = listCoordinate[0].toDouble()
         val lon = listCoordinate[1].toDouble()
-        val url = "https://api.mapbox.com/geocoding/v5/mapbox.places/$lon,$lat.json?access_token=pk.eyJ1Ijoia3VjaW5nYXBlcyIsImEiOiJjazFjZXB4aDIyb3gwM2Nxajlza2c2aG8zIn0.htmYJKp9aaJnh-JhWZA85Q"
+        val url = "https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox=$lat,$lon&mode=retrieveAddresses&maxresults=3&apiKey=EKZhNIBtjrjeYxqdyhCMQ1kxVc_O4QGfxEJLqWt0Hp0"
 
-        val originPlaceResponses = restTemplate.getForObject(url, OriginPlaces::class.java)
-        val listFeature = originPlaceResponses?.features
-
-        val listPlaces = listFeature?.map {
-            return@map Places(it?.id, it?.text, it?.placeName, listOf(lat, lon), null)
+        val originAddress = restTemplate.getForObject(url, AddressResponses::class.java)
+        println(from)
+        val listAddress = originAddress?.response?.view?.get(0)?.result?.map {
+            it?.location?.address?.label
+            
+            return@map Places(
+                    id = it?.location?.locationId,
+                    placeName = it?.location?.address?.label,
+                    addressName = it?.location?.address?.label,
+                    geometry = listOf(lat, lon),
+                    geometry_draw_url = null
+            )
         }
 
-        return PlacesResponses(1, listOf(listPlaces?.get(0)))
+        return PlacesResponses(listAddress?.size, listAddress)
     }
 
     private fun String.reverseString(): String {
