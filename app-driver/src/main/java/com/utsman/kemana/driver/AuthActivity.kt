@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import com.google.android.gms.tasks.Task
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseUser
 import com.utsman.easygooglelogin.EasyGoogleLogin
 import com.utsman.easygooglelogin.LoginResultListener
@@ -58,12 +59,20 @@ class AuthActivity : RxAppCompatActivity(), LoginResultListener {
 
         remotePresenter.checkRegisteredDriver(user.email) { status ->
             logi("status is --> $status")
-            if (status) {
-                intentTo(FormCompleteActivity::class.java, bundle)
-                finish()
+
+            if (status != null) {
+                if (status) {
+                    intentTo(MainActivity::class.java, bundle)
+                    finish()
+                } else {
+                    intentTo(FormCompleteActivity::class.java, bundle)
+                    finish()
+                }
             } else {
-                intentTo(MainActivity::class.java, bundle)
-                finish()
+                btn_google_sign.isEnabled = true
+                val bottomDialog = BottomSheetDialog(this)
+                bottomDialog.setContentView(R.layout.bottom_dialog_error)
+                bottomDialog.show()
             }
         }
     }

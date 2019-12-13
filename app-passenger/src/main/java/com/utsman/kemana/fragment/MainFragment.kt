@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.utsman.featurerabbitmq.Rabbit
@@ -75,7 +76,6 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
         bottomSheet.hidden()
 
         replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
-
         bottomSheet.collapse()
 
         return v
@@ -99,6 +99,8 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
 
         mapView.getMapAsync(startMaps)
         startMaps.setPaddingBottom(200)
+
+        mainBottomSheetFragment.pricingGone()
     }
 
     override fun mapReady(start: Places, destination: Places, polyline: PolylineResponses?) {
@@ -106,25 +108,31 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
         destLatLng = LatLng(destination.geometry!![0]!!, destination.geometry!![1]!!)
 
         logi("poly is --> ${polyline?.geometry}")
+        mainBottomSheetFragment.pricingGone()
 
         if (polyline == null) {
             toast("failed")
             mapView.getMapAsync(startMaps)
             startMaps.setPaddingBottom(200)
-            mainBottomSheetFragment.pricingGone()
         } else {
             readyMaps = ReadyMaps(context, startLatLng, destLatLng, polyline.geometry) { map ->
                 // map ready from invokeW
+                mainBottomSheetFragment.pricingVisible()
             }
 
             mapView.getMapAsync(readyMaps)
             readyMaps.setPaddingBottom(300)
-            mainBottomSheetFragment.pricingVisible()
         }
     }
 
     override fun mapOrder() {
 
+    }
+
+    override fun failedServerConnection() {
+        val bottomDialog = BottomSheetDialog(context!!)
+        bottomDialog.setContentView(R.layout.bottom_dialog_error)
+        bottomDialog.show()
     }
 
     override fun findDriver(startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {
@@ -180,7 +188,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
             put("distance", polyline.distance)
         }
 
-        Rabbit.fromUrl(RABBIT_URL).publishTo(email, jsonRequest)
+        Rabbit.fromUrl(RABBIT_URL).publishTo(email, true, jsonRequest)
     }
 
 

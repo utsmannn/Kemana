@@ -33,6 +33,7 @@ class PlacePresenter(private val disposable: CompositeDisposable) : PlaceListene
                 logi("get places result success")
                 places.invoke(it)
             }, {
+                places.invoke(null)
                 it.printThrow("get places failed")
             })
 

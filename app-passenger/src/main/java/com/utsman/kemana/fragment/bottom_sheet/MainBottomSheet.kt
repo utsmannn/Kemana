@@ -55,13 +55,15 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter, private val mess
             startLatLng = it.latLng
 
             placePresenter.getAddress("${startLatLng.latitude},${startLatLng.longitude}") { place ->
-                startPlace = place
-                val name = place?.placeName
-                v.text_from.text = "$name (current location)"
+                if (place != null) {
+                    startPlace = place
+                    val name = place.placeName
+                    v.text_from.text = "$name (current location)"
+                } else {
+                    mapsPresenter.failedServerConnection()
+                }
             }
         })
-
-        v.btn_order.isEnabled = false
 
         v.container_from.setOnClickListener {
             showLocationPicker { place, latLng ->
@@ -80,8 +82,6 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter, private val mess
                             setupPricing(v, poly)
                         }
                     }
-
-                    v.btn_order.isEnabled = true
                 }
             }
         }
@@ -104,8 +104,6 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter, private val mess
                             setupPricing(v, poly)
                         }
                     }
-
-                    v.btn_order.isEnabled = true
                 }
             }
         }
@@ -184,10 +182,12 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter, private val mess
 
     fun pricingVisible() {
         view?.detail_pricing_container?.visibility = View.VISIBLE
+        view?.btn_order?.isEnabled = true
     }
 
     fun pricingGone() {
         view?.detail_pricing_container?.visibility = View.GONE
         view?.text_to?.text = "Kemana?"
+        view?.btn_order?.isEnabled = false
     }
 }

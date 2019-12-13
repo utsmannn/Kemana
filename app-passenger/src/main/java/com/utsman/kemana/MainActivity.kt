@@ -38,7 +38,6 @@ class MainActivity : RxAppCompatActivity() {
         val person = getBundleFrom<Passenger>("passenger")
         mainFragment = MainFragment(person)
 
-
         setupPermission {
             replaceFragment(mainFragment, R.id.main_frame)
         }

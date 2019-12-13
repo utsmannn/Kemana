@@ -54,7 +54,7 @@ data class ResponsesEmail(
 
 data class ResponsesChecking(
     val message: String,
-    val data: Boolean
+    val data: Boolean?
 )
 
 data class OrderData(

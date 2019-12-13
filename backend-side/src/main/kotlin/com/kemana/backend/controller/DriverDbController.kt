@@ -26,7 +26,7 @@ class DriverDbController {
     @RequestMapping(value = ["/check/{email}"], method = [RequestMethod.GET])
     fun checkRegisteredDriver(@PathVariable("email") email: String): Responses {
         val drivers = driverDbRepository.findAll().filter { it.email == email }
-        return Responses("OK", drivers.isNullOrEmpty())
+        return Responses("OK", !drivers.isNullOrEmpty())
     }
 
     @RequestMapping(value = ["/registered"], method = [RequestMethod.GET])

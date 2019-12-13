@@ -195,7 +195,7 @@ class RemotePresenter(private val composite: CompositeDisposable) : RemoteListen
         composite.add(action)
     }
 
-    override fun checkRegisteredDriver(email: String?, hasRegister: (Boolean) -> Unit) {
+    override fun checkRegisteredDriver(email: String?, hasRegister: (Boolean?) -> Unit) {
         val action = remoteInstance.checkRegisteredDriver(email)
             .subscribeOn(Schedulers.io())
             .map { it.data }
@@ -205,7 +205,7 @@ class RemotePresenter(private val composite: CompositeDisposable) : RemoteListen
                 logi("status is --> $it")
             }, {
                 it.printThrow("insert driver")
-                hasRegister.invoke(false)
+                hasRegister.invoke(null)
             })
 
         composite.add(action)

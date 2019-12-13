@@ -8,4 +8,5 @@ interface MapsInterface {
     fun mapStart(startLatLng: LatLng)
     fun mapReady(start: Places, destination: Places, polyline: PolylineResponses?)
     fun mapOrder()
+    fun failedServerConnection()
 }

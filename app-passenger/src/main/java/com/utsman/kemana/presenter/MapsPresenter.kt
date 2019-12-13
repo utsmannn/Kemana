@@ -18,4 +18,8 @@ class MapsPresenter(private val iMapView: IMapView) : MapsInterface {
     override fun mapOrder() {
         iMapView.mapOrder()
     }
+
+    override fun failedServerConnection() {
+        iMapView.failedServerConnection()
+    }
 }
