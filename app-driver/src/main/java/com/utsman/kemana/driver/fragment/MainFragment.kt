@@ -16,7 +16,7 @@ import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.driver.R
 import com.utsman.kemana.driver.fragment.bottom_sheet.MainBottomSheet
-import com.utsman.kemana.driver.impl.IMapView
+import com.utsman.kemana.driver.impl.view.IMapView
 import com.utsman.kemana.driver.impl.view_state.IActiveState
 import com.utsman.kemana.driver.maps_callback.MainMaps
 import com.utsman.kemana.driver.presenter.MapsPresenter
@@ -35,7 +35,8 @@ import kotlinx.android.synthetic.main.fragment_main.view.*
 import org.json.JSONObject
 
 @Suppress("UNCHECKED_CAST")
-class MainFragment(private val driver: Driver?) : RxFragment(), IMapView, IActiveState {
+class MainFragment(private val driver: Driver?) : RxFragment(),
+    IMapView, IActiveState {
 
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
     private lateinit var mainBottomSheetFragment: MainBottomSheet

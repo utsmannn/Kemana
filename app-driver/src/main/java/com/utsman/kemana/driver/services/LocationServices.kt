@@ -7,8 +7,8 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.featurerabbitmq.Rabbit
 import com.utsman.featurerabbitmq.Type
 import com.utsman.kemana.base.*
-import com.utsman.kemana.driver.impl.ILocationUpdateView
-import com.utsman.kemana.driver.impl.ILocationView
+import com.utsman.kemana.driver.impl.view.ILocationUpdateView
+import com.utsman.kemana.driver.impl.view.ILocationView
 import com.utsman.kemana.driver.presenter.LocationPresenter
 import com.utsman.kemana.driver.subscriber.*
 import com.utsman.kemana.remote.driver.Driver
@@ -19,7 +19,9 @@ import io.reactivex.functions.Consumer
 import isfaaghyth.app.notify.Notify
 import isfaaghyth.app.notify.NotifyProvider
 
-class LocationServices : RxService(), ILocationView, ILocationUpdateView {
+class LocationServices : RxService(),
+    ILocationView,
+    ILocationUpdateView {
 
     private lateinit var locationPresenter: LocationPresenter
     private lateinit var remotePresenter: RemotePresenter

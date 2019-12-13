@@ -5,14 +5,15 @@ import android.location.Location
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.base.loge
 import com.utsman.kemana.base.logi
-import com.utsman.kemana.driver.impl.ILocationUpdateView
-import com.utsman.kemana.driver.impl.ILocationView
-import com.utsman.kemana.driver.impl.LocationInterface
+import com.utsman.kemana.driver.impl.view.ILocationUpdateView
+import com.utsman.kemana.driver.impl.view.ILocationView
+import com.utsman.kemana.driver.impl.presenter.LocationInterface
 import com.utsman.smartmarker.location.LocationUpdateListener
 import com.utsman.smartmarker.location.LocationWatcher
 import com.utsman.smartmarker.mapbox.toLatLngMapbox
 
-class LocationPresenter(private val context: Context) : LocationInterface {
+class LocationPresenter(private val context: Context) :
+    LocationInterface {
 
     private lateinit var locationWatcher: LocationWatcher
     private var nowLatLng = LatLng()

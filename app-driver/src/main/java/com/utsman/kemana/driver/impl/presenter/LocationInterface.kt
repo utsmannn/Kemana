@@ -1,4 +1,4 @@
-package com.utsman.kemana.driver.impl
+package com.utsman.kemana.driver.impl.presenter
 
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.driver.impl.view.ILocationUpdateView

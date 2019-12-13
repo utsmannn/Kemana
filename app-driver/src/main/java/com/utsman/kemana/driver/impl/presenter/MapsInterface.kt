@@ -1,4 +1,4 @@
-package com.utsman.kemana.driver.impl
+package com.utsman.kemana.driver.impl.presenter
 
 import com.utsman.kemana.driver.subscriber.LocationSubs
 import com.utsman.kemana.driver.subscriber.UpdateLocationSubs

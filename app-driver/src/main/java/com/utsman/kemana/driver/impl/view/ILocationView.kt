@@ -1,4 +1,4 @@
-package com.utsman.kemana.driver.impl
+package com.utsman.kemana.driver.impl.view
 
 import com.mapbox.mapboxsdk.geometry.LatLng
 
