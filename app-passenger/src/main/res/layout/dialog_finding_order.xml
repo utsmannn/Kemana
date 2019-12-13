@@ -17,4 +17,12 @@
         android:layout_height="wrap_content"
         android:text="Finding driver.." />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_cancel"
+        android:layout_width="match_parent"
+        android:layout_margin="12dp"
+        android:theme="@style/Widget.MaterialComponents.Button"
+        android:layout_height="wrap_content"
+        android:text="Cancel" />
+
 </LinearLayout>

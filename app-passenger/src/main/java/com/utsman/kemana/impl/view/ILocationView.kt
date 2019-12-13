@@ -1,4 +1,4 @@
-package com.utsman.kemana.impl
+package com.utsman.kemana.impl.view
 
 import com.mapbox.mapboxsdk.geometry.LatLng
 

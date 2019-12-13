@@ -3,11 +3,11 @@
 package com.utsman.kemana.fragment
 
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -18,9 +18,9 @@ import com.utsman.kemana.R
 import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.fragment.bottom_sheet.MainBottomSheet
-import com.utsman.kemana.impl.ILocationView
-import com.utsman.kemana.impl.IMapView
-import com.utsman.kemana.impl.IMessagingView
+import com.utsman.kemana.impl.view.ILocationView
+import com.utsman.kemana.impl.view.IMapView
+import com.utsman.kemana.impl.view.IMessagingView
 import com.utsman.kemana.maps_callback.ReadyMaps
 import com.utsman.kemana.maps_callback.StartMaps
 import com.utsman.kemana.presenter.LocationPresenter
@@ -35,10 +35,12 @@ import com.utsman.kemana.remote.toOrderData
 import com.utsman.kemana.subscriber.LocationSubs
 import isfaaghyth.app.notify.Notify
 import kotlinx.android.synthetic.main.bottom_sheet.view.*
+import kotlinx.android.synthetic.main.dialog_finding_order.view.*
 import kotlinx.android.synthetic.main.fragment_main.view.*
 import org.json.JSONObject
 
-class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationView, IMapView, IMessagingView {
+class MainFragment(private val passenger: Passenger?) : RxFragment(),
+    ILocationView, IMapView, IMessagingView {
 
     private lateinit var mainBottomSheetFragment: MainBottomSheet
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
@@ -56,16 +58,22 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
     private var startLatLng = LatLng()
     private var destLatLng = LatLng()
 
-    private var isOrder = true
+    private var isOrder = MutableLiveData<Boolean>()
 
     private val bottomDialog by lazy {
         val bottomDialog = BottomSheetDialog(context!!)
         val bottomDialogView = LayoutInflater.from(context).inflate(R.layout.dialog_finding_order, null)
         bottomDialog.setContentView(bottomDialogView)
-        bottomDialog.setOnCancelListener {
-            toast("cancel")
-            isOrder = false
+        bottomDialog.setCancelable(false)
+        bottomDialog.setOnShowListener {
+            isOrder.postValue(true)
         }
+
+        bottomDialogView.btn_cancel.setOnClickListener {
+            isOrder.postValue(false)
+            bottomDialog.cancel()
+        }
+
         return@lazy bottomDialog
     }
 
@@ -180,11 +188,12 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
 
                                 // driver accepted
                                 logi("order accepted")
-                                bottomDialog.dismiss()
+                                bottomDialog.cancel()
 
-                                if (isOrder) {
+                                isOrder.observe(this, Observer { ready ->
+                                    toast("order ready -> $ready")
                                     val jsonObjectReady = JSONObject()
-                                    jsonObjectReady.put("ready", true)
+                                    jsonObjectReady.put("ready", ready)
 
                                     val jsonRequest = JSONObject()
                                     jsonRequest.apply {
@@ -193,18 +202,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
                                     }
 
                                     Rabbit.fromUrl(RABBIT_URL).publishTo(emails[target], true, jsonRequest)
-                                } else {
-                                    val jsonObjectReady = JSONObject()
-                                    jsonObjectReady.put("ready", false)
-
-                                    val jsonRequest = JSONObject()
-                                    jsonRequest.apply {
-                                        put("type", Type.ORDER_CHECKING)
-                                        put("data", jsonObjectReady)
-                                    }
-
-                                    Rabbit.fromUrl(RABBIT_URL).publishTo(emails[target], true, jsonRequest)
-                                }
+                                })
 
                             } else {
                                 logi("order rejected")
@@ -218,7 +216,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
                                     }
                                 } else {
                                     toast("cannot driver accepted, please try again")
-                                    bottomDialog.dismiss()
+                                    bottomDialog.cancel()
                                 }
                             }
                         }
@@ -230,10 +228,6 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
                 bottomDialog.dismiss()
             }
         }
-    }
-
-    override fun retrieveDriver() {
-
     }
 
     private fun finder(email: String, startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {
