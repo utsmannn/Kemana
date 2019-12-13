@@ -53,7 +53,7 @@ fun Passenger.toJSONObject(): JSONObject {
     return jsonObject
 }
 
-fun JSONObject.toPasseger(): Passenger {
+fun JSONObject.toPassenger(): Passenger {
     val id = getString("id")
     val name = getString("name")
     val email = getString("email")

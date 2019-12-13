@@ -85,6 +85,7 @@ class RemotePresenter(private val disposable: CompositeDisposable) :
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
+
                 val list = it.data
                 driver = if (!list.isNullOrEmpty()) {
                     list[0]

@@ -28,7 +28,6 @@ class DriverController {
         return Responses("OK", emails)
     }
 
-
     @RequestMapping(value = ["/"], method = [RequestMethod.POST])
     fun saveDriver(@Valid @RequestBody driver: Driver): Responses {
         driver.id = UUID.nameUUIDFromBytes(driver.email.toByteArray()).toString()

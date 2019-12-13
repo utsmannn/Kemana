@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
@@ -126,28 +127,40 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
 
     }
 
-    override fun findDriver(startPlaces: Places, destPlaces: Places) {
+    override fun findDriver(startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {
         toast("start finding")
 
-        remotePresenter.getDriversActiveEmail {  emails ->
+        val dialogBuilder = AlertDialog.Builder(context!!)
+        dialogBuilder.setView(R.layout.dialog_finding_order)
+        dialogBuilder.setCancelable(false)
 
+        val dialog = dialogBuilder.create()
+
+        dialog.show()
+
+        remotePresenter.getDriversActiveEmail {  emails ->
             if (!emails.isNullOrEmpty()) {
 
                 val size = emails.size
                 var target = 0
 
                 if (target <= size) {
-                    finder(emails[target], startPlaces, destPlaces)
+                    finder(emails[target], startPlaces, destPlaces, polyline)
+                } else {
+                    dialog.dismiss()
                 }
 
                 // listen callback driver
                 Rabbit.fromUrl(RABBIT_URL).listen { from, body ->
+
+                    // if reject from driver
                     target =+ 1
-                    finder(emails[target], startPlaces, destPlaces)
+                    finder(emails[target], startPlaces, destPlaces, polyline)
                 }
 
             } else {
                 toast("driver not found")
+                dialog.dismiss()
             }
         }
     }
@@ -156,7 +169,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
 
     }
 
-    private fun finder(email: String, startPlaces: Places, destPlaces: Places) {
+    private fun finder(email: String, startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {
         val jsonRequest = JSONObject()
         jsonRequest.apply {
             put("person", passenger?.toJSONObject())
@@ -164,6 +177,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
             put("destination", destPlaces.placeName)
             put("startPlace", startPlaces.toJSONObject())
             put("destPlace", destPlaces.toJSONObject())
+            put("distance", polyline.distance)
         }
 
         Rabbit.fromUrl(RABBIT_URL).publishTo(email, jsonRequest)

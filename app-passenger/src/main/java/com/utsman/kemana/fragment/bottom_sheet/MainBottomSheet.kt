@@ -111,8 +111,8 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter, private val mess
         }
 
         v.btn_order.setOnClickListener {
-            if (startPlace != null && destinationPlace != null) {
-                messagingPresenter.findDriver(startPlace!!, destinationPlace!!)
+            if (startPlace != null && destinationPlace != null && polyline != null) {
+                messagingPresenter.findDriver(startPlace!!, destinationPlace!!, polyline!!)
             }
         }
 

@@ -18,7 +18,6 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import com.mapbox.mapboxsdk.Mapbox
-import com.utsman.featurerabbitmq.Rabbit
 import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.driver.fragment.MainFragment
@@ -28,7 +27,7 @@ import com.utsman.kemana.driver.services.LocationServices
 import com.utsman.kemana.driver.subscriber.JsonObjectSubs
 import com.utsman.kemana.remote.driver.Driver
 import com.utsman.kemana.remote.driver.RemoteState
-import com.utsman.kemana.remote.toPasseger
+import com.utsman.kemana.remote.toPassenger
 import com.utsman.kemana.remote.toPlace
 import io.reactivex.functions.Consumer
 import isfaaghyth.app.notify.Notify
@@ -84,17 +83,37 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
         Notify.listen(JsonObjectSubs::class.java, NotifyProvider(), Consumer {
             val obj = it.jsonObject
 
-            val person = obj.getJSONObject("person").toPasseger()
+            val person = obj.getJSONObject("person").toPassenger()
             val startPlace = obj.getJSONObject("startPlace").toPlace()
             val destPlace = obj.getJSONObject("destPlace").toPlace()
             val startName = obj.getString("start")
             val destName = obj.getString("destination")
+            val distance = obj.getDouble("distance")
 
             val bottomDialog = BottomSheetDialog(this)
             val bottomDialogView = LayoutInflater.from(this).inflate(R.layout.bottom_dialog_receiving_order, null)
             bottomDialog.setContentView(bottomDialogView)
-            val textTest = bottomDialogView.text_test
-            textTest.text = "Mendapatkan order: ${person.name} \nDari ${startPlace.placeName}\nKe ${destPlace.placeName}"
+            val textPassengerName = bottomDialogView.text_name_passenger
+            val textPricing = bottomDialogView.text_price
+            val textDistance = bottomDialogView.text_distance
+            val textFrom = bottomDialogView.text_from
+            val textDest = bottomDialogView.text_to
+            val btnAccept = bottomDialogView.btn_accept
+            val btnReject = bottomDialogView.btn_reject
+
+            textPassengerName.text = person.name
+            textPricing.text = distance.calculatePricing()
+            textDistance.text = distance.calculateDistanceKm()
+            textFrom.text = startPlace.placeName
+            textDest.text = destPlace.placeName
+
+            btnAccept.setOnClickListener {
+
+            }
+
+            btnReject.setOnClickListener {
+
+            }
 
             bottomDialog.show()
 
