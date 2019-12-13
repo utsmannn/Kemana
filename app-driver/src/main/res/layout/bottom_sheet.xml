@@ -7,9 +7,7 @@
     android:orientation="vertical"
     app:behavior_hideable="false"
     android:padding="12dp"
-    app:cardCornerRadius="16dp"
-    android:layout_margin="12dp"
-    app:cardElevation="5dp"
+    app:cardElevation="0dp"
     app:layout_behavior="com.utsman.kemana.base.view.BottomSheetUnDrag">
 
     <FrameLayout

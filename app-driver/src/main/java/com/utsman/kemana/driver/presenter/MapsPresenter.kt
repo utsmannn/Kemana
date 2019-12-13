@@ -14,4 +14,8 @@ class MapsPresenter(private val iMapView: IMapView) : MapsInterface {
     override fun startUpdate(updateLocationSubs: UpdateLocationSubs) {
         iMapView.onLocationUpdate(updateLocationSubs.newLatLng)
     }
+
+    override fun pickupPassenger() {
+        iMapView.onPickupPassenger()
+    }
 }
