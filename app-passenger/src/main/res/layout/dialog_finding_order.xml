@@ -3,7 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_people_find"
+        android:layout_marginBottom="12dp"/>
 
     <TextView
         android:layout_width="wrap_content"

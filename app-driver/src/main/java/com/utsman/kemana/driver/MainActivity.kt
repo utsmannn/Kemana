@@ -19,17 +19,16 @@ import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import com.mapbox.mapboxsdk.Mapbox
 import com.utsman.featurerabbitmq.Rabbit
+import com.utsman.featurerabbitmq.Type
 import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.driver.fragment.MainFragment
 import com.utsman.kemana.driver.fragment.bottom_sheet.MainBottomSheet
 import com.utsman.kemana.driver.impl.view_state.IActiveState
 import com.utsman.kemana.driver.services.LocationServices
-import com.utsman.kemana.driver.subscriber.JsonObjectSubs
-import com.utsman.kemana.remote.driver.Driver
-import com.utsman.kemana.remote.driver.OrderData
-import com.utsman.kemana.remote.driver.OrderDataAttr
-import com.utsman.kemana.remote.driver.RemoteState
+import com.utsman.kemana.driver.subscriber.ObjectOrderSubs
+import com.utsman.kemana.driver.subscriber.ReadyOrderSubs
+import com.utsman.kemana.remote.driver.*
 import com.utsman.kemana.remote.toJSONObject
 import com.utsman.kemana.remote.toPassenger
 import com.utsman.kemana.remote.toPlace
@@ -39,7 +38,6 @@ import isfaaghyth.app.notify.NotifyProvider
 import kotlinx.android.synthetic.main.bottom_dialog_receiving_order.view.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
 import org.json.JSONObject
-import java.util.*
 
 class MainActivity : RxAppCompatActivity(), IActiveState {
 
@@ -48,6 +46,20 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
     private lateinit var mainBottomSheetFragment: MainBottomSheet
     private lateinit var locationServices: Intent
     private var driver: Driver? = null
+
+    private var onPassengerOrder = true
+
+    private val bottomDialogView by lazy {
+        LayoutInflater.from(this).inflate(R.layout.bottom_dialog_receiving_order, null)
+    }
+
+    private val bottomDialog by lazy {
+        val bottomDialog = BottomSheetDialog(this)
+        bottomDialog.setContentView(bottomDialogView)
+        bottomDialog.setCancelable(false)
+
+        return@lazy bottomDialog
+    }
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,7 +98,11 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
             }
         }
 
-        Notify.listen(JsonObjectSubs::class.java, NotifyProvider(), Consumer {
+        Notify.listen(ReadyOrderSubs::class.java, NotifyProvider(), Consumer { ready ->
+            onPassengerOrder = ready.onOrder
+        })
+
+        Notify.listen(ObjectOrderSubs::class.java, NotifyProvider(), Consumer {
             val obj = it.jsonObject
 
             val passenger = obj.getJSONObject("person").toPassenger()
@@ -95,12 +111,6 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
             val startName = obj.getString("start")
             val destName = obj.getString("destination")
             val distance = obj.getDouble("distance")
-
-            val bottomDialog = BottomSheetDialog(this)
-            val bottomDialogView =
-                LayoutInflater.from(this).inflate(R.layout.bottom_dialog_receiving_order, null)
-            bottomDialog.setContentView(bottomDialogView)
-            bottomDialog.setCancelable(false)
 
             val textPassengerName = bottomDialogView.text_name_passenger
             val textPricing = bottomDialogView.text_price
@@ -117,44 +127,44 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
             textDest.text = destPlace.placeName
 
             btnAccept.setOnClickListener {
-                val orderDataAttr = OrderDataAttr(
-                    orderID = System.currentTimeMillis().toString(),
-                    driver = driver,
-                    passenger = passenger
-                )
-                val orderData = OrderData(
-                    accepted = true,
-                    attribute = orderDataAttr
-                )
-
-                Rabbit.fromUrl(RABBIT_URL)
-                    .publishTo(passenger.email!!, false, orderData.toJSONObject())
-                    .apply {
-                        bottomDialog.dismiss()
-                    }
+                callbackToPassenger(true, passenger)
             }
 
             btnReject.setOnClickListener {
-                val orderDataAttr = OrderDataAttr(
-                    orderID = System.currentTimeMillis().toString(),
-                    driver = driver,
-                    passenger = passenger
-                )
-                val orderData = OrderData(
-                    accepted = false,
-                    attribute = orderDataAttr
-                )
-
-                Rabbit.fromUrl(RABBIT_URL)
-                    .publishTo(passenger.email!!, false, orderData.toJSONObject())
-                    .apply {
-                        bottomDialog.dismiss()
-                    }
+                callbackToPassenger(false, passenger)
             }
 
-            bottomDialog.show()
-
+            showBottomDialog()
         })
+    }
+
+    private fun callbackToPassenger(accepted: Boolean, passenger: Passenger) {
+        val orderDataAttr = OrderDataAttr(
+            orderID = System.currentTimeMillis().toString(),
+            driver = driver,
+            passenger = passenger
+        )
+        val orderData = OrderData(
+            accepted = accepted,
+            attribute = orderDataAttr
+        )
+
+        val jsonRequest = JSONObject()
+        jsonRequest.apply {
+            put("type", Type.ORDER_CONFIRM)
+            put("data", orderData.toJSONObject())
+        }
+
+        if (onPassengerOrder) {
+            Rabbit.fromUrl(RABBIT_URL)
+                .publishTo(passenger.email!!, false, jsonRequest)
+                .apply {
+                    dismissBottomDialog()
+                }
+        } else {
+            toast("order canceled from passenger")
+            dismissBottomDialog()
+        }
     }
 
     override fun activeState() {
@@ -197,5 +207,17 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
         Handler().postDelayed({
             stopService(locationServices)
         }, 800)
+    }
+
+    private fun dismissBottomDialog() {
+        if (bottomDialog.isShowing) {
+            bottomDialog.dismiss()
+        }
+    }
+
+    private fun showBottomDialog() {
+        if (!bottomDialog.isShowing) {
+            bottomDialog.show()
+        }
     }
 }

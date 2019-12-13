@@ -3,6 +3,7 @@
 package com.utsman.kemana.fragment
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.utsman.featurerabbitmq.Rabbit
+import com.utsman.featurerabbitmq.Type
 import com.utsman.kemana.R
 import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
@@ -53,6 +55,19 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
 
     private var startLatLng = LatLng()
     private var destLatLng = LatLng()
+
+    private var isOrder = true
+
+    private val bottomDialog by lazy {
+        val bottomDialog = BottomSheetDialog(context!!)
+        val bottomDialogView = LayoutInflater.from(context).inflate(R.layout.dialog_finding_order, null)
+        bottomDialog.setContentView(bottomDialogView)
+        bottomDialog.setOnCancelListener {
+            toast("cancel")
+            isOrder = false
+        }
+        return@lazy bottomDialog
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -109,7 +124,6 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
         destLatLng = LatLng(destination.geometry!![0]!!, destination.geometry!![1]!!)
 
         logi("poly is --> ${polyline?.geometry}")
-        mainBottomSheetFragment.pricingGone()
 
         if (polyline == null) {
             toast("failed")
@@ -138,14 +152,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
 
     override fun findDriver(startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {
         toast("start finding")
-
-        val dialogBuilder = AlertDialog.Builder(context!!)
-        dialogBuilder.setView(R.layout.dialog_finding_order)
-        dialogBuilder.setCancelable(false)
-
-        val dialog = dialogBuilder.create()
-
-        dialog.show()
+        bottomDialog.show()
 
         remotePresenter.getDriversActiveEmail {  emails ->
             if (!emails.isNullOrEmpty()) {
@@ -156,39 +163,71 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
                 if (target <= size) {
                     finder(emails[target], startPlaces, destPlaces, polyline)
                 } else {
-                    dialog.dismiss()
+                    bottomDialog.dismiss()
                 }
 
                 // listen callback driver
                 Rabbit.fromUrl(RABBIT_URL).listen { from, body ->
                     logi("from $from is $body")
 
-                    val orderData = body.toOrderData()
-                    if (orderData.accepted) {
-                        // driver accepted
-                        logi("order accepted")
-                        dialog.dismiss()
+                    val type = body.getInt("type")
+                    val data = body.getJSONObject("data")
 
-                    } else {
-                        logi("order rejected")
+                    when (type) {
+                        Type.ORDER_CONFIRM -> {
+                            val orderData = data.toOrderData()
+                            if (orderData.accepted) {
 
-                        // if target < size, call again with increase target
-                        if (target < size) {
-                            logi("target is $target and size is $size")
-                            // increase target with +1 and call again
-                            target = (+1).apply {
-                                finder(emails[this], startPlaces, destPlaces, polyline)
+                                // driver accepted
+                                logi("order accepted")
+                                bottomDialog.dismiss()
+
+                                if (isOrder) {
+                                    val jsonObjectReady = JSONObject()
+                                    jsonObjectReady.put("ready", true)
+
+                                    val jsonRequest = JSONObject()
+                                    jsonRequest.apply {
+                                        put("type", Type.ORDER_CHECKING)
+                                        put("data", jsonObjectReady)
+                                    }
+
+                                    Rabbit.fromUrl(RABBIT_URL).publishTo(emails[target], true, jsonRequest)
+                                } else {
+                                    val jsonObjectReady = JSONObject()
+                                    jsonObjectReady.put("ready", false)
+
+                                    val jsonRequest = JSONObject()
+                                    jsonRequest.apply {
+                                        put("type", Type.ORDER_CHECKING)
+                                        put("data", jsonObjectReady)
+                                    }
+
+                                    Rabbit.fromUrl(RABBIT_URL).publishTo(emails[target], true, jsonRequest)
+                                }
+
+                            } else {
+                                logi("order rejected")
+
+                                // if target < size, call again with increase target
+                                if (target < size) {
+                                    logi("target is $target and size is $size")
+                                    // increase target with +1 and call again
+                                    target = (+1).apply {
+                                        finder(emails[this], startPlaces, destPlaces, polyline)
+                                    }
+                                } else {
+                                    toast("cannot driver accepted, please try again")
+                                    bottomDialog.dismiss()
+                                }
                             }
-                        } else {
-                            dialog.dismiss()
-                            toast("cannot driver accepted, please try again")
                         }
                     }
                 }
 
             } else {
                 toast("driver not found")
-                dialog.dismiss()
+                bottomDialog.dismiss()
             }
         }
     }
@@ -198,14 +237,20 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
     }
 
     private fun finder(email: String, startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {
-        val jsonRequest = JSONObject()
-        jsonRequest.apply {
+        val jsonBody = JSONObject()
+        jsonBody.apply {
             put("person", passenger?.toJSONObject())
             put("start", startPlaces.placeName)
             put("destination", destPlaces.placeName)
             put("startPlace", startPlaces.toJSONObject())
             put("destPlace", destPlaces.toJSONObject())
             put("distance", polyline.distance)
+        }
+
+        val jsonRequest = JSONObject()
+        jsonRequest.apply {
+            put("type", Type.ORDER_REQUEST)
+            put("data", jsonBody)
         }
 
         Rabbit.fromUrl(RABBIT_URL).publishTo(email, true, jsonRequest)
