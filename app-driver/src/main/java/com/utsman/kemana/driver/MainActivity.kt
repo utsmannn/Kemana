@@ -54,6 +54,7 @@ class MainActivity : RxAppCompatActivity() {
         driver = getBundleFrom("driver")
         locationServices = Intent(this, LocationServices::class.java)
         mainFragment = MainFragment(driver)
+        //mainFragment = MainFragment.withDriver(driver)
 
         setupPermission {
             startService(locationServices)

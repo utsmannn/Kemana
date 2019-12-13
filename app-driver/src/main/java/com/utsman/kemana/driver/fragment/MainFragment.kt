@@ -5,6 +5,7 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -19,6 +20,7 @@ import com.utsman.kemana.driver.fragment.bottom_sheet.MainBottomSheet
 import com.utsman.kemana.driver.impl.view.IMapView
 import com.utsman.kemana.driver.impl.view_state.IActiveState
 import com.utsman.kemana.driver.maps_callback.MainMaps
+import com.utsman.kemana.driver.maps_callback.PickupMaps
 import com.utsman.kemana.driver.presenter.MapsPresenter
 import com.utsman.kemana.driver.subscriber.*
 import com.utsman.kemana.remote.driver.*
@@ -40,7 +42,6 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
 
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
     private lateinit var mainBottomSheetFragment: MainBottomSheet
-
     private var onPassengerOrder = true
 
     private val bottomDialogView by lazy {
@@ -58,10 +59,24 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
     private lateinit var mapView: MapView
     private lateinit var mapsPresenter: MapsPresenter
     private lateinit var mapbox: MapboxMap
+
     private lateinit var mainMaps: MainMaps
+    private lateinit var pickupMaps: PickupMaps
 
     private var marker: Marker? = null
     private var newLatLng = LatLng()
+
+
+    // you can also use this
+    /*private var driver: Driver? = null
+    companion object {
+        fun withDriver(driver: Driver?): MainFragment {
+            val fragment = MainFragment()
+            val bundle = bundleOf("driver" to driver)
+            fragment.arguments = bundle
+            return fragment
+        }
+    }*/
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,6 +86,9 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
         val view = inflater.inflate(R.layout.fragment_main, container, false)
         mapView = view?.mapbox_view!!
         mapsPresenter = MapsPresenter(this)
+
+        // get parcel if you use argument to pass driver
+        //driver = arguments?.getParcelable("driver")
 
         val subs = Notify.listen(LocationSubs::class.java, NotifyProvider(), Consumer { locationSubs ->
             logi("NOTIFY --> receiving location from service")
@@ -134,6 +152,7 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
 
             btnAccept.setOnClickListener {
                 callbackToPassenger(true, passenger)
+                logi("--------> ${passenger.name} --> ${passenger.position?.lat}")
             }
 
             btnReject.setOnClickListener {
@@ -148,14 +167,11 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
 
     override fun onLocationReady(latLng: LatLng) {
         this.newLatLng = latLng
+        driver?.position = Position(latLng.latitude, latLng.longitude)
 
         mainMaps = MainMaps(context, latLng) { map, marker ->
             this.mapbox = map
             this.marker = marker
-
-            /*compositeDisposable.timer(5000) {
-                mapbox.animateCamera(CameraUpdateFactory.newLatLng(newLatLng))
-            }*/
         }
 
         mapView.getMapAsync(mainMaps)
@@ -172,8 +188,15 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
         Notify.send(RotationSubs(marker?.getRotation()))
     }
 
-    override fun onPickupPassenger() {
+    override fun onPickupPassenger(orderData: OrderData) {
+        pickupMaps = PickupMaps(context, composite, orderData) { mapbox, marker ->
+            this.marker = marker
+            this.mapbox = mapbox
+            // ok
+        }
 
+        mapView.getMapAsync(pickupMaps)
+        pickupMaps.setPaddingBottom(200)
     }
 
     private fun callbackToPassenger(accepted: Boolean, passenger: Passenger) {
@@ -194,6 +217,7 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
         }
 
         if (onPassengerOrder) {
+            mapsPresenter.pickupPassenger(orderData)
             Rabbit.fromUrl(RABBIT_URL)
                 .publishTo(passenger.email!!, false, jsonRequest)
                 .apply {

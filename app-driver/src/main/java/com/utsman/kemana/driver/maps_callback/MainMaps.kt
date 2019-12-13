@@ -13,22 +13,23 @@ import com.utsman.smartmarker.mapbox.addMarker
 
 class MainMaps(
     private val context: Context?,
-    private val startLatLng: LatLng,
+    private val startLatLon: LatLng,
     private val layer: (map: MapboxMap, marker: Marker?) -> Unit
 ) : OnMapReadyCallback {
 
     override fun onMapReady(mapbox: MapboxMap) {
 
         mapbox.setStyle(Style.MAPBOX_STREETS) { style ->
+
             val markerOption = MarkerOptions.Builder()
                 .setIcon(R.drawable.mapbox_marker_icon_default)
-                .setPosition(startLatLng)
+                .setPosition(startLatLon)
                 .setId("me")
                 .build(context!!)
 
             val marker = mapbox.addMarker(markerOption).get("me")
 
-            mapbox.animateCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 17.0))
+            mapbox.animateCamera(CameraUpdateFactory.newLatLngZoom(startLatLon, 17.0))
             layer.invoke(mapbox, marker)
         }
     }

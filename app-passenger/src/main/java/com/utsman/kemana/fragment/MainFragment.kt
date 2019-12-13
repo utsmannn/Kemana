@@ -27,6 +27,7 @@ import com.utsman.kemana.presenter.LocationPresenter
 import com.utsman.kemana.presenter.MapsPresenter
 import com.utsman.kemana.presenter.MessagingPresenter
 import com.utsman.kemana.remote.driver.Passenger
+import com.utsman.kemana.remote.driver.Position
 import com.utsman.kemana.remote.driver.RemotePresenter
 import com.utsman.kemana.remote.place.Places
 import com.utsman.kemana.remote.place.PolylineResponses
@@ -107,6 +108,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
 
     override fun onLocationReady(latLng: LatLng) {
         this.latLng = latLng
+        passenger?.position = Position(latLng.latitude, latLng.longitude)
         mapStart(latLng)
     }
 

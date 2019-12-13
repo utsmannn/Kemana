@@ -4,6 +4,7 @@ import com.utsman.kemana.driver.impl.view.IMapView
 import com.utsman.kemana.driver.impl.presenter.MapsInterface
 import com.utsman.kemana.driver.subscriber.LocationSubs
 import com.utsman.kemana.driver.subscriber.UpdateLocationSubs
+import com.utsman.kemana.remote.driver.OrderData
 
 class MapsPresenter(private val iMapView: IMapView) :
     MapsInterface {
@@ -16,7 +17,7 @@ class MapsPresenter(private val iMapView: IMapView) :
         iMapView.onLocationUpdate(updateLocationSubs.newLatLng)
     }
 
-    override fun pickupPassenger() {
-        iMapView.onPickupPassenger()
+    override fun pickupPassenger(orderData: OrderData) {
+        iMapView.onPickupPassenger(orderData)
     }
 }
