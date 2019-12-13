@@ -6,11 +6,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
-class RemotePresenter(private val disposable: CompositeDisposable) :
-    RemoteListener {
+class RemotePresenter(private val composite: CompositeDisposable) : RemoteListener {
     private val remoteInstance = RemoteInstance.create()
 
-    override fun insertDriver(driverItem: Driver, driver: (success: Boolean, driver: Driver?) -> Unit) {
+    override fun insertDriver(
+        driverItem: Driver,
+        driver: (success: Boolean, driver: Driver?) -> Unit
+    ) {
         val action = remoteInstance.insertDriver(driverItem)
             .subscribeOn(Schedulers.io())
             .map { it.data }
@@ -22,10 +24,10 @@ class RemotePresenter(private val disposable: CompositeDisposable) :
                 }
             }, {
                 it.printThrow("insert driver")
-                driver.invoke(false,null)
+                driver.invoke(false, null)
             })
 
-        disposable.add(action)
+        composite.add(action)
     }
 
     override fun getDriversActive(list: (List<Driver>?) -> Unit) {
@@ -40,7 +42,7 @@ class RemotePresenter(private val disposable: CompositeDisposable) :
                 it.printThrow("driver list")
             })
 
-        disposable.add(action)
+        composite.add(action)
     }
 
     override fun getDriversActiveEmail(email: (List<String>?) -> Unit) {
@@ -55,7 +57,7 @@ class RemotePresenter(private val disposable: CompositeDisposable) :
                 it.printThrow("driver list")
             })
 
-        disposable.add(action)
+        composite.add(action)
     }
 
     override fun getDriver(id: String, driver: (Driver?) -> Unit) {
@@ -74,7 +76,7 @@ class RemotePresenter(private val disposable: CompositeDisposable) :
                 it.printThrow("get driver")
             })
 
-        disposable.add(action)
+        composite.add(action)
     }
 
     override fun getDriver(id: String): Driver? {
@@ -97,7 +99,7 @@ class RemotePresenter(private val disposable: CompositeDisposable) :
                 it.printThrow("get driver")
             })
 
-        disposable.add(action)
+        composite.add(action)
 
         return driver
     }
@@ -118,7 +120,7 @@ class RemotePresenter(private val disposable: CompositeDisposable) :
                 it.printThrow("get driver edit")
             })
 
-        disposable.add(action)
+        composite.add(action)
     }
 
     override fun editDriverByEmail(email: String, position: Position, driver: (Driver?) -> Unit) {
@@ -137,7 +139,7 @@ class RemotePresenter(private val disposable: CompositeDisposable) :
                 it.printThrow("get driver edit")
             })
 
-        disposable.add(action)
+        composite.add(action)
     }
 
     override fun deleteDriver(id: String, status: (Boolean?) -> Unit) {
@@ -153,7 +155,7 @@ class RemotePresenter(private val disposable: CompositeDisposable) :
                 it.printThrow("delete fail")
             })
 
-        disposable.add(action)
+        composite.add(action)
     }
 
     override fun deleteDriverByEmail(email: String, status: (Boolean?) -> Unit) {
@@ -169,7 +171,82 @@ class RemotePresenter(private val disposable: CompositeDisposable) :
                 it.printThrow("delete fail")
             })
 
-        disposable.add(action)
+        composite.add(action)
+    }
+
+    override fun registerDriver(
+        driverItem: Driver,
+        driver: (success: Boolean, driver: Driver?) -> Unit
+    ) {
+        val action = remoteInstance.registerDriver(driverItem)
+            .subscribeOn(Schedulers.io())
+            .map { it.data }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                if (!it.isNullOrEmpty()) {
+                    driver.invoke(true, it[0])
+                    logi("driver is ${it[0]}")
+                }
+            }, {
+                it.printThrow("insert driver")
+                driver.invoke(false, null)
+            })
+
+        composite.add(action)
+    }
+
+    override fun checkRegisteredDriver(email: String?, hasRegister: (Boolean) -> Unit) {
+        val action = remoteInstance.checkRegisteredDriver(email)
+            .subscribeOn(Schedulers.io())
+            .map { it.data }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                hasRegister.invoke(it)
+                logi("status is --> $it")
+            }, {
+                it.printThrow("insert driver")
+                hasRegister.invoke(false)
+            })
+
+        composite.add(action)
+    }
+
+    override fun getRegisteredDriverById(id: String, driver: (Driver?) -> Unit) {
+        val action = remoteInstance.getRegisteredDriver(id)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                val list = it.data
+                if (!list.isNullOrEmpty()) {
+                    driver.invoke(list[0])
+                } else {
+                    driver.invoke(null)
+                }
+
+            }, {
+                it.printThrow("get driver")
+            })
+
+        composite.add(action)
+    }
+
+    override fun getAttrRegisteredDriver(id: String, attr: (Attribute?) -> Unit) {
+        val action = remoteInstance.getAttrRegisteredDriver(id)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                val list = it.attrs
+                if (!list.isNullOrEmpty()) {
+                    attr.invoke(list[0])
+                } else {
+                    attr.invoke(null)
+                }
+
+            }, {
+                it.printThrow("get attr driver")
+            })
+
+        composite.add(action)
     }
 
 }

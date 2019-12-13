@@ -34,8 +34,7 @@ data class Position(
 @Parcelize
 data class Attribute(
     var vehiclesType: String? = "passenger",
-    var vehiclesPlat: String? = "passenger",
-    var onOrder: Boolean = false
+    var vehiclesPlat: String? = "passenger"
 ) : Parcelable
 
 data class Responses(
@@ -43,9 +42,19 @@ data class Responses(
     val data: List<Driver>? = null
 )
 
+data class ResponsesAttribute(
+    val message: String,
+    val attrs: List<Attribute>? = null
+)
+
 data class ResponsesEmail(
     val message: String,
     val data: List<String>? = null
+)
+
+data class ResponsesChecking(
+    val message: String,
+    val data: Boolean
 )
 
 data class OrderData(

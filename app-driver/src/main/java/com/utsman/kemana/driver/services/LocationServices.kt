@@ -74,39 +74,6 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         }
     }
 
-    @SuppressLint("AuthLeak")
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        /*val rmqaConnection = RmqaConnection.Builder(this)
-            .setServer("192.168.43.193:5672")
-            .setUsername("user1")
-            .setPassword("1234")
-            .setVhost("user1")
-            .setExchangeName("kemana")
-            .setConnectionName("kemana")
-            .setRoutingKey("route_kemana")
-            .setAutoClearQueue(true)
-            .build()
-
-        Rmqa.connect(rmqaConnection, "aaa", Rmqa.TYPE.DIRECT) { senderId, data ->
-            logi("connection to user --> $data")
-
-            val status = data.getString("status")
-
-            if (status == "finding") {
-                val orderData = data.getJSONObject("data")
-                //EventBus.getDefault().post(EventOrderData(orderData.toOrderData()))
-            }
-
-            if (status == "passenger_confirm") {
-                logi("passenger is confirm")
-                val passengerData = data.getJSONObject("data")
-                //EventBus.getDefault().post(EventPassengerConfirm(passengerData.toUser()))
-            }
-        }*/
-
-        return START_STICKY
-    }
-
     private fun notifyListener() {
         Notify.listenNotifyState { state ->
             logi("location update started, state is --> $state")

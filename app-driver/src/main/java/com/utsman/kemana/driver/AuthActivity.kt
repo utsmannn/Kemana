@@ -8,19 +8,23 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseUser
 import com.utsman.easygooglelogin.EasyGoogleLogin
 import com.utsman.easygooglelogin.LoginResultListener
+import com.utsman.kemana.base.RxAppCompatActivity
 import com.utsman.kemana.base.intentTo
 import com.utsman.kemana.base.logi
 import com.utsman.kemana.remote.driver.Driver
+import com.utsman.kemana.remote.driver.RemotePresenter
 import kotlinx.android.synthetic.main.activity_auth.*
 
-class AuthActivity : AppCompatActivity(), LoginResultListener {
+class AuthActivity : RxAppCompatActivity(), LoginResultListener {
 
     private lateinit var googleLogin: EasyGoogleLogin
+    private lateinit var remotePresenter: RemotePresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_auth)
         googleLogin = EasyGoogleLogin(this)
+        remotePresenter = RemotePresenter(composite)
 
         val token = getString(R.string.default_web_client_id)
         googleLogin.initGoogleLogin(token, this)
@@ -48,10 +52,20 @@ class AuthActivity : AppCompatActivity(), LoginResultListener {
             photoUrl = user.photoUrl.toString()
         )
 
+        btn_google_sign.isEnabled = false
         saveEmail(user.email!!)
         val bundle = bundleOf("driver" to driver)
-        intentTo(MainActivity::class.java, bundle)
-        finish()
+
+        remotePresenter.checkRegisteredDriver(user.email) { status ->
+            logi("status is --> $status")
+            if (status) {
+                intentTo(FormCompleteActivity::class.java, bundle)
+                finish()
+            } else {
+                intentTo(MainActivity::class.java, bundle)
+                finish()
+            }
+        }
     }
 
     override fun onLogoutSuccess(task: Task<Void>?) {

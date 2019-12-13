@@ -10,11 +10,11 @@ fun Context.saveEmail(email: String) = apply {
 
 fun Context.getEmail(): String {
     val pref = getSharedPreferences("account", Context.MODE_PRIVATE)
-    return pref.getString("email", "not define email") ?: "not found pref"
+    return pref.getString("email", "not define email") ?: ""
 }
 
 fun Context.getId(): String {
     val pref = getSharedPreferences("account", Context.MODE_PRIVATE)
-    val email = pref.getString("email", "not define email") ?: "not found pref"
+    val email = pref.getString("email", "not define email") ?: ""
     return UUID.nameUUIDFromBytes(email.toByteArray()).toString()
 }
