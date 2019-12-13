@@ -65,7 +65,7 @@ class Rabbit private constructor(private val url: String) {
                 })
         }
 
-        override fun publishTo(id: String, msg: JSONObject): Disposable {
+        override fun publishTo(id: String, autoClear: Boolean, msg: JSONObject): Disposable {
             return Observable.just(url)
                 .subscribeOn(Schedulers.io())
                 .map {
@@ -81,8 +81,10 @@ class Rabbit private constructor(private val url: String) {
 
                     channel.queueDeclare(id, false, false, false, null)
 
-                    channel.exchangeDeclare("kemana", "fanout")
-                    channel.queueBind(id, "kemana", id)
+                    if (autoClear) {
+                        channel.exchangeDeclare("kemana", "fanout")
+                        channel.queueBind(id, "kemana", id)
+                    }
 
                     val jsonBody = JSONObject()
                     jsonBody.put("id", Rabbit.id)

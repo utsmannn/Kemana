@@ -5,5 +5,5 @@ import org.json.JSONObject
 
 interface RabbitInstance {
     fun listen(msg: (from: String, body: JSONObject) -> Unit) : Disposable
-    fun publishTo(id: String, msg: JSONObject): Disposable
+    fun publishTo(id: String, autoClear: Boolean, msg: JSONObject): Disposable
 }

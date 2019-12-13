@@ -29,6 +29,7 @@ import com.utsman.kemana.remote.driver.RemotePresenter
 import com.utsman.kemana.remote.place.Places
 import com.utsman.kemana.remote.place.PolylineResponses
 import com.utsman.kemana.remote.toJSONObject
+import com.utsman.kemana.remote.toOrderData
 import com.utsman.kemana.subscriber.LocationSubs
 import isfaaghyth.app.notify.Notify
 import kotlinx.android.synthetic.main.bottom_sheet.view.*
@@ -149,7 +150,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
         remotePresenter.getDriversActiveEmail {  emails ->
             if (!emails.isNullOrEmpty()) {
 
-                val size = emails.size
+                val size = emails.size-1
                 var target = 0
 
                 if (target <= size) {
@@ -160,10 +161,29 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationV
 
                 // listen callback driver
                 Rabbit.fromUrl(RABBIT_URL).listen { from, body ->
+                    logi("from $from is $body")
 
-                    // if reject from driver
-                    target =+ 1
-                    finder(emails[target], startPlaces, destPlaces, polyline)
+                    val orderData = body.toOrderData()
+                    if (orderData.accepted) {
+                        // driver accepted
+                        logi("order accepted")
+                        dialog.dismiss()
+
+                    } else {
+                        logi("order rejected")
+
+                        // if target < size, call again with increase target
+                        if (target < size) {
+                            logi("target is $target and size is $size")
+                            // increase target with +1 and call again
+                            target = (+1).apply {
+                                finder(emails[this], startPlaces, destPlaces, polyline)
+                            }
+                        } else {
+                            dialog.dismiss()
+                            toast("cannot driver accepted, please try again")
+                        }
+                    }
                 }
 
             } else {

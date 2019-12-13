@@ -58,10 +58,14 @@ data class ResponsesChecking(
 )
 
 data class OrderData(
-    val orderID: String,
-    val fromPlace: Places,
-    val toPlace: Places,
-    val data: Passenger
+    val accepted: Boolean,
+    val attribute: OrderDataAttr
+)
+
+data class OrderDataAttr(
+    val orderID: String?,
+    val driver: Driver?,
+    val passenger: Passenger?
 )
 
 object RemoteState {
