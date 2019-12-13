@@ -5,7 +5,6 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
@@ -58,7 +57,7 @@ class MainFragment : RxFragment(), IMapView {
             updateLocationActive()
         }, 2000)
 
-        compositeDisposable.addAll(subs, updateSubs)
+        composite.addAll(subs, updateSubs)
         return view
     }
 

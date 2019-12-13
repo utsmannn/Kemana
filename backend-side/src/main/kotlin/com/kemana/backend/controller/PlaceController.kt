@@ -69,12 +69,16 @@ class PlaceController {
         val originAddress = restTemplate.getForObject(url, AddressResponses::class.java)
         println(from)
         val listAddress = originAddress?.response?.view?.get(0)?.result?.map {
-            it?.location?.address?.label
-            
+            val street = it?.location?.address?.street
+            val district = it?.location?.address?.district
+            val city = it?.location?.address?.city
+
+            val address = "$street, $district, $city"
+
             return@map Places(
                     id = it?.location?.locationId,
-                    placeName = it?.location?.address?.label,
-                    addressName = it?.location?.address?.label,
+                    placeName = address,
+                    addressName = address,
                     geometry = listOf(lat, lon),
                     geometry_draw_url = null
             )

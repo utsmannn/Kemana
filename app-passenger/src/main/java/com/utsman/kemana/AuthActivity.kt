@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseUser
 import com.utsman.easygooglelogin.EasyGoogleLogin
 import com.utsman.easygooglelogin.LoginResultListener
+import com.utsman.featurerabbitmq.Rabbit
 import com.utsman.kemana.base.intentTo
 import com.utsman.kemana.base.logi
 import com.utsman.kemana.remote.driver.Passenger
@@ -47,6 +48,9 @@ class AuthActivity : AppCompatActivity(), LoginResultListener {
             email = user.email,
             photoUrl = user.photoUrl.toString()
         )
+
+        val email = user.email!!
+        Rabbit.setID(email)
 
         val bundle = bundleOf("passenger" to passenger)
         intentTo(MainActivity::class.java, bundle)

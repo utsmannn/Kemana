@@ -9,28 +9,35 @@ import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
+import com.utsman.featurerabbitmq.Rabbit
 import com.utsman.kemana.R
 import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.fragment.bottom_sheet.MainBottomSheet
 import com.utsman.kemana.impl.ILocationView
 import com.utsman.kemana.impl.IMapView
+import com.utsman.kemana.impl.IMessagingView
 import com.utsman.kemana.maps_callback.ReadyMaps
 import com.utsman.kemana.maps_callback.StartMaps
 import com.utsman.kemana.presenter.LocationPresenter
 import com.utsman.kemana.presenter.MapsPresenter
+import com.utsman.kemana.presenter.MessagingPresenter
+import com.utsman.kemana.remote.driver.RemotePresenter
 import com.utsman.kemana.remote.place.Places
 import com.utsman.kemana.remote.place.PolylineResponses
 import com.utsman.kemana.subscriber.LocationSubs
 import isfaaghyth.app.notify.Notify
 import kotlinx.android.synthetic.main.bottom_sheet.view.*
 import kotlinx.android.synthetic.main.fragment_main.view.*
+import org.json.JSONObject
 
-class MainFragment : RxFragment(), ILocationView, IMapView {
+class MainFragment : RxFragment(), ILocationView, IMapView, IMessagingView {
 
     private lateinit var mainBottomSheetFragment: MainBottomSheet
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
     private lateinit var mapsPresenter: MapsPresenter
+    private lateinit var messagingPresenter: MessagingPresenter
+    private lateinit var remotePresenter: RemotePresenter
 
     private lateinit var mapView: MapView
     private lateinit var startMaps: StartMaps
@@ -51,8 +58,11 @@ class MainFragment : RxFragment(), ILocationView, IMapView {
         locationPresenter.initLocation(this)
 
         mapsPresenter = MapsPresenter(this)
+        messagingPresenter = MessagingPresenter(this)
 
-        mainBottomSheetFragment = MainBottomSheet(mapsPresenter)
+        remotePresenter = RemotePresenter(composite)
+
+        mainBottomSheetFragment = MainBottomSheet(mapsPresenter, messagingPresenter)
 
         bottomSheet = BottomSheetBehavior.from(v.main_bottom_sheet) as BottomSheetUnDrag<View>
         bottomSheet.setAllowUserDragging(false)
@@ -75,7 +85,7 @@ class MainFragment : RxFragment(), ILocationView, IMapView {
     }
 
     override fun mapStart(startLatLng: LatLng) {
-        startMaps = StartMaps(compositeDisposable, context, startLatLng) { map, marker ->
+        startMaps = StartMaps(composite, context, startLatLng) { map, marker ->
             // map ready from invoke
         }
 
@@ -98,18 +108,40 @@ class MainFragment : RxFragment(), ILocationView, IMapView {
             mainBottomSheetFragment.pricingGone()
         } else {
             readyMaps = ReadyMaps(context, startLatLng, destinationLatLng, polyline.geometry) { map ->
-                // map ready from invoke
+                // map ready from invokeW
             }
 
             mapView.getMapAsync(readyMaps)
             readyMaps.setPaddingBottom(300)
             mainBottomSheetFragment.pricingVisible()
         }
-
-
     }
 
     override fun mapOrder() {
+
+    }
+
+    override fun findDriver() {
+        toast("start finding")
+
+        remotePresenter.getDriversActive {  drivers ->
+
+            if (!drivers.isNullOrEmpty()) {
+                drivers.forEachIndexed { index, driver ->
+
+                    val jsonRequest = JSONObject()
+                    jsonRequest.put("request", true)
+
+                    Rabbit.fromUrl(RABBIT_URL)
+                        .publishTo(driver.email!!, jsonRequest)
+                }
+            } else {
+                toast("driver not found")
+            }
+        }
+    }
+
+    override fun retrieveDriver() {
 
     }
 

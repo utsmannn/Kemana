@@ -8,14 +8,14 @@ import androidx.fragment.app.Fragment
 import io.reactivex.disposables.CompositeDisposable
 
 interface BaseRx {
-    val compositeDisposable: CompositeDisposable
+    val composite: CompositeDisposable
         get() = CompositeDisposable()
 }
 
 open class RxAppCompatActivity : AppCompatActivity(), BaseRx {
 
     override fun onDestroy() {
-        compositeDisposable.dispose()
+        composite.dispose()
         super.onDestroy()
     }
 }
@@ -23,7 +23,7 @@ open class RxAppCompatActivity : AppCompatActivity(), BaseRx {
 open class RxFragment : Fragment(), BaseRx {
 
     override fun onDestroyView() {
-        compositeDisposable.dispose()
+        composite.dispose()
         super.onDestroyView()
     }
 }
@@ -32,7 +32,7 @@ open class RxService : Service(), BaseRx {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
-        compositeDisposable.dispose()
+        composite.dispose()
         super.onDestroy()
     }
 

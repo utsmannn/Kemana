@@ -1,9 +1,11 @@
 package com.utsman.kemana.driver.services
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.utsman.featurerabbitmq.Rabbit
 import com.utsman.kemana.base.*
 import com.utsman.kemana.driver.impl.ILocationUpdateView
 import com.utsman.kemana.driver.impl.ILocationView
@@ -43,6 +45,7 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         }
     }
 
+    @SuppressLint("AuthLeak")
     override fun onCreate() {
         super.onCreate()
         ready.postValue(false)
@@ -52,7 +55,7 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         locationPresenter.initLocation(this)
 
         remotePresenter =
-            RemotePresenter(compositeDisposable)
+            RemotePresenter(composite)
 
         Notify.listen(Driver::class.java, NotifyProvider(), Consumer {
             logi("receiving driver model")
@@ -69,7 +72,36 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         }
     }
 
+    @SuppressLint("AuthLeak")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        /*val rmqaConnection = RmqaConnection.Builder(this)
+            .setServer("192.168.43.193:5672")
+            .setUsername("user1")
+            .setPassword("1234")
+            .setVhost("user1")
+            .setExchangeName("kemana")
+            .setConnectionName("kemana")
+            .setRoutingKey("route_kemana")
+            .setAutoClearQueue(true)
+            .build()
+
+        Rmqa.connect(rmqaConnection, "aaa", Rmqa.TYPE.DIRECT) { senderId, data ->
+            logi("connection to user --> $data")
+
+            val status = data.getString("status")
+
+            if (status == "finding") {
+                val orderData = data.getJSONObject("data")
+                //EventBus.getDefault().post(EventOrderData(orderData.toOrderData()))
+            }
+
+            if (status == "passenger_confirm") {
+                logi("passenger is confirm")
+                val passengerData = data.getJSONObject("data")
+                //EventBus.getDefault().post(EventPassengerConfirm(passengerData.toUser()))
+            }
+        }*/
+
         return START_STICKY
     }
 
@@ -100,6 +132,8 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
                             onActive.postValue(true)
 
                             livePosition.observeForever(observerPosition)
+
+                            setupRabbit(email!!)
                         }
                     }
                 }
@@ -141,6 +175,14 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
                     }
                 }
             }
+        }
+    }
+
+    private fun setupRabbit(email: String) {
+        Rabbit.setID(email)
+
+        Rabbit.fromUrl(RABBIT_URL).listen { from, body ->
+            toast(body.toString())
         }
     }
 

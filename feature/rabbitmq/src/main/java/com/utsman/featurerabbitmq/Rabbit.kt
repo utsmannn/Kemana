@@ -1,88 +1,44 @@
 package com.utsman.featurerabbitmq
 
 import androidx.lifecycle.MutableLiveData
-import com.rabbitmq.client.*
-import com.utsman.kemana.base.loge
+import com.rabbitmq.client.AMQP
+import com.rabbitmq.client.ConnectionFactory
+import com.rabbitmq.client.DefaultConsumer
+import com.rabbitmq.client.Envelope
+import com.utsman.kemana.base.logi
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import org.json.JSONObject
 import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
 
-class Rabbit {
+@Suppress("UNCHECKED_CAST")
+class Rabbit private constructor(private val url: String) {
 
-    companion object {
-        private var url = ""
-        internal var queueName = ""
+    private val liveMsg = MutableLiveData<JSONObject>()
 
-        internal var channel: Channel? = null
+    internal val rabbitInstance = object : RabbitInstance {
 
-        //internal val liveMsg = MutableLiveData<Message>()
-
-        fun connect(url: String, queueName: String, composite: CompositeDisposable) {
-            Rabbit.url = url
-            Rabbit.queueName = queueName
-
-            val disposableChannel = Observable.just(url)
+        override fun listen(msg: (from: String, JSONObject) -> Unit): Disposable {
+            return Observable.just(url)
                 .subscribeOn(Schedulers.io())
                 .map {
                     val factory = ConnectionFactory()
-                    val connection = factory.newConnection()
-                    val channel = connection.createChannel()
-                    channel.queueDeclare(queueName, false, false, false, null)
-                    return@map channel
+                    factory.setUri(it)
+                    return@map factory
                 }
-                /*.doOnNext { ch ->
-                    liveMsg.observeForever {
-                        val qName = it.queueName
-                        val msg = it.msg
-                        ch.basicPublish("", qName, null, msg.toByteArray(Charset.forName("utf-8")))
-                    }
-                }*/
-                .subscribe({
-                    channel = it
-
-                    /*it.basicConsume(queueName, true, object : DefaultConsumer(channel) {
-                        override fun handleDelivery(
-                            consumerTag: String?,
-                            envelope: Envelope?,
-                            properties: AMQP.BasicProperties?,
-                            body: ByteArray
-                        ) {
-                            super.handleDelivery(consumerTag, envelope, properties, body)
-                            val msg = String(body, Charset.forName("utf-8"))
-                            println("message is -> $msg from $consumerTag, queue is --> $queueName")
-                        }
-                    })*/
-
-                }, {
-                    loge("failed --> ${it.localizedMessage}")
-                    it.printStackTrace()
-                })
-
-            composite.add(disposableChannel)
-        }
-
-        fun publishTo(composite: CompositeDisposable, message: Message) {
-
-            val disposablePub = Observable.just(channel)
-                .subscribeOn(Schedulers.io())
-                .doOnNext {  ch ->
-                    val qName = message.queueName
-                    val msg = message.msg
-                    ch?.basicPublish("", qName, null, msg.toByteArray(Charset.forName("utf-8")))
-                }
-                .subscribe()
-
-            composite.add(disposablePub)
-        }
-
-        fun subscribe(composite: CompositeDisposable, msg: (String) -> Unit) {
-            val disposableSubs = Observable.just(channel)
-                .subscribeOn(Schedulers.io())
                 .doOnNext {
-                    it?.basicConsume(queueName, true, object : DefaultConsumer(channel) {
+                    it.setUri(url)
+                    val connection = it.newConnection()
+                    val channel = connection.createChannel()
+
+                    channel.queueDeclare(id, false, false, false, null)
+
+                    channel.exchangeDeclare("kemana", "fanout")
+                    channel.queueBind(id, "kemana", id)
+
+                    channel.basicConsume(id, true, object : DefaultConsumer(channel) {
                         override fun handleDelivery(
                             consumerTag: String?,
                             envelope: Envelope?,
@@ -90,17 +46,70 @@ class Rabbit {
                             body: ByteArray
                         ) {
                             super.handleDelivery(consumerTag, envelope, properties, body)
-                            val msgRec = String(body, Charset.forName("utf-8"))
-                            msg.invoke(msgRec)
-                            println("message is -> $msgRec from $consumerTag, queue is --> $queueName")
+                            val delivery = JSONObject(String(body, Charset.forName("utf-8")))
+                            liveMsg.postValue(delivery)
                         }
                     })
                 }
-                .subscribe()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    liveMsg.observeForever {
+                        val id = it.getString("id")
+                        val msgBody = it.getJSONObject("body")
+                        logi("data string is -> $msgBody")
 
-            composite.add(disposableSubs)
+                        msg.invoke(id, msgBody)
+                    }
+                }, {
+                    it.printStackTrace()
+                })
+        }
+
+        override fun publishTo(id: String, msg: JSONObject): Disposable {
+            return Observable.just(url)
+                .subscribeOn(Schedulers.io())
+                .map {
+                    val factory = ConnectionFactory()
+                    factory.setUri(it)
+
+                    return@map factory
+                }
+                .doOnNext {
+                    it.setUri(url)
+                    val connection = it.newConnection()
+                    val channel = connection.createChannel()
+
+                    channel.queueDeclare(id, false, false, false, null)
+
+                    channel.exchangeDeclare("kemana", "fanout")
+                    channel.queueBind(id, "kemana", id)
+
+                    val jsonBody = JSONObject()
+                    jsonBody.put("id", Rabbit.id)
+                    jsonBody.put("body", msg)
+
+                    channel.basicPublish("", id, null, jsonBody.toString().toByteArray(Charset.forName("utf-8")))
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
         }
     }
-}
 
-data class Message(val queueName: String, val msg: String)
+    companion object {
+        private var id: String = ""
+
+        /**
+         * ID is topic
+         * */
+        fun setID(id: String) {
+            this.id = id
+        }
+
+        fun getID() = id
+
+        fun fromUrl(url: String): RabbitInstance {
+            return Rabbit(url).rabbitInstance
+        }
+    }
+
+}

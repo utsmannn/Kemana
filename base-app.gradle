@@ -8,7 +8,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "0.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -52,8 +52,6 @@ dependencies {
 
     implementation Maps.gmsLocationService
     implementation Maps.rxLocation
-
-    implementation Message.rmqa
 
     implementation Firebase.google_auth
     implementation Firebase.google_auth_ui

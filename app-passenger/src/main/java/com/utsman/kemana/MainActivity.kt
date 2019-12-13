@@ -3,6 +3,7 @@
 package com.utsman.kemana
 
 import android.Manifest
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -26,6 +27,7 @@ class MainActivity : RxAppCompatActivity() {
 
     private lateinit var mainFragment: MainFragment
 
+    @SuppressLint("AuthLeak")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, MAPKEY)

@@ -8,10 +8,10 @@ import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.jakewharton.rxbinding3.widget.afterTextChangeEvents
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.utsman.featurerabbitmq.Rabbit
 import com.utsman.kemana.R
 import com.utsman.kemana.base.*
 import com.utsman.kemana.presenter.MapsPresenter
+import com.utsman.kemana.presenter.MessagingPresenter
 import com.utsman.kemana.remote.place.PlacePresenter
 import com.utsman.kemana.remote.place.Places
 import com.utsman.kemana.remote.place.PolylineResponses
@@ -28,9 +28,9 @@ import kotlinx.android.synthetic.main.bottom_sheet_frg_main.view.*
 import kotlinx.android.synthetic.main.item_location.view.*
 import java.util.concurrent.TimeUnit
 
-class MainBottomSheet(private val mapsPresenter: MapsPresenter) : RxFragment() {
+class MainBottomSheet(private val mapsPresenter: MapsPresenter, private val messagingPresenter: MessagingPresenter) : RxFragment() {
 
-    private val placePresenter = PlacePresenter(compositeDisposable)
+    private val placePresenter = PlacePresenter(composite)
     private var startLatLng = LatLng()
     private var destinationLatLng = LatLng()
 
@@ -112,7 +112,9 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter) : RxFragment() {
 
         v.btn_order.setOnClickListener {
             //toast("test rabbit is --> ${Rabbit.sent()}")
+            //Rabbit.publishTo(compositeDisposable, Message("aaa", "woy"))
 
+            messagingPresenter.findDriver()
         }
 
         return v
@@ -170,7 +172,7 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter) : RxFragment() {
                     it.printStackTrace()
                 })
 
-            compositeDisposable.add(disposable)
+            composite.add(disposable)
         }
 
         bottomSheetDialog.show()

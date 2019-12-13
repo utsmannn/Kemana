@@ -35,7 +35,7 @@ fun Double.calculatePricing(): String {
     val originPrice = floor(doubleFormat) * 1000
 
     val finalPrice = Formatter().format("%,d", originPrice.toInt())
-    return "Rp. $finalPrice"
+    return "Rp. $finalPrice".replace(",", ".")
 }
 
 fun Double.calculateDistanceKm(): String {
