@@ -21,6 +21,7 @@ import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.fragment.MainFragment
 import com.utsman.kemana.fragment.bottom_sheet.MainBottomSheet
 import com.utsman.kemana.presenter.MapsPresenter
+import com.utsman.kemana.remote.driver.Passenger
 import kotlinx.android.synthetic.main.bottom_sheet.*
 
 class MainActivity : RxAppCompatActivity() {
@@ -33,7 +34,10 @@ class MainActivity : RxAppCompatActivity() {
         Mapbox.getInstance(this, MAPKEY)
         setContentView(R.layout.activity_main)
 
-        mainFragment = MainFragment()
+
+        val person = getBundleFrom<Passenger>("passenger")
+        mainFragment = MainFragment(person)
+
 
         setupPermission {
             replaceFragment(mainFragment, R.id.main_frame)

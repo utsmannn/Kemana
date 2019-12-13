@@ -22,16 +22,18 @@ import com.utsman.kemana.maps_callback.StartMaps
 import com.utsman.kemana.presenter.LocationPresenter
 import com.utsman.kemana.presenter.MapsPresenter
 import com.utsman.kemana.presenter.MessagingPresenter
+import com.utsman.kemana.remote.driver.Passenger
 import com.utsman.kemana.remote.driver.RemotePresenter
 import com.utsman.kemana.remote.place.Places
 import com.utsman.kemana.remote.place.PolylineResponses
+import com.utsman.kemana.remote.toJSONObject
 import com.utsman.kemana.subscriber.LocationSubs
 import isfaaghyth.app.notify.Notify
 import kotlinx.android.synthetic.main.bottom_sheet.view.*
 import kotlinx.android.synthetic.main.fragment_main.view.*
 import org.json.JSONObject
 
-class MainFragment : RxFragment(), ILocationView, IMapView, IMessagingView {
+class MainFragment(private val passenger: Passenger?) : RxFragment(), ILocationView, IMapView, IMessagingView {
 
     private lateinit var mainBottomSheetFragment: MainBottomSheet
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
@@ -45,6 +47,9 @@ class MainFragment : RxFragment(), ILocationView, IMapView, IMessagingView {
 
     private lateinit var locationPresenter: LocationPresenter
     private var latLng = LatLng()
+
+    private var startLatLng = LatLng()
+    private var destLatLng = LatLng()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -96,8 +101,8 @@ class MainFragment : RxFragment(), ILocationView, IMapView, IMessagingView {
     }
 
     override fun mapReady(start: Places, destination: Places, polyline: PolylineResponses?) {
-        val startLatLng = LatLng(start.geometry!![0]!!, start.geometry!![1]!!)
-        val destinationLatLng = LatLng(destination.geometry!![0]!!, destination.geometry!![1]!!)
+        startLatLng = LatLng(start.geometry!![0]!!, start.geometry!![1]!!)
+        destLatLng = LatLng(destination.geometry!![0]!!, destination.geometry!![1]!!)
 
         logi("poly is --> ${polyline?.geometry}")
 
@@ -107,7 +112,7 @@ class MainFragment : RxFragment(), ILocationView, IMapView, IMessagingView {
             startMaps.setPaddingBottom(200)
             mainBottomSheetFragment.pricingGone()
         } else {
-            readyMaps = ReadyMaps(context, startLatLng, destinationLatLng, polyline.geometry) { map ->
+            readyMaps = ReadyMaps(context, startLatLng, destLatLng, polyline.geometry) { map ->
                 // map ready from invokeW
             }
 
@@ -121,20 +126,26 @@ class MainFragment : RxFragment(), ILocationView, IMapView, IMessagingView {
 
     }
 
-    override fun findDriver() {
+    override fun findDriver(startPlaces: Places, destPlaces: Places) {
         toast("start finding")
 
-        remotePresenter.getDriversActive {  drivers ->
+        remotePresenter.getDriversActiveEmail {  emails ->
 
-            if (!drivers.isNullOrEmpty()) {
-                drivers.forEachIndexed { index, driver ->
+            if (!emails.isNullOrEmpty()) {
 
-                    val jsonRequest = JSONObject()
-                    jsonRequest.put("request", true)
+                val size = emails.size
+                var target = 0
 
-                    Rabbit.fromUrl(RABBIT_URL)
-                        .publishTo(driver.email!!, jsonRequest)
+                if (target <= size) {
+                    finder(emails[target], startPlaces, destPlaces)
                 }
+
+                // listen callback driver
+                Rabbit.fromUrl(RABBIT_URL).listen { from, body ->
+                    target =+ 1
+                    finder(emails[target], startPlaces, destPlaces)
+                }
+
             } else {
                 toast("driver not found")
             }
@@ -143,6 +154,19 @@ class MainFragment : RxFragment(), ILocationView, IMapView, IMessagingView {
 
     override fun retrieveDriver() {
 
+    }
+
+    private fun finder(email: String, startPlaces: Places, destPlaces: Places) {
+        val jsonRequest = JSONObject()
+        jsonRequest.apply {
+            put("person", passenger?.toJSONObject())
+            put("start", startPlaces.placeName)
+            put("destination", destPlaces.placeName)
+            put("startPlace", startPlaces.toJSONObject())
+            put("destPlace", destPlaces.toJSONObject())
+        }
+
+        Rabbit.fromUrl(RABBIT_URL).publishTo(email, jsonRequest)
     }
 
 

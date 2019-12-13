@@ -111,10 +111,9 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter, private val mess
         }
 
         v.btn_order.setOnClickListener {
-            //toast("test rabbit is --> ${Rabbit.sent()}")
-            //Rabbit.publishTo(compositeDisposable, Message("aaa", "woy"))
-
-            messagingPresenter.findDriver()
+            if (startPlace != null && destinationPlace != null) {
+                messagingPresenter.findDriver(startPlace!!, destinationPlace!!)
+            }
         }
 
         return v

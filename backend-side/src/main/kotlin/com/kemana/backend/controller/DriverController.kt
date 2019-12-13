@@ -21,6 +21,14 @@ class DriverController {
         return Responses("OK", drivers)
     }
 
+    @RequestMapping(value = ["/active/email"], method = [RequestMethod.GET])
+    fun getActiveEmailDriver(): Responses {
+        val drivers = driverRepository.findAll()
+        val emails = drivers.map { it.email }
+        return Responses("OK", emails)
+    }
+
+
     @RequestMapping(value = ["/"], method = [RequestMethod.POST])
     fun saveDriver(@Valid @RequestBody driver: Driver): Responses {
         driver.id = UUID.nameUUIDFromBytes(driver.email.toByteArray()).toString()

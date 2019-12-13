@@ -1,7 +1,9 @@
 package com.utsman.kemana.remote.driver
 
 import android.os.Parcelable
+import com.utsman.kemana.remote.place.Places
 import kotlinx.android.parcel.Parcelize
+import java.util.*
 
 @Parcelize
 open class Driver(
@@ -39,6 +41,18 @@ data class Attribute(
 data class Responses(
     val message: String,
     val data: List<Driver>? = null
+)
+
+data class ResponsesEmail(
+    val message: String,
+    val data: List<String>? = null
+)
+
+data class OrderData(
+    val orderID: String,
+    val fromPlace: Places,
+    val toPlace: Places,
+    val data: Passenger
 )
 
 object RemoteState {

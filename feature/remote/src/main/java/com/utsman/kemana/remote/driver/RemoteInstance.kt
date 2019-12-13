@@ -18,6 +18,9 @@ interface RemoteInstance {
     @GET("/api/v1/driver/active")
     fun getAllDriver(): Flowable<Responses>
 
+    @GET("/api/v1/driver/active/email")
+    fun getAllDriverEmail(): Flowable<ResponsesEmail>
+
     @GET("/api/v1/driver/{id}")
     fun getDriver(@Path("id") id: String): Flowable<Responses>
 

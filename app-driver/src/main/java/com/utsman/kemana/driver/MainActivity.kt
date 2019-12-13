@@ -3,11 +3,14 @@
 package com.utsman.kemana.driver
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.view.LayoutInflater
 import android.view.View
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionDeniedResponse
@@ -15,15 +18,22 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import com.mapbox.mapboxsdk.Mapbox
+import com.utsman.featurerabbitmq.Rabbit
 import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.driver.fragment.MainFragment
 import com.utsman.kemana.driver.fragment.bottom_sheet.MainBottomSheet
 import com.utsman.kemana.driver.impl.view_state.IActiveState
 import com.utsman.kemana.driver.services.LocationServices
+import com.utsman.kemana.driver.subscriber.JsonObjectSubs
 import com.utsman.kemana.remote.driver.Driver
 import com.utsman.kemana.remote.driver.RemoteState
+import com.utsman.kemana.remote.toPasseger
+import com.utsman.kemana.remote.toPlace
+import io.reactivex.functions.Consumer
 import isfaaghyth.app.notify.Notify
+import isfaaghyth.app.notify.NotifyProvider
+import kotlinx.android.synthetic.main.bottom_dialog_receiving_order.view.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
 
 class MainActivity : RxAppCompatActivity(), IActiveState {
@@ -34,6 +44,7 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
     private lateinit var locationServices: Intent
     private var driver: Driver? = null
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, MAPKEY)
@@ -69,6 +80,25 @@ class MainActivity : RxAppCompatActivity(), IActiveState {
                 }
             }
         }
+
+        Notify.listen(JsonObjectSubs::class.java, NotifyProvider(), Consumer {
+            val obj = it.jsonObject
+
+            val person = obj.getJSONObject("person").toPasseger()
+            val startPlace = obj.getJSONObject("startPlace").toPlace()
+            val destPlace = obj.getJSONObject("destPlace").toPlace()
+            val startName = obj.getString("start")
+            val destName = obj.getString("destination")
+
+            val bottomDialog = BottomSheetDialog(this)
+            val bottomDialogView = LayoutInflater.from(this).inflate(R.layout.bottom_dialog_receiving_order, null)
+            bottomDialog.setContentView(bottomDialogView)
+            val textTest = bottomDialogView.text_test
+            textTest.text = "Mendapatkan order: ${person.name} \nDari ${startPlace.placeName}\nKe ${destPlace.placeName}"
+
+            bottomDialog.show()
+
+        })
     }
 
     override fun activeState() {

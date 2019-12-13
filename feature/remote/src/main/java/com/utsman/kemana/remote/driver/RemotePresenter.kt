@@ -43,6 +43,21 @@ class RemotePresenter(private val disposable: CompositeDisposable) :
         disposable.add(action)
     }
 
+    override fun getDriversActiveEmail(email: (List<String>?) -> Unit) {
+        val action = remoteInstance.getAllDriverEmail()
+            .subscribeOn(Schedulers.io())
+            .map { it.data }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                logi("driver list success")
+                email.invoke(it)
+            }, {
+                it.printThrow("driver list")
+            })
+
+        disposable.add(action)
+    }
+
     override fun getDriver(id: String, driver: (Driver?) -> Unit) {
         val action = remoteInstance.getDriver(id)
             .subscribeOn(Schedulers.io())

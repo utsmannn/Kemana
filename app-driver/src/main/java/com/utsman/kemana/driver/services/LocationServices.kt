@@ -10,6 +10,7 @@ import com.utsman.kemana.base.*
 import com.utsman.kemana.driver.impl.ILocationUpdateView
 import com.utsman.kemana.driver.impl.ILocationView
 import com.utsman.kemana.driver.presenter.LocationPresenter
+import com.utsman.kemana.driver.subscriber.JsonObjectSubs
 import com.utsman.kemana.driver.subscriber.LocationSubs
 import com.utsman.kemana.driver.subscriber.RotationSubs
 import com.utsman.kemana.driver.subscriber.UpdateLocationSubs
@@ -17,6 +18,7 @@ import com.utsman.kemana.remote.driver.Driver
 import com.utsman.kemana.remote.driver.Position
 import com.utsman.kemana.remote.driver.RemotePresenter
 import com.utsman.kemana.remote.driver.RemoteState
+import com.utsman.kemana.remote.toPlace
 import io.reactivex.functions.Consumer
 import isfaaghyth.app.notify.Notify
 import isfaaghyth.app.notify.NotifyProvider
@@ -182,7 +184,10 @@ class LocationServices : RxService(), ILocationView, ILocationUpdateView {
         Rabbit.setID(email)
 
         Rabbit.fromUrl(RABBIT_URL).listen { from, body ->
-            toast(body.toString())
+            val jsonObjectSubs = JsonObjectSubs(body)
+
+            Notify.send(jsonObjectSubs)
+            logi("from $from --> $body")
         }
     }
 
