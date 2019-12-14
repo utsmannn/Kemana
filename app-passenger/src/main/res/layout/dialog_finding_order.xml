@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:padding="23dp">
 
     <ImageView
         android:layout_width="50dp"
@@ -16,13 +16,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Finding driver.." />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_cancel"
-        android:layout_width="match_parent"
-        android:layout_margin="12dp"
-        android:theme="@style/Widget.MaterialComponents.Button"
-        android:layout_height="wrap_content"
-        android:text="Cancel" />
 
 </LinearLayout>

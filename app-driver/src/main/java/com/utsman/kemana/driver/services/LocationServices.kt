@@ -165,7 +165,7 @@ class LocationServices : RxService(),
 
         logi("start setup rabbit")
         Rabbit.fromUrl(RABBIT_URL).listen { from, body ->
-            logi("data is coming")
+            logi("data is coming --> $body")
 
             val type = body.getInt("type")
             val data = body.getJSONObject("data")
@@ -175,12 +175,6 @@ class LocationServices : RxService(),
                     val objectSubs = ObjectOrderSubs(data)
                     Notify.send(objectSubs)
                     logi("from $from --> $body")
-                }
-                Type.ORDER_CHECKING -> {
-                    val onPassengerReady = data.getBoolean("ready")
-                    val readySubs = ReadyOrderSubs(onPassengerReady)
-                    Notify.send(readySubs)
-                    logi("from $from, order is $onPassengerReady")
                 }
                 Type.ORDER_CANCEL -> {
                     val orderCancel = OrderCancelSubs(true)

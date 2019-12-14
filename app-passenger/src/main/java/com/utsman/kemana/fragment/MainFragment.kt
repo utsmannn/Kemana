@@ -51,22 +51,21 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     private lateinit var pickupBottomSheetFragment: PickupBottomSheet
 
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
+
     private lateinit var mapsPresenter: MapsPresenter
     private lateinit var messagingPresenter: MessagingPresenter
     private lateinit var remotePresenter: RemotePresenter
+    private lateinit var locationPresenter: LocationPresenter
 
     private lateinit var mapView: MapView
     private lateinit var startMaps: StartMaps
     private lateinit var readyMaps: ReadyMaps
     private lateinit var pickupMaps: PickupMaps
 
-    private lateinit var locationPresenter: LocationPresenter
     private var latLng = LatLng()
-
     private var startLatLng = LatLng()
     private var destLatLng = LatLng()
 
-    private var isOrder = MutableLiveData<Boolean>()
     private var trackingDisposable: Disposable? = null
 
     private val bottomDialog by lazy {
@@ -74,14 +73,6 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         val bottomDialogView = LayoutInflater.from(context).inflate(R.layout.dialog_finding_order, null)
         bottomDialog.setContentView(bottomDialogView)
         bottomDialog.setCancelable(false)
-        bottomDialog.setOnShowListener {
-            isOrder.postValue(true)
-        }
-
-        bottomDialogView.btn_cancel.setOnClickListener {
-            isOrder.postValue(false)
-            bottomDialog.cancel()
-        }
 
         return@lazy bottomDialog
     }
@@ -192,7 +183,6 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     }
 
     override fun findDriver(startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {
-        toast("start finding")
         bottomDialog.show()
 
         remotePresenter.getDriversActiveEmail {  emails ->
@@ -220,24 +210,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
                             if (orderData.accepted) {
 
                                 // driver accepted
-                                logi("order accepted")
-                                bottomDialog.cancel()
-
-                                isOrder.observe(this, Observer { ready ->
-                                    toast("order ready -> $ready")
-                                    val jsonObjectReady = JSONObject()
-                                    jsonObjectReady.put("ready", ready)
-
-                                    val jsonRequest = JSONObject()
-                                    jsonRequest.apply {
-                                        put("type", Type.ORDER_CHECKING)
-                                        put("data", jsonObjectReady)
-                                    }
-
-                                    Rabbit.fromUrl(RABBIT_URL).publishTo(emails[target], true, jsonRequest)
-                                })
-
-                                setupOrderAccepted(orderData)
+                                orderAccept(emails, target, orderData)
 
                             } else {
                                 logi("order rejected")
@@ -265,10 +238,37 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         }
     }
 
+    private fun orderAccept(
+        emails: List<String>,
+        target: Int,
+        orderData: OrderData
+    ) {
+        logi("order accepted")
+        bottomDialog.cancel()
+
+
+        /*isOrder.observe(this, Observer { ready ->
+            toast("value is $ready")
+            val jsonObjectReady = JSONObject()
+            jsonObjectReady.put("ready", ready)
+
+            val jsonRequest = JSONObject()
+            jsonRequest.apply {
+                put("type", Type.ORDER_CHECKING)
+                put("data", jsonObjectReady)
+            }
+
+            logi("send checking to ${emails[target]} --> $ready")
+            Rabbit.fromUrl(RABBIT_URL).publishTo(emails[target], true, jsonRequest)
+        })*/
+
+        setupOrderAccepted(orderData)
+    }
+
     override fun orderCancel() {
         trackingDisposable?.dispose()
         mapView.getMapAsync(startMaps)
-        isOrder.postValue(false)
+        //isOrder.postValue(false)
     }
 
     private fun setupOrderAccepted(orderData: OrderData) {

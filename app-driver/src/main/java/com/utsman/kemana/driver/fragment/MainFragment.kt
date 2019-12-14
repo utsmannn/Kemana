@@ -47,7 +47,6 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
     IMapView, IActiveState {
 
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
-    private var onPassengerOrder = true
 
     private val bottomDialogView by lazy {
         LayoutInflater.from(context).inflate(R.layout.bottom_dialog_receiving_order, null)
@@ -129,24 +128,6 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
 
         mainBottomSheetFragment = MainBottomSheet(activatedStatePresenter)
 
-        /*Notify.listenNotifyState { state ->
-            when (state) {
-                NotifyState.READY -> {
-                    //bottomSheet.collapse()
-                }
-            }
-        }
-
-        Notify.listen(NotifyState::class.java, NotifyProvider(), Consumer { value ->
-            logi("notify receiving")
-        }, Consumer {
-            loge(it.localizedMessage)
-            it.printStackTrace()
-        })*/
-
-        Notify.listen(ReadyOrderSubs::class.java, NotifyProvider(), Consumer { ready ->
-            onPassengerOrder = ready.onOrder
-        })
 
         Notify.listen(OrderCancelSubs::class.java, NotifyProvider(), Consumer { cancelSubs ->
             if (cancelSubs.cancel) {
@@ -286,22 +267,16 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
             put("data", orderData.toJSONObject())
         }
 
-        if (onPassengerOrder) {
-            Rabbit.fromUrl(RABBIT_URL)
-                .publishTo(passenger.email!!, false, jsonRequest)
-                .apply {
-                    dismissBottomDialog()
-                }
-
-            if (accepted) {
-                Notify.send(TrackerPassengerSubs(passenger.email!!))
-                mapsPresenter.pickupPassenger(orderData)
-                activatedStatePresenter.deactivateState()
+        Rabbit.fromUrl(RABBIT_URL)
+            .publishTo(passenger.email!!, false, jsonRequest)
+            .apply {
+                dismissBottomDialog()
             }
 
-        } else {
-            toast("order canceled from passenger")
-            dismissBottomDialog()
+        if (accepted) {
+            Notify.send(TrackerPassengerSubs(passenger.email!!))
+            mapsPresenter.pickupPassenger(orderData)
+            activatedStatePresenter.deactivateState()
         }
     }
 
