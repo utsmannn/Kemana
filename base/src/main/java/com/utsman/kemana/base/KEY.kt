@@ -11,5 +11,6 @@ val REMOTE_URL = "http://192.168.43.193:8800"
 //val REMOTE_URL = "http://localhost:8800"
 
 @SuppressLint("AuthLeak")
+//val RABBIT_URL = "amqp://edafafqh:ypJNO0725gpmo1tFnr4cbyFThZ1ZwMLH@woodpecker.rmq.cloudamqp.com/edafafqh"
 val RABBIT_URL = "amqp://user1:1234@192.168.43.193/%2F"
 //val RABBIT_URL = "amqp://user1:1234@192.168.1.28/%2F"

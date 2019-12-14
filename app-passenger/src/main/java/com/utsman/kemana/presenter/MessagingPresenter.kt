@@ -11,4 +11,8 @@ class MessagingPresenter(private val iMessagingView: IMessagingView) :
     override fun findDriver(startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {
         iMessagingView.findDriver(startPlaces, destPlaces, polyline)
     }
+
+    override fun orderCancel() {
+        iMessagingView.orderCancel()
+    }
 }

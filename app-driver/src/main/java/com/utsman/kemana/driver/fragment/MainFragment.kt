@@ -23,6 +23,7 @@ import com.utsman.kemana.driver.impl.view.IMapView
 import com.utsman.kemana.driver.impl.view_state.IActiveState
 import com.utsman.kemana.driver.maps_callback.MainMaps
 import com.utsman.kemana.driver.maps_callback.PickupMaps
+import com.utsman.kemana.driver.presenter.ActivatedStatePresenter
 import com.utsman.kemana.driver.presenter.MapsPresenter
 import com.utsman.kemana.driver.presenter.OrderPresenter
 import com.utsman.kemana.driver.subscriber.*
@@ -63,6 +64,7 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
     private lateinit var mapView: MapView
     private lateinit var mapsPresenter: MapsPresenter
     private lateinit var orderPresenter: OrderPresenter
+    private lateinit var activatedStatePresenter: ActivatedStatePresenter
 
     private var mapbox: MapboxMap? = null
 
@@ -96,6 +98,7 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
         val view = inflater.inflate(R.layout.fragment_main, container, false)
         mapView = view?.mapbox_view!!
         mapsPresenter = MapsPresenter(this)
+        activatedStatePresenter = ActivatedStatePresenter(this)
 
         // get parcel if you use argument to pass driver
         //driver = arguments?.getParcelable("driver")
@@ -114,9 +117,9 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
                 mapsPresenter.startUpdate(updateLocationSubs)
             })
 
-        Handler().postDelayed({
+        composite.delay(2000) {
             updateLocationActive()
-        }, 2000)
+        }
 
         composite.addAll(subs, updateSubs)
 
@@ -124,9 +127,9 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
         bottomSheet.setAllowUserDragging(false)
         bottomSheet.hidden()
 
-        mainBottomSheetFragment = MainBottomSheet(this)
+        mainBottomSheetFragment = MainBottomSheet(activatedStatePresenter)
 
-        Notify.listenNotifyState { state ->
+        /*Notify.listenNotifyState { state ->
             when (state) {
                 NotifyState.READY -> {
                     //bottomSheet.collapse()
@@ -134,8 +137,27 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
             }
         }
 
+        Notify.listen(NotifyState::class.java, NotifyProvider(), Consumer { value ->
+            logi("notify receiving")
+        }, Consumer {
+            loge(it.localizedMessage)
+            it.printStackTrace()
+        })*/
+
         Notify.listen(ReadyOrderSubs::class.java, NotifyProvider(), Consumer { ready ->
             onPassengerOrder = ready.onOrder
+        })
+
+        Notify.listen(OrderCancelSubs::class.java, NotifyProvider(), Consumer { cancelSubs ->
+            if (cancelSubs.cancel) {
+                bottomSheet.hidden()
+                mapView.getMapAsync(mainMaps)
+                replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
+
+                composite.delay(800) {
+                    bottomSheet.collapse()
+                }
+            }
         })
 
         Notify.listen(ObjectOrderSubs::class.java, NotifyProvider(), Consumer {
@@ -178,7 +200,6 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
     }
 
     override fun onLocationReady(latLng: LatLng) {
-
         this.newLatLng = latLng
         driver?.position = Position(latLng.latitude, latLng.longitude)
 
@@ -193,9 +214,9 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
 
             replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
 
-            Handler().postDelayed({
+            composite.delay(800) {
                 bottomSheet.collapse()
-            }, 800)
+            }
         }
 
         mapView.getMapAsync(mainMaps)
@@ -229,8 +250,6 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
             // ok
 
             replaceFragment(pickupBottomSheetFragment, R.id.main_frame_bottom_sheet)
-            //toast("anjay -> ${orderData.from?.placeName}")
-            toast("weeii --> ${orderData.from?.placeName.toString()}")
 
             composite.delay(800) {
                 bottomSheet.expand()
@@ -275,7 +294,9 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
                 }
 
             if (accepted) {
+                Notify.send(TrackerPassengerSubs(passenger.email!!))
                 mapsPresenter.pickupPassenger(orderData)
+                activatedStatePresenter.deactivateState()
             }
 
         } else {
@@ -292,6 +313,10 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
     override fun deactivateState() {
         logi("state --> drive deactive")
         Notify.send(NotifyState(RemoteState.DELETE_DRIVER))
+    }
+
+    override fun getState(): Boolean {
+        return activatedStatePresenter.getState()
     }
 
     private fun dismissBottomDialog() {

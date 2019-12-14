@@ -11,8 +11,10 @@ interface RemoteListener {
     fun deleteDriver(id: String, status: (Boolean?) -> Unit)
     fun deleteDriverByEmail(email: String, status: (Boolean?) -> Unit)
 
+    fun getDriversRegisteredEmail(email: String?, driver: (Driver?) -> Unit)
     fun registerDriver(driverItem: Driver, driver: (success: Boolean, driver: Driver?) -> Unit)
     fun checkRegisteredDriver(email: String?, hasRegister: (Boolean?) -> Unit)
     fun getRegisteredDriverById(id: String, driver: (Driver?) -> Unit)
     fun getAttrRegisteredDriver(id: String, attr: (Attribute?) -> Unit)
+    fun editDriverRegisteredByEmail(email: String?, position: Position?, driver: (Driver?) -> Unit)
 }

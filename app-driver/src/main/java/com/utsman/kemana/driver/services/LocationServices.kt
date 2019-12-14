@@ -19,6 +19,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import isfaaghyth.app.notify.Notify
 import isfaaghyth.app.notify.NotifyProvider
+import org.json.JSONObject
 
 class LocationServices : RxService(),
     ILocationView,
@@ -37,6 +38,8 @@ class LocationServices : RxService(),
     private var onActive = MutableLiveData<Boolean>()
     private var email: String? = null
     private val livePosition = MutableLiveData<Position>()
+
+    private var emailPassenger: String? = null
 
     private val observerPosition by lazy {
         Observer<Position> { t ->
@@ -57,8 +60,7 @@ class LocationServices : RxService(),
         locationPresenter = LocationPresenter(this)
         locationPresenter.initLocation(this)
 
-        remotePresenter =
-            RemotePresenter(composite)
+        remotePresenter = RemotePresenter(composite)
 
         Notify.listen(Driver::class.java, NotifyProvider(), Consumer {
             logi("receiving driver model")
@@ -76,10 +78,12 @@ class LocationServices : RxService(),
     }
 
     private fun notifyListener() {
-        Notify.listenNotifyState { state ->
-            logi("location update started, state is --> $state")
 
-            when (state) {
+        Notify.listen(NotifyState::class.java, NotifyProvider(), Consumer { value ->
+            logi("notify receiving")
+            logi("location update started, state is --> ${value.state}")
+
+            when (value.state) {
                 NotifyState.UPDATE_LOCATION -> {
                     updateLocationDisposable = locationPresenter.startLocationUpdate(this)
                 }
@@ -95,10 +99,10 @@ class LocationServices : RxService(),
                         logi("driver == ${driver.toString()}, success == $success")
 
                         if (!success) {
-                            logi("driver ready")
+                            logi("driver unready")
                             Notify.send(NotifyState(NotifyState.DRIVER_UNREADY))
                         } else {
-                            logi("driver unready")
+                            logi("driver ready")
                             Notify.send(NotifyState(NotifyState.DRIVER_READY))
                             email = driver!!.email
                             driverId = driver.id
@@ -149,13 +153,19 @@ class LocationServices : RxService(),
                     }
                 }
             }
-        }
+
+        }, Consumer {
+            loge(it.localizedMessage)
+            it.printStackTrace()
+        })
     }
 
     private fun setupRabbit(email: String) {
         Rabbit.setID(email)
 
+        logi("start setup rabbit")
         Rabbit.fromUrl(RABBIT_URL).listen { from, body ->
+            logi("data is coming")
 
             val type = body.getInt("type")
             val data = body.getJSONObject("data")
@@ -171,6 +181,11 @@ class LocationServices : RxService(),
                     val readySubs = ReadyOrderSubs(onPassengerReady)
                     Notify.send(readySubs)
                     logi("from $from, order is $onPassengerReady")
+                }
+                Type.ORDER_CANCEL -> {
+                    val orderCancel = OrderCancelSubs(true)
+                    Notify.send(orderCancel)
+                    emailPassenger = null
                 }
             }
         }
@@ -192,8 +207,34 @@ class LocationServices : RxService(),
                 newLatLng.longitude,
                 it.double
             )
+
             livePosition.postValue(position)
         })
+
+        messagingForPassenger(newLatLng)
+    }
+
+    private fun messagingForPassenger(newLatLng: LatLng) {
+        Notify.listen(TrackerPassengerSubs::class.java, NotifyProvider(), Consumer {
+            logi("email passenger is --> ${it.email}")
+            emailPassenger = it.email
+        })
+
+        logi("start checking passenger on --> $emailPassenger")
+        if (emailPassenger != null) {
+            logi("sending tracking")
+            val jsonLatLon = JSONObject()
+            jsonLatLon.put("lat", newLatLng.latitude)
+            jsonLatLon.put("lon", newLatLng.longitude)
+
+            val jsonObject = JSONObject()
+            jsonObject.apply {
+                put("type", Type.TRACKING)
+                put("data", jsonLatLon)
+            }
+
+            Rabbit.fromUrl(RABBIT_URL).publishTo(emailPassenger!!, false, jsonObject)
+        }
     }
 
     override fun onLocationUpdateOld(oldLatLng: LatLng) {

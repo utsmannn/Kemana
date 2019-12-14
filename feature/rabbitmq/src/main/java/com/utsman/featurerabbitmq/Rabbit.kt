@@ -11,7 +11,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.json.JSONObject
+import java.io.IOException
+import java.net.URISyntaxException
 import java.nio.charset.Charset
+import java.util.concurrent.TimeoutException
 
 @Suppress("UNCHECKED_CAST")
 class Rabbit private constructor(private val url: String) {
@@ -76,23 +79,35 @@ class Rabbit private constructor(private val url: String) {
                 }
                 .doOnNext {
                     it.setUri(url)
-                    val connection = it.newConnection()
-                    val channel = connection.createChannel()
 
-                    channel.queueDeclare(id, false, false, false, null)
+                    try {
+                        val connection = it.newConnection()
+                        val channel = connection.createChannel()
 
-                    if (autoClear) {
-                        channel.exchangeDeclare("kemana", "fanout")
-                        channel.queueBind(id, "kemana", id)
+                        channel.queueDeclare(id, false, false, false, null)
+
+                        if (autoClear) {
+                            channel.exchangeDeclare("kemana", "fanout")
+                            channel.queueBind(id, "kemana", id)
+                        }
+
+                        val jsonBody = JSONObject()
+                        jsonBody.put("id", Rabbit.id)
+                        jsonBody.put("body", msg)
+
+                        channel.basicPublish("", id, null, jsonBody.toString().toByteArray(Charset.forName("utf-8")))
+                    } catch (e: TimeoutException) {
+                        e.printStackTrace()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    } catch (e: URISyntaxException) {
+                        e.printStackTrace()
                     }
-
-                    val jsonBody = JSONObject()
-                    jsonBody.put("id", Rabbit.id)
-                    jsonBody.put("body", msg)
-
-                    channel.basicPublish("", id, null, jsonBody.toString().toByteArray(Charset.forName("utf-8")))
                 }
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnError {
+                    it.printStackTrace()
+                }
                 .subscribe()
         }
     }

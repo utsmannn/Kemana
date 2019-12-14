@@ -18,14 +18,17 @@ import com.utsman.kemana.R
 import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.fragment.bottom_sheet.MainBottomSheet
+import com.utsman.kemana.fragment.bottom_sheet.PickupBottomSheet
 import com.utsman.kemana.impl.view.ILocationView
 import com.utsman.kemana.impl.view.IMapView
 import com.utsman.kemana.impl.view.IMessagingView
+import com.utsman.kemana.maps_callback.PickupMaps
 import com.utsman.kemana.maps_callback.ReadyMaps
 import com.utsman.kemana.maps_callback.StartMaps
 import com.utsman.kemana.presenter.LocationPresenter
 import com.utsman.kemana.presenter.MapsPresenter
 import com.utsman.kemana.presenter.MessagingPresenter
+import com.utsman.kemana.remote.driver.OrderData
 import com.utsman.kemana.remote.driver.Passenger
 import com.utsman.kemana.remote.driver.Position
 import com.utsman.kemana.remote.driver.RemotePresenter
@@ -34,6 +37,7 @@ import com.utsman.kemana.remote.place.PolylineResponses
 import com.utsman.kemana.remote.toJSONObject
 import com.utsman.kemana.remote.toOrderData
 import com.utsman.kemana.subscriber.LocationSubs
+import io.reactivex.disposables.Disposable
 import isfaaghyth.app.notify.Notify
 import kotlinx.android.synthetic.main.bottom_sheet.view.*
 import kotlinx.android.synthetic.main.dialog_finding_order.view.*
@@ -44,6 +48,8 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     ILocationView, IMapView, IMessagingView {
 
     private lateinit var mainBottomSheetFragment: MainBottomSheet
+    private lateinit var pickupBottomSheetFragment: PickupBottomSheet
+
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
     private lateinit var mapsPresenter: MapsPresenter
     private lateinit var messagingPresenter: MessagingPresenter
@@ -52,6 +58,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     private lateinit var mapView: MapView
     private lateinit var startMaps: StartMaps
     private lateinit var readyMaps: ReadyMaps
+    private lateinit var pickupMaps: PickupMaps
 
     private lateinit var locationPresenter: LocationPresenter
     private var latLng = LatLng()
@@ -60,6 +67,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     private var destLatLng = LatLng()
 
     private var isOrder = MutableLiveData<Boolean>()
+    private var trackingDisposable: Disposable? = null
 
     private val bottomDialog by lazy {
         val bottomDialog = BottomSheetDialog(context!!)
@@ -150,8 +158,31 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         }
     }
 
-    override fun mapOrder() {
+    override fun mapPickup(orderData: OrderData) {
+        pickupBottomSheetFragment = PickupBottomSheet(orderData, messagingPresenter)
 
+        pickupMaps = PickupMaps(context, composite, orderData) { mapbox, marker ->
+
+            trackingDisposable = Rabbit.fromUrl(RABBIT_URL).listen { from, body ->
+                val type = body.getInt("type")
+
+                when (type) {
+                    Type.TRACKING -> {
+                        val data = body.getJSONObject("data")
+
+                        logi("driver: $from location is --> $data")
+                        val newLat = data.getDouble("lat")
+                        val newLon = data.getDouble("lon")
+                        val newLatLong = LatLng(newLat, newLon)
+
+                        marker?.moveMarkerSmoothly(newLatLong)
+                    }
+                }
+            }
+        }
+
+        mapView.getMapAsync(pickupMaps)
+        replaceFragment(pickupBottomSheetFragment, R.id.main_frame_bottom_sheet)
     }
 
     override fun failedServerConnection() {
@@ -206,6 +237,8 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
                                     Rabbit.fromUrl(RABBIT_URL).publishTo(emails[target], true, jsonRequest)
                                 })
 
+                                setupOrderAccepted(orderData)
+
                             } else {
                                 logi("order rejected")
 
@@ -232,6 +265,17 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         }
     }
 
+    override fun orderCancel() {
+        trackingDisposable?.dispose()
+        mapView.getMapAsync(startMaps)
+        isOrder.postValue(false)
+    }
+
+    private fun setupOrderAccepted(orderData: OrderData) {
+        val driver = orderData.attribute.driver
+        mapsPresenter.mapOrder(orderData)
+    }
+
     private fun finder(email: String, startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {
         val jsonBody = JSONObject()
         jsonBody.apply {
@@ -249,6 +293,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
             put("data", jsonBody)
         }
 
+        logi("start send to $email")
         Rabbit.fromUrl(RABBIT_URL).publishTo(email, true, jsonRequest)
     }
 

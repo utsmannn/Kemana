@@ -5,4 +5,5 @@ import com.utsman.kemana.remote.place.PolylineResponses
 
 interface IMessagingView {
     fun findDriver(startPlaces: Places, destPlaces: Places, polyline: PolylineResponses)
+    fun orderCancel()
 }

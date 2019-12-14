@@ -80,7 +80,6 @@ class RemotePresenter(private val composite: CompositeDisposable) : RemoteListen
     }
 
     override fun getDriver(id: String): Driver? {
-
         var driver: Driver? = null
 
         val action = remoteInstance.getDriver(id)
@@ -174,6 +173,25 @@ class RemotePresenter(private val composite: CompositeDisposable) : RemoteListen
         composite.add(action)
     }
 
+    override fun getDriversRegisteredEmail(email: String?, driver: (Driver?) -> Unit) {
+        val action = remoteInstance.getRegisteredDriverByEmail(email)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                val list = it.data
+                if (!list.isNullOrEmpty()) {
+                    driver.invoke(list[0])
+                } else {
+                    driver.invoke(null)
+                }
+
+            }, {
+                it.printThrow("get driver")
+            })
+
+        composite.add(action)
+    }
+
     override fun registerDriver(
         driverItem: Driver,
         driver: (success: Boolean, driver: Driver?) -> Unit
@@ -244,6 +262,29 @@ class RemotePresenter(private val composite: CompositeDisposable) : RemoteListen
 
             }, {
                 it.printThrow("get attr driver")
+            })
+
+        composite.add(action)
+    }
+
+    override fun editDriverRegisteredByEmail(
+        email: String?,
+        position: Position?,
+        driver: (Driver?) -> Unit
+    ) {
+        val action = remoteInstance.editDriverRegisteredByEmail(email, position)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                val list = it.data
+                if (!list.isNullOrEmpty()) {
+                    driver.invoke(list[0])
+                } else {
+                    driver.invoke(null)
+                }
+
+            }, {
+                it.printThrow("get driver edit")
             })
 
         composite.add(action)

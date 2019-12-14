@@ -50,7 +50,10 @@ interface RemoteInstance {
     fun registerDriver(@Body driver: Driver): Flowable<Responses>
 
     @GET("/api/v1/driver_db/{id}")
-    fun getRegisteredDriver(@Path("id") id: String) : Flowable<Responses>
+    fun getRegisteredDriver(@Path("id") id: String): Flowable<Responses>
+
+    @GET("/api/v1/driver_db")
+    fun getRegisteredDriverByEmail(@Query("email") email: String?): Flowable<Responses>
 
     @GET("/api/v1/driver_db/attr/{id}")
     fun getAttrRegisteredDriver(
@@ -61,6 +64,12 @@ interface RemoteInstance {
     fun checkRegisteredDriver(
         @Path("email") email: String?
     ): Flowable<ResponsesChecking>
+
+    @PUT("/api/v1/driver_db")
+    fun editDriverRegisteredByEmail(
+        @Query("email") email: String?,
+        @Body position: Position?
+    ): Flowable<Responses>
 
     companion object {
 

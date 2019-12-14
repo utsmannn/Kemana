@@ -9,12 +9,15 @@ import com.ncorti.slidetoact.SlideToActView
 import com.utsman.kemana.base.*
 import com.utsman.kemana.driver.R
 import com.utsman.kemana.driver.impl.view_state.IActiveState
+import com.utsman.kemana.driver.presenter.ActivatedStatePresenter
+import io.reactivex.functions.Consumer
 import isfaaghyth.app.notify.Notify
+import isfaaghyth.app.notify.NotifyProvider
 import kotlinx.android.synthetic.main.bottom_sheet_frg_main.view.*
 
-class MainBottomSheet(private val iActiveState: IActiveState) : RxFragment() {
+class MainBottomSheet(private val activeStatePresenter: ActivatedStatePresenter) : RxFragment() {
 
-    private var orderReady = false
+    //private var orderReady = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -24,28 +27,26 @@ class MainBottomSheet(private val iActiveState: IActiveState) : RxFragment() {
         val v = inflater.inflate(R.layout.bottom_sheet_frg_main, container, false)
         v.slide_button.text = "Aktifkan Order"
 
-
         v.slide_button.onSlideCompleteListener = object : SlideToActView.OnSlideCompleteListener {
             override fun onSlideComplete(view: SlideToActView) {
-                orderReady = !orderReady
+                activeStatePresenter.setState(!activeStatePresenter.getState())
                 view.resetSlider()
-                view.isReversed = orderReady
+                view.isReversed = activeStatePresenter.getState()
 
-                logi("order is --> $orderReady")
+                logi("order is --> ${activeStatePresenter.getState()}")
 
-                if (!orderReady) {
+                if (!activeStatePresenter.getState()) {
                     view.slideInActive()
-                    iActiveState.deactivateState()
+                    activeStatePresenter.deactivateState()
                 } else {
                     view.slideActive()
-                    iActiveState.activeState()
+                    activeStatePresenter.activeState()
                 }
             }
         }
 
-
-        Notify.listenNotifyState {
-            when (it) {
+        Notify.listen(NotifyState::class.java, NotifyProvider(), Consumer {
+            when (it.state) {
                 NotifyState.DRIVER_UNREADY -> {
                     logi("driver unready in fragment")
                     v.slide_button.slideInActive()
@@ -56,7 +57,7 @@ class MainBottomSheet(private val iActiveState: IActiveState) : RxFragment() {
                     v.slide_button.slideActive()
                 }
             }
-        }
+        })
 
         return v
     }

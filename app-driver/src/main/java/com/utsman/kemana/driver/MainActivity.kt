@@ -59,11 +59,11 @@ class MainActivity : RxAppCompatActivity() {
         setupPermission {
             startService(locationServices)
 
-            Handler().postDelayed({
+            composite.delay(900) {
                 driver?.let {
                     Notify.send(it)
                 }
-            }, 900)
+            }
         }
 
         replaceFragment(mainFragment, R.id.main_frame)
@@ -96,6 +96,7 @@ class MainActivity : RxAppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+
         Handler().postDelayed({
             stopService(locationServices)
         }, 800)

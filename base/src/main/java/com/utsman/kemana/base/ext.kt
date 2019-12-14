@@ -75,7 +75,7 @@ fun timer(interval: Long, action: () -> Unit): Disposable {
         })
 }
 
-fun Notify.listenNotifyState(state: (Int) -> Unit) {
+/*fun Notify.listenNotifyState(state: (Int) -> Unit) {
     listen(NotifyState::class.java, NotifyProvider(), Consumer { value ->
         logi("notify receiving")
         state.invoke(value.state)
@@ -83,7 +83,7 @@ fun Notify.listenNotifyState(state: (Int) -> Unit) {
         loge(it.localizedMessage)
         it.printStackTrace()
     })
-}
+}*/
 
 fun BottomSheetBehavior<*>.expand() {
     isHideable = true
