@@ -17,8 +17,6 @@ import kotlinx.android.synthetic.main.bottom_sheet_frg_main.view.*
 
 class MainBottomSheet(private val activeStatePresenter: ActivatedStatePresenter) : RxFragment() {
 
-    //private var orderReady = false
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

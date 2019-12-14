@@ -24,12 +24,13 @@ import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 
 class PickupMaps(
     val context: Context?,
     val composite: CompositeDisposable,
     val orderData: OrderData,
-    val ok: (MapboxMap, Marker?) -> Unit
+    val ok: (mapbox: MapboxMap, marker: Marker?, cameraDisposable: Disposable) -> Unit
 ) : OnMapReadyCallback {
 
     private val placePresenter = PlacePresenter(composite)
@@ -92,8 +93,6 @@ class PickupMaps(
                     val markerDestination = mapbox.addMarker(markerOptionDest).get("destination")
                     val markerDriver = mapbox.addMarker(markerOptionDriver).get("driver")
 
-                    ok.invoke(mapbox, markerDriver)
-
                     val latLngBounds = LatLngBounds.Builder()
                         .include(startLatLon)
                         .include(driverLatLon)
@@ -106,7 +105,7 @@ class PickupMaps(
                         )
                     )
 
-                    timer(5000) {
+                    val cameraDisposable = timer(5000) {
                         val newBounds = LatLngBounds.Builder()
                             .include(markerStart?.getLatLng()!!)
                             .include(markerDriver?.getLatLng()!!)
@@ -119,6 +118,8 @@ class PickupMaps(
                             )
                         )
                     }
+
+                    ok.invoke(mapbox, markerDriver, cameraDisposable)
                 }
             }
         }

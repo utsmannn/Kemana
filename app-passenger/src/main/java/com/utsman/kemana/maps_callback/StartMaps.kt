@@ -66,9 +66,9 @@ class StartMaps(
                         mapbox.addMarker(markerDriverOption).get(driver.id!!)
                     }
                 }
-
-                layer.invoke(mapbox, marker)
             }
+
+            layer.invoke(mapbox, marker)
         }
     }
 

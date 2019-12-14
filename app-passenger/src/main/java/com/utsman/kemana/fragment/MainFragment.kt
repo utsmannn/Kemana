@@ -67,6 +67,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     private var destLatLng = LatLng()
 
     private var trackingDisposable: Disposable? = null
+    private var cameraDisposable: Disposable? = null
 
     private val bottomDialog by lazy {
         val bottomDialog = BottomSheetDialog(context!!)
@@ -85,6 +86,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         val v = inflater.inflate(R.layout.fragment_main, container, false)
         mapView = v?.mapbox_view!!
 
+
         locationPresenter = LocationPresenter(context!!)
         locationPresenter.initLocation(this)
 
@@ -93,14 +95,16 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
 
         remotePresenter = RemotePresenter(composite)
 
-        mainBottomSheetFragment = MainBottomSheet(mapsPresenter, messagingPresenter)
-
         bottomSheet = BottomSheetBehavior.from(v.main_bottom_sheet) as BottomSheetUnDrag<View>
         bottomSheet.setAllowUserDragging(false)
         bottomSheet.hidden()
 
+
+        mainBottomSheetFragment = MainBottomSheet(mapsPresenter, messagingPresenter)
         replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
+
         bottomSheet.collapse()
+
 
         return v
     }
@@ -108,7 +112,8 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     override fun onLocationReady(latLng: LatLng) {
         this.latLng = latLng
         passenger?.position = Position(latLng.latitude, latLng.longitude)
-        mapStart(latLng)
+        //mapStart(latLng)
+        mapsPresenter.mapStart(latLng)
     }
 
     override fun getNowLocation() {
@@ -116,8 +121,12 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     }
 
     override fun mapStart(startLatLng: LatLng) {
+
         startMaps = StartMaps(composite, context, startLatLng) { map, marker ->
             // map ready from invoke
+            logi("woy")
+
+
         }
 
         Notify.send(LocationSubs(startLatLng))
@@ -152,8 +161,10 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     override fun mapPickup(orderData: OrderData) {
         pickupBottomSheetFragment = PickupBottomSheet(orderData, messagingPresenter)
 
-        pickupMaps = PickupMaps(context, composite, orderData) { mapbox, marker ->
+        pickupMaps = PickupMaps(context, composite, orderData) { mapbox, marker, camDis ->
+            replaceFragment(pickupBottomSheetFragment, R.id.main_frame_bottom_sheet)
 
+            cameraDisposable = camDis
             trackingDisposable = Rabbit.fromUrl(RABBIT_URL).listen { from, body ->
                 val type = body.getInt("type")
 
@@ -173,7 +184,6 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         }
 
         mapView.getMapAsync(pickupMaps)
-        replaceFragment(pickupBottomSheetFragment, R.id.main_frame_bottom_sheet)
     }
 
     override fun failedServerConnection() {
@@ -210,7 +220,8 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
                             if (orderData.accepted) {
 
                                 // driver accepted
-                                orderAccept(emails, target, orderData)
+
+                                setupOrderAccepted(orderData)
 
                             } else {
                                 logi("order rejected")
@@ -238,40 +249,16 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         }
     }
 
-    private fun orderAccept(
-        emails: List<String>,
-        target: Int,
-        orderData: OrderData
-    ) {
-        logi("order accepted")
-        bottomDialog.cancel()
-
-
-        /*isOrder.observe(this, Observer { ready ->
-            toast("value is $ready")
-            val jsonObjectReady = JSONObject()
-            jsonObjectReady.put("ready", ready)
-
-            val jsonRequest = JSONObject()
-            jsonRequest.apply {
-                put("type", Type.ORDER_CHECKING)
-                put("data", jsonObjectReady)
-            }
-
-            logi("send checking to ${emails[target]} --> $ready")
-            Rabbit.fromUrl(RABBIT_URL).publishTo(emails[target], true, jsonRequest)
-        })*/
-
-        setupOrderAccepted(orderData)
-    }
-
     override fun orderCancel() {
+        cameraDisposable?.dispose()
         trackingDisposable?.dispose()
         mapView.getMapAsync(startMaps)
-        //isOrder.postValue(false)
     }
 
     private fun setupOrderAccepted(orderData: OrderData) {
+        logi("order accepted")
+        bottomDialog.cancel()
+
         val driver = orderData.attribute.driver
         mapsPresenter.mapOrder(orderData)
     }
