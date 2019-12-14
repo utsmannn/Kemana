@@ -1,6 +1,5 @@
 package com.utsman.kemana.driver.impl.view
 
-import android.app.Activity
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.kemana.remote.driver.OrderData
 

@@ -11,6 +11,10 @@ import com.utsman.kemana.driver.impl.presenter.LocationInterface
 import com.utsman.smartmarker.location.LocationUpdateListener
 import com.utsman.smartmarker.location.LocationWatcher
 import com.utsman.smartmarker.mapbox.toLatLngMapbox
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 class LocationPresenter(private val context: Context) :
     LocationInterface {
@@ -26,22 +30,28 @@ class LocationPresenter(private val context: Context) :
         }
     }
 
-    override fun startLocationUpdate(iLocationUpdateView: ILocationUpdateView) {
-        locationWatcher.getLocationUpdate(LocationWatcher.Priority.LOW, object : LocationUpdateListener {
-            override fun newLocation(newLocation: Location) {
-                iLocationUpdateView.onLocationUpdate(newLocation.toLatLngMapbox())
-                logi("location update started")
-            }
+    override fun startLocationUpdate(iLocationUpdateView: ILocationUpdateView): Disposable {
+        return Observable.just(iLocationUpdateView)
+            .subscribeOn(Schedulers.io())
+            .doOnNext {
+                locationWatcher.getLocationUpdate(LocationWatcher.Priority.LOW, object : LocationUpdateListener {
+                    override fun newLocation(newLocation: Location) {
+                        iLocationUpdateView.onLocationUpdate(newLocation.toLatLngMapbox())
+                        logi("location update started")
+                    }
 
-            override fun oldLocation(oldLocation: Location) {
-                iLocationUpdateView.onLocationUpdateOld(oldLocation.toLatLngMapbox())
-            }
+                    override fun oldLocation(oldLocation: Location) {
+                        iLocationUpdateView.onLocationUpdateOld(oldLocation.toLatLngMapbox())
+                    }
 
-            override fun failed(throwable: Throwable) {
-                loge("location update failed")
-                throwable.printStackTrace()
+                    override fun failed(throwable: Throwable) {
+                        loge("location update failed")
+                        throwable.printStackTrace()
+                    }
+                })
             }
-        })
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe()
     }
 
     override fun getNowLocation(): LatLng {

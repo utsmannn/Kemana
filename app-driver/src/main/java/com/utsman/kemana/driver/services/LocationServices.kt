@@ -15,6 +15,7 @@ import com.utsman.kemana.remote.driver.Driver
 import com.utsman.kemana.remote.driver.Position
 import com.utsman.kemana.remote.driver.RemotePresenter
 import com.utsman.kemana.remote.driver.RemoteState
+import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import isfaaghyth.app.notify.Notify
 import isfaaghyth.app.notify.NotifyProvider
@@ -25,6 +26,8 @@ class LocationServices : RxService(),
 
     private lateinit var locationPresenter: LocationPresenter
     private lateinit var remotePresenter: RemotePresenter
+
+    private var updateLocationDisposable: Disposable? = null
 
     private var defaultLatLng = LatLng()
     private var driver: Driver? = null
@@ -78,7 +81,11 @@ class LocationServices : RxService(),
 
             when (state) {
                 NotifyState.UPDATE_LOCATION -> {
-                    locationPresenter.startLocationUpdate(this)
+                    updateLocationDisposable = locationPresenter.startLocationUpdate(this)
+                }
+
+                NotifyState.STOP_UPDATE_LOCATION -> {
+                    updateLocationDisposable?.dispose()
                 }
 
                 RemoteState.INSERT_DRIVER -> {

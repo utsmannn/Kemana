@@ -59,30 +59,32 @@ class PickupMaps(
             val startLatLonString = "$startLat,$startLon"
             val passengerLatLonString = "$passengerLat,$passengerLon"
 
-            val markerOptionStart = MarkerOptions.Builder()
-                .setIcon(R.drawable.mapbox_marker_icon_default)
-                .setPosition(startLatLon)
-                .setId("me")
-                .build(context!!)
 
-            val markerOptionPassenger = MarkerOptions.Builder()
-                .setIcon(R.drawable.mapbox_marker_icon_default)
-                .setPosition(passengerLatLon)
-                .setId("passenger")
-                .build(context)
-
-            val markerStart = mapbox.addMarker(markerOptionStart).get("me")
-            val markerPassenger = mapbox.addMarker(markerOptionPassenger).get("passenger")
-            ok.invoke(mapbox, markerStart)
 
             placePresenter.getPolyline(startLatLonString, passengerLatLonString) {
                 setupPolylineRoute(it?.geometry!!, style) {
-                    mapbox.uiSettings.setLogoMargins(30, 30, 30,(context.dp(200)) + 30)
+                    mapbox.uiSettings.setLogoMargins(30, 30, 30,(context!!.dp(200)) + 30)
 
                     val latLngBounds = LatLngBounds.Builder()
                         .include(startLatLon)
                         .include(passengerLatLon)
                         .build()
+
+                    val markerOptionStart = MarkerOptions.Builder()
+                        .setIcon(R.drawable.mapbox_marker_icon_default)
+                        .setPosition(startLatLon)
+                        .setId("me")
+                        .build(context!!)
+
+                    val markerOptionPassenger = MarkerOptions.Builder()
+                        .setIcon(R.drawable.mapbox_marker_icon_default)
+                        .setPosition(passengerLatLon)
+                        .setId("passenger")
+                        .build(context)
+
+                    val markerStart = mapbox.addMarker(markerOptionStart).get("me")
+                    val markerPassenger = mapbox.addMarker(markerOptionPassenger).get("passenger")
+                    ok.invoke(mapbox, markerStart)
 
                     mapbox.animateCamera(
                         CameraUpdateFactory.newLatLngBounds(

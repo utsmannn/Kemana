@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import isfaaghyth.app.notify.Notify
@@ -64,7 +63,7 @@ fun <T: Parcelable>Activity.getBundleFrom(key: String): T? = intent.extras?.getP
 
 fun timer(interval: Long, action: () -> Unit): Disposable {
 
-    val subs = Observable.interval(interval, TimeUnit.MILLISECONDS)
+    return Observable.interval(interval, TimeUnit.MILLISECONDS)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe ({
@@ -73,8 +72,6 @@ fun timer(interval: Long, action: () -> Unit): Disposable {
             loge(it.localizedMessage)
             it.printStackTrace()
         })
-
-    return subs
 }
 
 fun Notify.listenNotifyState(state: (Int) -> Unit) {

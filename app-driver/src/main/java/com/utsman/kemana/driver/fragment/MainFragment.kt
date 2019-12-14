@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
@@ -28,6 +29,7 @@ import com.utsman.kemana.remote.toJSONObject
 import com.utsman.kemana.remote.toPassenger
 import com.utsman.kemana.remote.toPlace
 import com.utsman.smartmarker.mapbox.Marker
+import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import isfaaghyth.app.notify.Notify
 import isfaaghyth.app.notify.NotifyProvider
@@ -58,7 +60,7 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
 
     private lateinit var mapView: MapView
     private lateinit var mapsPresenter: MapsPresenter
-    private lateinit var mapbox: MapboxMap
+    private var mapbox: MapboxMap? = null
 
     private lateinit var mainMaps: MainMaps
     private lateinit var pickupMaps: PickupMaps
@@ -66,6 +68,7 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
     private var marker: Marker? = null
     private var newLatLng = LatLng()
 
+    private var timerCameraDisposable: Disposable? = null
 
     // you can also use this
     /*private var driver: Driver? = null
@@ -172,6 +175,10 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
         mainMaps = MainMaps(context, latLng) { map, marker ->
             this.mapbox = map
             this.marker = marker
+
+            timerCameraDisposable = timer(5000) {
+                mapbox?.animateCamera(CameraUpdateFactory.newLatLng(newLatLng))
+            }
         }
 
         mapView.getMapAsync(mainMaps)
@@ -189,6 +196,12 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
     }
 
     override fun onPickupPassenger(orderData: OrderData) {
+        mapbox = null
+        marker = null
+
+        Notify.send(NotifyState(NotifyState.STOP_UPDATE_LOCATION))
+        timerCameraDisposable?.dispose()
+
         pickupMaps = PickupMaps(context, composite, orderData) { mapbox, marker ->
             this.marker = marker
             this.mapbox = mapbox

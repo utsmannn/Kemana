@@ -4,7 +4,7 @@ data class NotifyState(val state: Int) {
 
     companion object {
         const val UPDATE_LOCATION = 0
-        const val UPDATE_CAMERA = 1
+        const val STOP_UPDATE_LOCATION = 1
         const val READY = 2
 
         const val DRIVER_READY = 1100
