@@ -18,13 +18,16 @@ import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.driver.R
 import com.utsman.kemana.driver.fragment.bottom_sheet.MainBottomSheet
+import com.utsman.kemana.driver.fragment.bottom_sheet.PickupBottomSheet
 import com.utsman.kemana.driver.impl.view.IMapView
 import com.utsman.kemana.driver.impl.view_state.IActiveState
 import com.utsman.kemana.driver.maps_callback.MainMaps
 import com.utsman.kemana.driver.maps_callback.PickupMaps
 import com.utsman.kemana.driver.presenter.MapsPresenter
+import com.utsman.kemana.driver.presenter.OrderPresenter
 import com.utsman.kemana.driver.subscriber.*
 import com.utsman.kemana.remote.driver.*
+import com.utsman.kemana.remote.place.Places
 import com.utsman.kemana.remote.toJSONObject
 import com.utsman.kemana.remote.toPassenger
 import com.utsman.kemana.remote.toPlace
@@ -43,7 +46,6 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
     IMapView, IActiveState {
 
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
-    private lateinit var mainBottomSheetFragment: MainBottomSheet
     private var onPassengerOrder = true
 
     private val bottomDialogView by lazy {
@@ -60,6 +62,8 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
 
     private lateinit var mapView: MapView
     private lateinit var mapsPresenter: MapsPresenter
+    private lateinit var orderPresenter: OrderPresenter
+
     private var mapbox: MapboxMap? = null
 
     private lateinit var mainMaps: MainMaps
@@ -69,6 +73,9 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
     private var newLatLng = LatLng()
 
     private var timerCameraDisposable: Disposable? = null
+
+    private lateinit var mainBottomSheetFragment: MainBottomSheet
+    private lateinit var pickupBottomSheetFragment: PickupBottomSheet
 
     // you can also use this
     /*private var driver: Driver? = null
@@ -93,15 +100,19 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
         // get parcel if you use argument to pass driver
         //driver = arguments?.getParcelable("driver")
 
-        val subs = Notify.listen(LocationSubs::class.java, NotifyProvider(), Consumer { locationSubs ->
-            logi("NOTIFY --> receiving location from service")
-            mapsPresenter.initMap(locationSubs)
-        })
+        val subs =
+            Notify.listen(LocationSubs::class.java, NotifyProvider(), Consumer { locationSubs ->
+                logi("NOTIFY --> receiving location from service")
+                mapsPresenter.initMap(locationSubs)
+            })
 
-        val updateSubs = Notify.listen(UpdateLocationSubs::class.java, NotifyProvider(), Consumer { updateLocationSubs ->
-            logi("NOTIFY --> receiving location update from service")
-            mapsPresenter.startUpdate(updateLocationSubs)
-        })
+        val updateSubs = Notify.listen(
+            UpdateLocationSubs::class.java,
+            NotifyProvider(),
+            Consumer { updateLocationSubs ->
+                logi("NOTIFY --> receiving location update from service")
+                mapsPresenter.startUpdate(updateLocationSubs)
+            })
 
         Handler().postDelayed({
             updateLocationActive()
@@ -115,12 +126,10 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
 
         mainBottomSheetFragment = MainBottomSheet(this)
 
-        replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
-
         Notify.listenNotifyState { state ->
             when (state) {
                 NotifyState.READY -> {
-                    bottomSheet.collapse()
+                    //bottomSheet.collapse()
                 }
             }
         }
@@ -154,12 +163,12 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
             textDest.text = destPlace.placeName
 
             btnAccept.setOnClickListener {
-                callbackToPassenger(true, passenger)
+                callbackToPassenger(true, passenger, startPlace, destPlace)
                 logi("--------> ${passenger.name} --> ${passenger.position?.lat}")
             }
 
             btnReject.setOnClickListener {
-                callbackToPassenger(false, passenger)
+                callbackToPassenger(false, passenger, startPlace, destPlace)
             }
 
             showBottomDialog()
@@ -169,8 +178,10 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
     }
 
     override fun onLocationReady(latLng: LatLng) {
+
         this.newLatLng = latLng
         driver?.position = Position(latLng.latitude, latLng.longitude)
+
 
         mainMaps = MainMaps(context, latLng) { map, marker ->
             this.mapbox = map
@@ -179,6 +190,12 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
             timerCameraDisposable = timer(5000) {
                 mapbox?.animateCamera(CameraUpdateFactory.newLatLng(newLatLng))
             }
+
+            replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
+
+            Handler().postDelayed({
+                bottomSheet.collapse()
+            }, 800)
         }
 
         mapView.getMapAsync(mainMaps)
@@ -196,6 +213,10 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
     }
 
     override fun onPickupPassenger(orderData: OrderData) {
+        bottomSheet.hidden()
+        pickupBottomSheetFragment = PickupBottomSheet(orderData)
+        orderPresenter = OrderPresenter(pickupBottomSheetFragment)
+
         mapbox = null
         marker = null
 
@@ -206,13 +227,28 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
             this.marker = marker
             this.mapbox = mapbox
             // ok
+
+            replaceFragment(pickupBottomSheetFragment, R.id.main_frame_bottom_sheet)
+            //toast("anjay -> ${orderData.from?.placeName}")
+            toast("weeii --> ${orderData.from?.placeName.toString()}")
+
+            composite.delay(800) {
+                bottomSheet.expand()
+                orderPresenter.onPickup(orderData.from)
+            }
         }
 
         mapView.getMapAsync(pickupMaps)
         pickupMaps.setPaddingBottom(200)
+
     }
 
-    private fun callbackToPassenger(accepted: Boolean, passenger: Passenger) {
+    private fun callbackToPassenger(
+        accepted: Boolean,
+        passenger: Passenger,
+        startPlace: Places,
+        destPlace: Places
+    ) {
         val orderDataAttr = OrderDataAttr(
             orderID = System.currentTimeMillis().toString(),
             driver = driver,
@@ -220,6 +256,8 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
         )
         val orderData = OrderData(
             accepted = accepted,
+            from = startPlace,
+            to = destPlace,
             attribute = orderDataAttr
         )
 
@@ -230,12 +268,16 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
         }
 
         if (onPassengerOrder) {
-            mapsPresenter.pickupPassenger(orderData)
             Rabbit.fromUrl(RABBIT_URL)
                 .publishTo(passenger.email!!, false, jsonRequest)
                 .apply {
                     dismissBottomDialog()
                 }
+
+            if (accepted) {
+                mapsPresenter.pickupPassenger(orderData)
+            }
+
         } else {
             toast("order canceled from passenger")
             dismissBottomDialog()

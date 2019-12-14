@@ -59,6 +59,8 @@ data class ResponsesChecking(
 
 data class OrderData(
     val accepted: Boolean,
+    val from: Places?,
+    val to: Places?,
     val attribute: OrderDataAttr
 )
 

@@ -22,6 +22,7 @@ import isfaaghyth.app.notify.NotifyProvider
 import java.util.concurrent.TimeUnit
 import android.os.Handler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
 fun Context.toast(msg: String?) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
@@ -116,4 +117,19 @@ fun BottomSheetBehavior<*>.isCollapse(): Boolean {
 
 fun BottomSheetBehavior<*>.isHidden(): Boolean {
     return state == BottomSheetBehavior.STATE_HIDDEN
+}
+
+fun CompositeDisposable.delay(long: Long, action: () -> Unit) {
+    val disposable = Observable.just(long)
+        .subscribeOn(Schedulers.io())
+        .delay(long, TimeUnit.MILLISECONDS)
+        .map {
+            return@map action
+        }
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe {
+            it.invoke()
+        }
+
+    add(disposable)
 }

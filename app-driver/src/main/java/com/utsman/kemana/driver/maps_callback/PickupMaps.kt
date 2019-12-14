@@ -74,7 +74,7 @@ class PickupMaps(
                         .setIcon(R.drawable.mapbox_marker_icon_default)
                         .setPosition(startLatLon)
                         .setId("me")
-                        .build(context!!)
+                        .build(context)
 
                     val markerOptionPassenger = MarkerOptions.Builder()
                         .setIcon(R.drawable.mapbox_marker_icon_default)
