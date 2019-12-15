@@ -11,7 +11,6 @@ class LocationPresenter(private val context: Context) :
     LocationInterface {
 
     private lateinit var locationWatcher: LocationWatcher
-    private var nowLatLng = LatLng()
 
     override fun initLocation(iLocationView: ILocationView) {
         locationWatcher = LocationWatcher(context)
@@ -19,14 +18,6 @@ class LocationPresenter(private val context: Context) :
         locationWatcher.getLocation { location ->
             iLocationView.onLocationReady(location.toLatLngMapbox())
         }
-    }
-
-    override fun getNowLocation(): LatLng {
-        locationWatcher.getLocation {
-            nowLatLng = it.toLatLngMapbox()
-        }
-
-        return nowLatLng
     }
 
     override fun onDestroy() {

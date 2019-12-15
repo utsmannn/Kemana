@@ -16,8 +16,11 @@ import com.utsman.kemana.subscriber.PaddingMapsSubs
 import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
+import io.reactivex.observers.DisposableCompletableObserver
 import isfaaghyth.app.notify.Notify
 import isfaaghyth.app.notify.NotifyProvider
 
@@ -26,7 +29,7 @@ class StartMaps(
     private val context: Context?,
     private val startLatLng: LatLng,
     private val layer: (map: MapboxMap, marker: Marker?) -> Unit
-) : OnMapReadyCallback {
+) : OnMapReadyCallback, DisposableCompletableObserver() {
 
     private lateinit var mapbox: MapboxMap
 
@@ -82,5 +85,13 @@ class StartMaps(
             .build()
 
         mapbox.animateCamera(CameraUpdateFactory.newCameraPosition(position))
+    }
+
+    override fun onComplete() {
+
+    }
+
+    override fun onError(e: Throwable) {
+
     }
 }

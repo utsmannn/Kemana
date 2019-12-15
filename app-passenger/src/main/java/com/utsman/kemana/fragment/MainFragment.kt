@@ -47,20 +47,20 @@ import org.json.JSONObject
 class MainFragment(private val passenger: Passenger?) : RxFragment(),
     ILocationView, IMapView, IMessagingView {
 
-    private lateinit var mainBottomSheetFragment: MainBottomSheet
-    private lateinit var pickupBottomSheetFragment: PickupBottomSheet
+    private var mainBottomSheetFragment: MainBottomSheet? = null
+    private var pickupBottomSheetFragment: PickupBottomSheet? = null
 
     private lateinit var bottomSheet: BottomSheetUnDrag<View>
 
-    private lateinit var mapsPresenter: MapsPresenter
-    private lateinit var messagingPresenter: MessagingPresenter
-    private lateinit var remotePresenter: RemotePresenter
-    private lateinit var locationPresenter: LocationPresenter
+    private var mapsPresenter: MapsPresenter? = null
+    private var messagingPresenter: MessagingPresenter? = null
+    private var remotePresenter: RemotePresenter? = null
+    //private var locationPresenter: LocationPresenter? = null
 
     private lateinit var mapView: MapView
-    private lateinit var startMaps: StartMaps
-    private lateinit var readyMaps: ReadyMaps
-    private lateinit var pickupMaps: PickupMaps
+    private var startMaps: StartMaps? = null
+    private var readyMaps: ReadyMaps? = null
+    private var pickupMaps: PickupMaps? = null
 
     private var latLng = LatLng()
     private var startLatLng = LatLng()
@@ -68,6 +68,10 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
 
     private var trackingDisposable: Disposable? = null
     private var cameraDisposable: Disposable? = null
+
+    private val locationPresenter by lazy {
+        LocationPresenter(context!!)
+    }
 
     private val bottomDialog by lazy {
         val bottomDialog = BottomSheetDialog(context!!)
@@ -86,55 +90,57 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         val v = inflater.inflate(R.layout.fragment_main, container, false)
         mapView = v?.mapbox_view!!
 
+        bottomSheet = BottomSheetBehavior.from(v.main_bottom_sheet) as BottomSheetUnDrag<View>
+        bottomSheet.setAllowUserDragging(false)
+        bottomSheet.hidden()
 
-        locationPresenter = LocationPresenter(context!!)
         locationPresenter.initLocation(this)
+
+        return v
+    }
+
+    private fun revertAllNull() {
+        mapsPresenter = null
+        messagingPresenter = null
+        remotePresenter = null
+        startMaps = null
+        readyMaps = null
+        pickupMaps = null
+    }
+
+    override fun onLocationReady(latLng: LatLng) {
+        this.latLng = latLng
+        logi("location ready --> $latLng")
 
         mapsPresenter = MapsPresenter(this)
         messagingPresenter = MessagingPresenter(this)
 
         remotePresenter = RemotePresenter(composite)
+        passenger?.position = Position(latLng.latitude, latLng.longitude)
+        mapsPresenter?.mapStart(latLng)
 
-        bottomSheet = BottomSheetBehavior.from(v.main_bottom_sheet) as BottomSheetUnDrag<View>
-        bottomSheet.setAllowUserDragging(false)
-        bottomSheet.hidden()
+        if (mapsPresenter != null && messagingPresenter != null) {
+            mainBottomSheetFragment = MainBottomSheet(mapsPresenter!!, messagingPresenter!!, latLng)
 
+        }
 
-        mainBottomSheetFragment = MainBottomSheet(mapsPresenter, messagingPresenter)
+        mainBottomSheetFragment?.pricingGone()
+
         replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
 
         bottomSheet.collapse()
-
-
-        return v
-    }
-
-    override fun onLocationReady(latLng: LatLng) {
-        this.latLng = latLng
-        passenger?.position = Position(latLng.latitude, latLng.longitude)
-        //mapStart(latLng)
-        mapsPresenter.mapStart(latLng)
-    }
-
-    override fun getNowLocation() {
-
     }
 
     override fun mapStart(startLatLng: LatLng) {
 
         startMaps = StartMaps(composite, context, startLatLng) { map, marker ->
             // map ready from invoke
-            logi("woy")
-
-
         }
 
-        Notify.send(LocationSubs(startLatLng))
-
-        mapView.getMapAsync(startMaps)
-        startMaps.setPaddingBottom(200)
-
-        mainBottomSheetFragment.pricingGone()
+        startMaps?.let { map ->
+            mapView.getMapAsync(map)
+            map.setPaddingBottom(200)
+        }
     }
 
     override fun mapReady(start: Places, destination: Places, polyline: PolylineResponses?) {
@@ -145,21 +151,34 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
 
         if (polyline == null) {
             toast("failed")
-            mapView.getMapAsync(startMaps)
-            startMaps.setPaddingBottom(200)
+
+            startMaps?.let { map ->
+                mapView.getMapAsync(map)
+                map.setPaddingBottom(200)
+            }
+
+            /*mapView.getMapAsync(startMaps)
+            startMaps.setPaddingBottom(200)*/
         } else {
             readyMaps = ReadyMaps(context, startLatLng, destLatLng, polyline.geometry) { map ->
                 // map ready from invokeW
-                mainBottomSheetFragment.pricingVisible()
+                mainBottomSheetFragment?.pricingVisible()
             }
 
-            mapView.getMapAsync(readyMaps)
-            readyMaps.setPaddingBottom(300)
+            readyMaps?.let { map ->
+                mapView.getMapAsync(map)
+                map.setPaddingBottom(200)
+            }
+
+            /*mapView.getMapAsync(readyMaps)
+            readyMaps.setPaddingBottom(300)*/
         }
     }
 
     override fun mapPickup(orderData: OrderData) {
-        pickupBottomSheetFragment = PickupBottomSheet(orderData, messagingPresenter)
+        messagingPresenter?.let {
+            pickupBottomSheetFragment = PickupBottomSheet(orderData, it)
+        }
 
         pickupMaps = PickupMaps(context, composite, orderData) { mapbox, marker, camDis ->
             replaceFragment(pickupBottomSheetFragment, R.id.main_frame_bottom_sheet)
@@ -183,7 +202,12 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
             }
         }
 
-        mapView.getMapAsync(pickupMaps)
+        pickupMaps?.let { map ->
+            mapView.getMapAsync(map)
+            //map.setPaddingBottom(200)
+        }
+
+        //mapView.getMapAsync(pickupMaps)
     }
 
     override fun failedServerConnection() {
@@ -195,7 +219,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     override fun findDriver(startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {
         bottomDialog.show()
 
-        remotePresenter.getDriversActiveEmail {  emails ->
+        remotePresenter?.getDriversActiveEmail {  emails ->
             if (!emails.isNullOrEmpty()) {
 
                 val size = emails.size-1
@@ -250,9 +274,16 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     }
 
     override fun orderCancel() {
-        cameraDisposable?.dispose()
-        trackingDisposable?.dispose()
-        mapView.getMapAsync(startMaps)
+
+        //mapsPresenter.mapStart(latLng)
+        locationPresenter.initLocation(this)
+
+        try {
+            cameraDisposable?.dispose()
+            trackingDisposable?.dispose()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun setupOrderAccepted(orderData: OrderData) {
@@ -260,7 +291,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         bottomDialog.cancel()
 
         val driver = orderData.attribute.driver
-        mapsPresenter.mapOrder(orderData)
+        mapsPresenter?.mapOrder(orderData)
     }
 
     private fun finder(email: String, startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {

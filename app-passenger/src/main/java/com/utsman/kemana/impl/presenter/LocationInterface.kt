@@ -5,6 +5,5 @@ import com.utsman.kemana.impl.view.ILocationView
 
 interface LocationInterface {
     fun initLocation(iLocationView: ILocationView)
-    fun getNowLocation(): LatLng
     fun onDestroy()
 }

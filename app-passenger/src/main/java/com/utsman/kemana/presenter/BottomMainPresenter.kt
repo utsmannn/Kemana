@@ -8,12 +8,12 @@ import io.reactivex.disposables.Disposable
 class BottomMainPresenter(private val iBottomMainView: IBottomMainView) : BottomMainInterface {
 
 
-    override fun onSearchStartLocation(query: String): Disposable {
-        return iBottomMainView.onSearchStartLocation(query)
+    override fun onSearchStartLocation(list: (List<Places?>?) -> Unit): Disposable {
+        return iBottomMainView.onSearchStartLocation(list)
     }
 
-    override fun onSearchDestLocation(query: String): Disposable {
-        return iBottomMainView.onSearchDestLocation(query)
+    override fun onSearchDestLocation(list: (List<Places?>?) -> Unit): Disposable {
+        return iBottomMainView.onSearchDestLocation(list)
     }
 
     override fun onClickOrder(startPlaces: Places, destPlaces: Places) {

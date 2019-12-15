@@ -28,10 +28,13 @@ import kotlinx.android.synthetic.main.bottom_sheet_frg_main.view.*
 import kotlinx.android.synthetic.main.item_location.view.*
 import java.util.concurrent.TimeUnit
 
-class MainBottomSheet(private val mapsPresenter: MapsPresenter, private val messagingPresenter: MessagingPresenter) : RxFragment() {
+class MainBottomSheet(
+    private val mapsPresenter: MapsPresenter,
+    private val messagingPresenter: MessagingPresenter,
+    private var startLatLng: LatLng
+) : RxFragment() {
 
     private val placePresenter = PlacePresenter(composite)
-    private var startLatLng = LatLng()
     private var destinationLatLng = LatLng()
 
     private var startPlace: Places? = null
@@ -51,19 +54,15 @@ class MainBottomSheet(private val mapsPresenter: MapsPresenter, private val mess
 
         v.text_from.text = "Your location"
 
-        Notify.listen(LocationSubs::class.java, NotifyProvider(), Consumer {
-            startLatLng = it.latLng
-
-            placePresenter.getAddress("${startLatLng.latitude},${startLatLng.longitude}") { place ->
-                if (place != null) {
-                    startPlace = place
-                    val name = place.placeName
-                    v.text_from.text = "$name (current location)"
-                } else {
-                    mapsPresenter.failedServerConnection()
-                }
+        placePresenter.getAddress("${startLatLng.latitude},${startLatLng.longitude}") { place ->
+            if (place != null) {
+                startPlace = place
+                val name = place.placeName
+                v.text_from.text = "$name (current location)"
+            } else {
+                mapsPresenter.failedServerConnection()
             }
-        })
+        }
 
         v.container_from.setOnClickListener {
             showLocationPicker { place, latLng ->
