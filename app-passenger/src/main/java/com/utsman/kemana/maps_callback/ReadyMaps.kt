@@ -18,6 +18,7 @@ import com.mapbox.mapboxsdk.style.sources.CannotAddSourceException
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.utils.ColorUtils
 import com.utsman.kemana.R
+import com.utsman.kemana.base.BaseDisposableCompletable
 import com.utsman.kemana.base.dp
 import com.utsman.kemana.base.loge
 import com.utsman.kemana.base.logi
@@ -31,14 +32,16 @@ class ReadyMaps(
     private val destinationLatLng: LatLng,
     private val polyString: String?,
     private val layer: (map: MapboxMap) -> Unit
-) : OnMapReadyCallback {
+) : OnMapReadyCallback, BaseDisposableCompletable() {
 
     private lateinit var mapbox: MapboxMap
+    private lateinit var style: Style
 
     override fun onMapReady(mapbox: MapboxMap) {
         this.mapbox = mapbox
 
         mapbox.setStyle(Style.MAPBOX_STREETS) { style ->
+            this.style = style
             val markerOptionStart = MarkerOptions.Builder()
                 .setIcon(R.drawable.mapbox_marker_icon_default)
                 .setPosition(startLatLng)
@@ -110,5 +113,10 @@ class ReadyMaps(
                 200, 200, 200, (context.dp(padding)) + 200
             )
         )
+    }
+
+    override fun onComplete() {
+        super.onComplete()
+        style.layers.clear()
     }
 }

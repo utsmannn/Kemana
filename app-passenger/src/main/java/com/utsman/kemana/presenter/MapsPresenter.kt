@@ -24,4 +24,8 @@ class MapsPresenter(private val iMapView: IMapView) :
     override fun failedServerConnection() {
         iMapView.failedServerConnection()
     }
+
+    override fun dispose() {
+        iMapView.dispose()
+    }
 }

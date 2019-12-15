@@ -83,6 +83,7 @@ object Retrofit {
 object Message {
     val rmqa                = "com.utsman.rmqa:rmqa:0.0.2"
     val rabbitmq            = "com.rabbitmq:amqp-client:4.11.3"
+    val logback             = "ch.qos.logback:logback-classic:1.2.3"
 }
 
 object Module {

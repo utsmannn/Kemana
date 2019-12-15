@@ -9,6 +9,7 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.utsman.kemana.R
+import com.utsman.kemana.base.BaseDisposableCompletable
 import com.utsman.kemana.base.dp
 import com.utsman.kemana.base.logi
 import com.utsman.kemana.remote.driver.RemotePresenter
@@ -29,9 +30,10 @@ class StartMaps(
     private val context: Context?,
     private val startLatLng: LatLng,
     private val layer: (map: MapboxMap, marker: Marker?) -> Unit
-) : OnMapReadyCallback, DisposableCompletableObserver() {
+) : OnMapReadyCallback, BaseDisposableCompletable() {
 
     private lateinit var mapbox: MapboxMap
+    private lateinit var style: Style
 
     override fun onMapReady(mapbox: MapboxMap) {
         this.mapbox = mapbox
@@ -40,10 +42,11 @@ class StartMaps(
             RemotePresenter(disposable)
 
         mapbox.setStyle(Style.MAPBOX_STREETS) { style ->
+            this.style = style
             val markerOption = MarkerOptions.Builder()
                 .setIcon(R.drawable.mapbox_marker_icon_default)
                 .setPosition(startLatLng)
-                .setId("me")
+                .setId("me-${System.currentTimeMillis()}")
                 .build(context!!)
 
             val marker = mapbox.addMarker(markerOption).get("me")
@@ -57,16 +60,18 @@ class StartMaps(
                         val latLngDriver = LatLng(driver.position!!.lat!!, driver.position!!.lon!!)
                         val rotation = driver.position?.angle
 
+                        val uniqueId = "${driver.id}-${System.currentTimeMillis()}"
+
                         logi("driver location --> $latLngDriver, id --> ${driver.id}, rotation -> $rotation from ${driver.position?.angle}")
 
                         val markerDriverOption = MarkerOptions.Builder()
-                            .setId(driver.id!!)
+                            .setId(uniqueId)
                             .setIcon(R.drawable.mapbox_marker_icon_default, true)
                             .setPosition(latLngDriver)
                             .setRotation(rotation)
                             .build(context)
 
-                        mapbox.addMarker(markerDriverOption).get(driver.id!!)
+                        mapbox.addMarker(markerDriverOption).get(uniqueId)
                     }
                 }
             }
@@ -88,10 +93,9 @@ class StartMaps(
     }
 
     override fun onComplete() {
-
+        super.onComplete()
+        style.layers.clear()
     }
 
-    override fun onError(e: Throwable) {
 
-    }
 }

@@ -6,6 +6,7 @@ apply plugin: 'kotlin-kapt'
 dependencies {
     implementation project(":base")
     implementation Message.rabbitmq
+    implementation Message.logback
 }
 
 androidExtensions {

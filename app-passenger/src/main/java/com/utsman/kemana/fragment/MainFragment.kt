@@ -58,9 +58,9 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     //private var locationPresenter: LocationPresenter? = null
 
     private lateinit var mapView: MapView
-    private var startMaps: StartMaps? = null
-    private var readyMaps: ReadyMaps? = null
-    private var pickupMaps: PickupMaps? = null
+    private lateinit var startMaps: StartMaps
+    private lateinit var readyMaps: ReadyMaps
+    private lateinit var pickupMaps: PickupMaps
 
     private var latLng = LatLng()
     private var startLatLng = LatLng()
@@ -82,12 +82,15 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         return@lazy bottomDialog
     }
 
+    private var instanceState: Bundle? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val v = inflater.inflate(R.layout.fragment_main, container, false)
+        instanceState = savedInstanceState
         mapView = v?.mapbox_view!!
 
         bottomSheet = BottomSheetBehavior.from(v.main_bottom_sheet) as BottomSheetUnDrag<View>
@@ -100,12 +103,8 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     }
 
     private fun revertAllNull() {
-        mapsPresenter = null
         messagingPresenter = null
         remotePresenter = null
-        startMaps = null
-        readyMaps = null
-        pickupMaps = null
     }
 
     override fun onLocationReady(latLng: LatLng) {
@@ -132,15 +131,12 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     }
 
     override fun mapStart(startLatLng: LatLng) {
-
         startMaps = StartMaps(composite, context, startLatLng) { map, marker ->
             // map ready from invoke
         }
 
-        startMaps?.let { map ->
-            mapView.getMapAsync(map)
-            map.setPaddingBottom(200)
-        }
+        mapView.getMapAsync(startMaps)
+        startMaps.setPaddingBottom(200)
     }
 
     override fun mapReady(start: Places, destination: Places, polyline: PolylineResponses?) {
@@ -152,10 +148,8 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         if (polyline == null) {
             toast("failed")
 
-            startMaps?.let { map ->
-                mapView.getMapAsync(map)
-                map.setPaddingBottom(200)
-            }
+            mapView.getMapAsync(startMaps)
+            startMaps.setPaddingBottom(200)
 
             /*mapView.getMapAsync(startMaps)
             startMaps.setPaddingBottom(200)*/
@@ -165,10 +159,8 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
                 mainBottomSheetFragment?.pricingVisible()
             }
 
-            readyMaps?.let { map ->
-                mapView.getMapAsync(map)
-                map.setPaddingBottom(200)
-            }
+            mapView.getMapAsync(readyMaps)
+            readyMaps.setPaddingBottom(200)
 
             /*mapView.getMapAsync(readyMaps)
             readyMaps.setPaddingBottom(300)*/
@@ -185,9 +177,10 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
 
             cameraDisposable = camDis
             trackingDisposable = Rabbit.fromUrl(RABBIT_URL).listen { from, body ->
+                logi("listen from $from - for traking -> $body")
                 val type = body.getInt("type")
 
-                when (type) {
+                /*when (type) {
                     Type.TRACKING -> {
                         val data = body.getJSONObject("data")
 
@@ -198,14 +191,11 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
 
                         marker?.moveMarkerSmoothly(newLatLong)
                     }
-                }
+                }*/
             }
         }
 
-        pickupMaps?.let { map ->
-            mapView.getMapAsync(map)
-            //map.setPaddingBottom(200)
-        }
+        mapView.getMapAsync(pickupMaps)
 
         //mapView.getMapAsync(pickupMaps)
     }
@@ -214,6 +204,12 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         val bottomDialog = BottomSheetDialog(context!!)
         bottomDialog.setContentView(R.layout.bottom_dialog_error)
         bottomDialog.show()
+    }
+
+    override fun dispose() {
+        readyMaps.dispose()
+        startMaps.dispose()
+        pickupMaps.dispose()
     }
 
     override fun findDriver(startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {
@@ -274,13 +270,19 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     }
 
     override fun orderCancel() {
+        cameraDisposable?.dispose()
+        trackingDisposable?.dispose()
 
+        mapsPresenter?.dispose()
         //mapsPresenter.mapStart(latLng)
+
+        revertAllNull()
+
         locationPresenter.initLocation(this)
 
         try {
-            cameraDisposable?.dispose()
-            trackingDisposable?.dispose()
+
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -312,7 +314,10 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         }
 
         logi("start send to $email")
-        Rabbit.fromUrl(RABBIT_URL).publishTo(email, true, jsonRequest)
+        Rabbit.fromUrl(RABBIT_URL).publishTo(email, true, jsonRequest) {
+            bottomDialog.dismiss()
+            toast("try again -> ${it.localizedMessage}")
+        }
     }
 
 

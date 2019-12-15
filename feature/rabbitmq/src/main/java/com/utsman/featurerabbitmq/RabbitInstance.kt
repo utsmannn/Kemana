@@ -2,8 +2,9 @@ package com.utsman.featurerabbitmq
 
 import io.reactivex.disposables.Disposable
 import org.json.JSONObject
+import java.lang.Exception
 
 interface RabbitInstance {
     fun listen(msg: (from: String, body: JSONObject) -> Unit) : Disposable
-    fun publishTo(id: String, autoClear: Boolean, msg: JSONObject): Disposable
+    fun publishTo(id: String, autoClear: Boolean, msg: JSONObject, error: (Exception) -> Unit): Disposable
 }

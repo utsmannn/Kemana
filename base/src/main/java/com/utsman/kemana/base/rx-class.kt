@@ -6,6 +6,7 @@ import android.os.IBinder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.observers.DisposableCompletableObserver
 
 interface BaseRx {
     val composite: CompositeDisposable
@@ -36,4 +37,14 @@ open class RxService : Service(), BaseRx {
         super.onDestroy()
     }
 
+}
+
+open class BaseDisposableCompletable : DisposableCompletableObserver() {
+    override fun onComplete() {
+        logi("complete")
+    }
+
+    override fun onError(e: Throwable) {
+        e.printStackTrace()
+    }
 }

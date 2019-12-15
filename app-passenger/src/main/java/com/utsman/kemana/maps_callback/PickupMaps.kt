@@ -31,7 +31,7 @@ class PickupMaps(
     val composite: CompositeDisposable,
     val orderData: OrderData,
     val ok: (mapbox: MapboxMap, marker: Marker?, cameraDisposable: Disposable) -> Unit
-) : OnMapReadyCallback {
+) : OnMapReadyCallback, BaseDisposableCompletable() {
 
     private val placePresenter = PlacePresenter(composite)
 
@@ -40,9 +40,11 @@ class PickupMaps(
     private lateinit var destLatLon: LatLng
     private lateinit var driverLatLon: LatLng
 
+    private lateinit var style: Style
+
     override fun onMapReady(mapbox: MapboxMap) {
         mapbox.setStyle(Style.MAPBOX_STREETS) { style ->
-
+            this.style = style
 
             this.mapbox = mapbox
 
@@ -156,5 +158,10 @@ class PickupMaps(
         }
 
         ok.invoke()
+    }
+
+    override fun onComplete() {
+        super.onComplete()
+        style.layers.clear()
     }
 }

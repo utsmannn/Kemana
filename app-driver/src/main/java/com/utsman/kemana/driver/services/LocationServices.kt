@@ -227,7 +227,9 @@ class LocationServices : RxService(),
                 put("data", jsonLatLon)
             }
 
-            Rabbit.fromUrl(RABBIT_URL).publishTo(emailPassenger!!, false, jsonObject)
+            Rabbit.fromUrl(RABBIT_URL).publishTo(emailPassenger!!, true, jsonObject) {
+                toast("error, try again")
+            }
         }
     }
 

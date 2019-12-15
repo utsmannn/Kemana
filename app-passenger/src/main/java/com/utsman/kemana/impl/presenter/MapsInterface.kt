@@ -10,4 +10,5 @@ interface MapsInterface {
     fun mapReady(start: Places, destination: Places, polyline: PolylineResponses?)
     fun mapOrder(orderData: OrderData)
     fun failedServerConnection()
+    fun dispose()
 }

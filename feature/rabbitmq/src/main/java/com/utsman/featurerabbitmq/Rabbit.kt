@@ -12,6 +12,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.json.JSONObject
 import java.io.IOException
+import java.lang.Exception
 import java.net.URISyntaxException
 import java.nio.charset.Charset
 import java.util.concurrent.TimeoutException
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeoutException
 class Rabbit private constructor(private val url: String) {
 
     private val liveMsg = MutableLiveData<JSONObject>()
+    private val liveError = MutableLiveData<Exception>()
 
     internal val rabbitInstance = object : RabbitInstance {
 
@@ -36,10 +38,10 @@ class Rabbit private constructor(private val url: String) {
                     val connection = it.newConnection()
                     val channel = connection.createChannel()
 
-                    channel.queueDeclare(id, false, false, false, null)
+                    channel.queueDeclare(id, false, false, true, null)
 
-                    channel.exchangeDeclare("kemana", "fanout")
-                    channel.queueBind(id, "kemana", id)
+                    channel.exchangeDeclare("kemana-2", "fanout")
+                    channel.queueBind(id, "kemana-2", id)
 
                     channel.basicConsume(id, true, object : DefaultConsumer(channel) {
                         override fun handleDelivery(
@@ -68,7 +70,7 @@ class Rabbit private constructor(private val url: String) {
                 })
         }
 
-        override fun publishTo(id: String, autoClear: Boolean, msg: JSONObject): Disposable {
+        override fun publishTo(id: String, autoClear: Boolean, msg: JSONObject, error: (Exception) -> Unit): Disposable {
             return Observable.just(url)
                 .subscribeOn(Schedulers.io())
                 .map {
@@ -84,11 +86,11 @@ class Rabbit private constructor(private val url: String) {
                         val connection = it.newConnection()
                         val channel = connection.createChannel()
 
-                        channel.queueDeclare(id, false, false, false, null)
+                        channel.queueDeclare(id, false, false, autoClear, null)
 
                         if (autoClear) {
-                            channel.exchangeDeclare("kemana", "fanout")
-                            channel.queueBind(id, "kemana", id)
+                            channel.exchangeDeclare("kemana-2", "fanout")
+                            channel.queueBind(id, "kemana-2", id)
                         }
 
                         val jsonBody = JSONObject()
@@ -97,18 +99,25 @@ class Rabbit private constructor(private val url: String) {
 
                         channel.basicPublish("", id, null, jsonBody.toString().toByteArray(Charset.forName("utf-8")))
                     } catch (e: TimeoutException) {
+                        liveError.postValue(e)
                         e.printStackTrace()
                     } catch (e: IOException) {
+                        liveError.postValue(e)
                         e.printStackTrace()
                     } catch (e: URISyntaxException) {
+                        liveError.postValue(e)
                         e.printStackTrace()
                     }
                 }
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError {
+                .subscribe({
+                    liveError.observeForever {
+                        error.invoke(it)
+                    }
+                }, {
+                    liveError.postValue(it as Exception)
                     it.printStackTrace()
-                }
-                .subscribe()
+                })
         }
     }
 

@@ -268,7 +268,9 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
         }
 
         Rabbit.fromUrl(RABBIT_URL)
-            .publishTo(passenger.email!!, false, jsonRequest)
+            .publishTo(passenger.email!!, true, jsonRequest)  {
+                toast("error, try again")
+            }
             .apply {
                 dismissBottomDialog()
             }

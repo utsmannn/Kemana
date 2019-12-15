@@ -9,6 +9,7 @@ import com.utsman.featurerabbitmq.Type
 import com.utsman.kemana.R
 import com.utsman.kemana.base.RABBIT_URL
 import com.utsman.kemana.base.RxFragment
+import com.utsman.kemana.base.toast
 import com.utsman.kemana.presenter.MapsPresenter
 import com.utsman.kemana.presenter.MessagingPresenter
 import com.utsman.kemana.remote.driver.OrderData
@@ -37,7 +38,9 @@ class PickupBottomSheet(private val orderData: OrderData, private val messagingP
                 put("data", jsonEmpty)
             }
 
-            Rabbit.fromUrl(RABBIT_URL).publishTo(driver?.email!!, true, jsonObject)
+            Rabbit.fromUrl(RABBIT_URL).publishTo(driver?.email!!, true, jsonObject) {
+                toast("error, try again")
+            }
 
             messagingPresenter.orderCancel()
         }
