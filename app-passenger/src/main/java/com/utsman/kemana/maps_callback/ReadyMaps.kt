@@ -45,21 +45,21 @@ class ReadyMaps(
             val markerOptionStart = MarkerOptions.Builder()
                 .setIcon(R.drawable.mapbox_marker_icon_default)
                 .setPosition(startLatLng)
-                .setId("start")
+                .setId("start", true)
                 .build(context!!)
 
             val markerOptionDestination = MarkerOptions.Builder()
                 .setIcon(R.drawable.mapbox_marker_icon_default)
                 .setPosition(destinationLatLng)
-                .setId("end")
+                .setId("end", true)
                 .build(context)
 
             if (polyString != null) {
                 setupPolylineRoute(polyString, style) {
                     layer.invoke(mapbox)
 
-                    val markerStart = mapbox.addMarker(markerOptionStart).get("start")
-                    val markerDestination = mapbox.addMarker(markerOptionDestination).get("end")
+                    val markerStart = mapbox.addMarker(markerOptionStart)
+                    val markerDestination = mapbox.addMarker(markerOptionDestination)
                 }
 
             }

@@ -1,5 +1,6 @@
 package com.utsman.kemana.base
 
+import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -26,5 +27,21 @@ fun AppCompatActivity.replaceFragment(fragment: Fragment?, frameId: Int) {
 fun Fragment.replaceFragment(fragment: Fragment?, frameId: Int) {
     fragment?.let {
         childFragmentManager.inTransaction{replace(frameId, fragment)}
+    }
+}
+
+fun AppCompatActivity.detachFragment(fragment: Fragment?) {
+    fragment?.let {
+        supportFragmentManager.inTransaction { remove(fragment) }
+    }
+}
+
+fun AppCompatActivity.restartFragment(fragment: Fragment?, frameId: Int) {
+    fragment?.let {
+        supportFragmentManager.inTransaction { remove(fragment) }
+
+        Handler().postDelayed({
+            replaceFragment(fragment, frameId)
+        }, 500)
     }
 }

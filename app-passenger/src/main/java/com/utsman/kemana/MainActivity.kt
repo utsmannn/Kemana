@@ -4,9 +4,11 @@ package com.utsman.kemana
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
@@ -20,13 +22,17 @@ import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.fragment.MainFragment
 import com.utsman.kemana.fragment.bottom_sheet.MainBottomSheet
+import com.utsman.kemana.impl.view.FragmentListener
 import com.utsman.kemana.presenter.MapsPresenter
 import com.utsman.kemana.remote.driver.Passenger
 import kotlinx.android.synthetic.main.bottom_sheet.*
 
-class MainActivity : RxAppCompatActivity() {
+class MainActivity : RxAppCompatActivity(), FragmentListener {
 
     private lateinit var mainFragment: MainFragment
+    private val person by lazy {
+        getBundleFrom<Passenger>("passenger")
+    }
 
     @SuppressLint("AuthLeak")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,13 +41,11 @@ class MainActivity : RxAppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        val person = getBundleFrom<Passenger>("passenger")
-        mainFragment = MainFragment(person)
+        mainFragment = MainFragment(person, this)
 
         setupPermission {
             replaceFragment(mainFragment, R.id.main_frame)
         }
-
     }
 
     private fun setupPermission(ready: () -> Unit) {
@@ -65,5 +69,19 @@ class MainActivity : RxAppCompatActivity() {
 
             })
             .check()
+    }
+
+    override fun onDetachMainFragment() {
+        //restartFragment(mainFragment, R.id.main_frame)
+        //intentTo(MainActivity::class.java, bundleOf("passenger" to person))
+        finish()
+
+        composite.delay(500) {
+            val bundle = bundleOf("passenger" to person)
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            intent.putExtras(bundle)
+            startActivity(intent)
+        }
     }
 }

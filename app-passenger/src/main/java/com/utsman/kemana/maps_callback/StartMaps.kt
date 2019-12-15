@@ -46,10 +46,10 @@ class StartMaps(
             val markerOption = MarkerOptions.Builder()
                 .setIcon(R.drawable.mapbox_marker_icon_default)
                 .setPosition(startLatLng)
-                .setId("me-${System.currentTimeMillis()}")
+                .setId("me", true)
                 .build(context!!)
 
-            val marker = mapbox.addMarker(markerOption).get("me")
+            val marker = mapbox.addMarker(markerOption)
 
             mapbox.animateCamera(CameraUpdateFactory.newLatLngZoom(startLatLng, 17.0))
 
@@ -60,18 +60,16 @@ class StartMaps(
                         val latLngDriver = LatLng(driver.position!!.lat!!, driver.position!!.lon!!)
                         val rotation = driver.position?.angle
 
-                        val uniqueId = "${driver.id}-${System.currentTimeMillis()}"
-
                         logi("driver location --> $latLngDriver, id --> ${driver.id}, rotation -> $rotation from ${driver.position?.angle}")
 
                         val markerDriverOption = MarkerOptions.Builder()
-                            .setId(uniqueId)
+                            .setId("driver", true)
                             .setIcon(R.drawable.mapbox_marker_icon_default, true)
                             .setPosition(latLngDriver)
                             .setRotation(rotation)
                             .build(context)
 
-                        mapbox.addMarker(markerDriverOption).get(uniqueId)
+                        mapbox.addMarker(markerDriverOption)
                     }
                 }
             }

@@ -86,7 +86,7 @@ class Rabbit private constructor(private val url: String) {
                         val connection = it.newConnection()
                         val channel = connection.createChannel()
 
-                        channel.queueDeclare(id, false, false, autoClear, null)
+                        channel.queueDeclare(id, false, false, true, null)
 
                         if (autoClear) {
                             channel.exchangeDeclare("kemana-2", "fanout")

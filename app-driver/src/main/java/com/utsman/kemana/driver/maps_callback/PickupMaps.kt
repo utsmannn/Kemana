@@ -73,17 +73,17 @@ class PickupMaps(
                     val markerOptionStart = MarkerOptions.Builder()
                         .setIcon(R.drawable.mapbox_marker_icon_default)
                         .setPosition(startLatLon)
-                        .setId("me")
+                        .setId("me", true)
                         .build(context)
 
                     val markerOptionPassenger = MarkerOptions.Builder()
                         .setIcon(R.drawable.mapbox_marker_icon_default)
                         .setPosition(passengerLatLon)
-                        .setId("passenger")
+                        .setId("passenger", true)
                         .build(context)
 
-                    val markerStart = mapbox.addMarker(markerOptionStart).get("me")
-                    val markerPassenger = mapbox.addMarker(markerOptionPassenger).get("passenger")
+                    val markerStart = mapbox.addMarker(markerOptionStart)
+                    val markerPassenger = mapbox.addMarker(markerOptionPassenger)
                     ok.invoke(mapbox, markerStart)
 
                     mapbox.animateCamera(

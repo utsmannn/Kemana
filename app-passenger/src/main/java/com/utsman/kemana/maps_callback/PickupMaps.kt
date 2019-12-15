@@ -67,33 +67,31 @@ class PickupMaps(
             val passengerLatLonString = "$destLat,$destLon"
 
 
-
             placePresenter.getPolyline(startLatLonString, passengerLatLonString) {
                 setupPolylineRoute(it?.geometry!!, style) {
                     mapbox.uiSettings.setLogoMargins(30, 30, 30,(context!!.dp(200)) + 30)
 
-
                     val markerOptionStart = MarkerOptions.Builder()
                         .setIcon(R.drawable.mapbox_marker_icon_default)
                         .setPosition(startLatLon)
-                        .setId("me")
+                        .setId("me", true)
                         .build(context)
 
                     val markerOptionDest = MarkerOptions.Builder()
                         .setIcon(R.drawable.mapbox_marker_icon_default)
                         .setPosition(destLatLon)
-                        .setId("destination")
+                        .setId("destination", true)
                         .build(context)
 
                     val markerOptionDriver = MarkerOptions.Builder()
                         .setIcon(R.drawable.mapbox_marker_icon_default)
                         .setPosition(driverLatLon)
-                        .setId("driver")
+                        .setId("driver", true)
                         .build(context)
 
-                    val markerStart = mapbox.addMarker(markerOptionStart).get("me")
-                    val markerDestination = mapbox.addMarker(markerOptionDest).get("destination")
-                    val markerDriver = mapbox.addMarker(markerOptionDriver).get("driver")
+                    val markerStart = mapbox.addMarker(markerOptionStart)
+                    val markerDestination = mapbox.addMarker(markerOptionDest)
+                    val markerDriver = mapbox.addMarker(markerOptionDriver)
 
                     val latLngBounds = LatLngBounds.Builder()
                         .include(startLatLon)

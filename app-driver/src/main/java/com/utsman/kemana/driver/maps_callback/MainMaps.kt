@@ -24,10 +24,10 @@ class MainMaps(
             val markerOption = MarkerOptions.Builder()
                 .setIcon(R.drawable.mapbox_marker_icon_default)
                 .setPosition(startLatLon)
-                .setId("me")
+                .setId("me", true)
                 .build(context!!)
 
-            val marker = mapbox.addMarker(markerOption).get("me")
+            val marker = mapbox.addMarker(markerOption)
 
             mapbox.animateCamera(CameraUpdateFactory.newLatLngZoom(startLatLon, 17.0))
             layer.invoke(mapbox, marker)
