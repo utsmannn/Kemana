@@ -4,14 +4,14 @@ package com.kemana.backend.model
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class OriginPlaces(
-    @JsonProperty("attribution")
-    val attribution: String?,
-    @JsonProperty("features")
-    val features: List<Feature?>?,
-    @JsonProperty("query")
-    val query: List<String?>?,
-    @JsonProperty("type")
-    val type: String?
+        @JsonProperty("attribution")
+        val attribution: String?,
+        @JsonProperty("features")
+        val features: List<Feature?>?,
+        @JsonProperty("query")
+        val query: List<String?>?,
+        @JsonProperty("type")
+        val type: String?
 )
 
 data class Feature(

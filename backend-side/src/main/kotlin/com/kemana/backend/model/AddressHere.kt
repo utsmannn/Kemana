@@ -4,8 +4,8 @@ package com.kemana.backend.model
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class AddressHere(
-    @JsonProperty("Response")
-    val response: Response?
+        @JsonProperty("Response")
+        val response: Response?
 )
 
 data class Response(

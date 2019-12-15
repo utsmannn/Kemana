@@ -41,6 +41,7 @@ import kotlinx.android.synthetic.main.bottom_dialog_receiving_order.view.*
 import kotlinx.android.synthetic.main.bottom_sheet.view.*
 import kotlinx.android.synthetic.main.fragment_main.view.*
 import org.json.JSONObject
+import java.util.*
 
 @Suppress("UNCHECKED_CAST")
 class MainFragment(private val driver: Driver?) : RxFragment(),
@@ -95,6 +96,8 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_main, container, false)
+        driver?.id = UUID.nameUUIDFromBytes(driver?.email?.toByteArray()).toString()
+
         mapView = view?.mapbox_view!!
         mapsPresenter = MapsPresenter(this)
         activatedStatePresenter = ActivatedStatePresenter(this)

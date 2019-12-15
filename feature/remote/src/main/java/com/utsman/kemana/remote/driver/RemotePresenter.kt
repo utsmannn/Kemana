@@ -229,7 +229,7 @@ class RemotePresenter(private val composite: CompositeDisposable) : RemoteListen
         composite.add(action)
     }
 
-    override fun getRegisteredDriverById(id: String, driver: (Driver?) -> Unit) {
+    override fun getRegisteredDriverById(id: String?, driver: (Driver?) -> Unit) {
         val action = remoteInstance.getRegisteredDriver(id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -248,7 +248,7 @@ class RemotePresenter(private val composite: CompositeDisposable) : RemoteListen
         composite.add(action)
     }
 
-    override fun getAttrRegisteredDriver(id: String, attr: (Attribute?) -> Unit) {
+    override fun getAttrRegisteredDriver(id: String?, attr: (Attribute?) -> Unit) {
         val action = remoteInstance.getAttrRegisteredDriver(id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

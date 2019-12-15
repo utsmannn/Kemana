@@ -2,6 +2,7 @@ package com.kemana.backend.controller
 
 import com.kemana.backend.model.*
 import org.springframework.http.*
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
@@ -10,7 +11,14 @@ import org.springframework.web.client.RestTemplate
 @RestController
 @RequestMapping("/api/v1/place")
 class PlaceController {
+
     private val restTemplate = RestTemplate()
+
+    init {
+        // ClientHttpRequestFactory requestFactory = new
+        //      HttpComponentsClientHttpRequestFactory(HttpClients.createDefault());
+
+    }
 
     @RequestMapping(value = ["/search"], method = [RequestMethod.GET])
     fun getPlaceBounding(
@@ -37,7 +45,7 @@ class PlaceController {
         return PlacesResponses(listResult?.size, listResult)
     }
 
-    @RequestMapping(value = ["/direction"], method = [RequestMethod.POST])
+    @RequestMapping(value = ["/direction"], method = [RequestMethod.GET])
     fun getDirection(
             @RequestParam("from") from: String,
             @RequestParam("to") to: String

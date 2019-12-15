@@ -1,3 +1,4 @@
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 29
@@ -40,6 +41,8 @@ dependencies {
     implementation Design.material
     implementation Design.slideButton
     implementation Design.recycling
+    implementation Design.glide
+    kapt Design.glideKapt
 
     implementation Rx.rxJava
     implementation Rx.rxAndroid

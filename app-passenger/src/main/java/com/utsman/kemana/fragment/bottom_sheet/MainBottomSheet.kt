@@ -51,7 +51,7 @@ class MainBottomSheet(
         val v = inflater.inflate(R.layout.bottom_sheet_frg_main, container, false)
 
         v.detail_pricing_container.visibility = View.GONE
-
+        v.btn_order.isEnabled = false
         v.text_from.text = "Your location"
 
         placePresenter.getAddress("${startLatLng.latitude},${startLatLng.longitude}") { place ->
@@ -72,10 +72,13 @@ class MainBottomSheet(
                 v.text_from.text = place?.placeName
 
                 if (startPlace != null && destinationPlace != null) {
-                    val from = "${startLatLng.latitude},${startLatLng.longitude}"
+
+                    val from = "${latLng.latitude},${latLng.longitude}"
                     val to = "${destinationLatLng.latitude},${destinationLatLng.longitude}"
+                    logi("request is --> ${startPlace?.geometry} -- ${destinationPlace?.geometry}")
 
                     placePresenter.getPolyline(from, to) { poly ->
+                        v.btn_order.isEnabled = true
                         polyline = poly
                         mapsPresenter.mapReady(startPlace!!, destinationPlace!!, poly).apply {
                             setupPricing(v, poly)
@@ -94,11 +97,15 @@ class MainBottomSheet(
                 logi("$startPlace -- $destinationPlace")
 
                 if (startPlace != null && destinationPlace != null) {
+                    logi("request is --> ${startPlace?.geometry} -- ${destinationPlace?.geometry}")
+
                     val from = "${startLatLng.latitude},${startLatLng.longitude}"
                     val to = "${latLng.latitude},${latLng.longitude}"
 
                     placePresenter.getPolyline(from, to) { poly ->
                         polyline = poly
+                        v.btn_order.isEnabled = true
+
                         mapsPresenter.mapReady(startPlace!!, destinationPlace!!, poly).apply {
                             setupPricing(v, poly)
                         }

@@ -28,7 +28,7 @@ interface PlaceInterface {
         @Query("from") from: String
     ) : Flowable<PlacesResponses>
 
-    @POST("/api/v1/place/direction")
+    @GET("/api/v1/place/direction")
     fun getPolyline(
         @Query("from") from: String,
         @Query("to") to: String

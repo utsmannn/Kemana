@@ -168,6 +168,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
     }
 
     override fun mapPickup(orderData: OrderData) {
+        logi("driver id is --> ${orderData.attribute.driver?.id}")
         messagingPresenter?.let {
             pickupBottomSheetFragment = PickupBottomSheet(orderData, it)
         }
@@ -180,7 +181,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
                 logi("listen from $from - for traking -> $body")
                 val type = body.getInt("type")
 
-                /*when (type) {
+                when (type) {
                     Type.TRACKING -> {
                         val data = body.getJSONObject("data")
 
@@ -191,7 +192,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
 
                         marker?.moveMarkerSmoothly(newLatLong)
                     }
-                }*/
+                }
             }
         }
 
@@ -240,7 +241,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
                             if (orderData.accepted) {
 
                                 // driver accepted
-
+                                logi("driver id is --> ${orderData.attribute.driver?.id}")
                                 setupOrderAccepted(orderData)
 
                             } else {
@@ -293,6 +294,7 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
         bottomDialog.cancel()
 
         val driver = orderData.attribute.driver
+        logi("driver id is --> ${driver?.id}")
         mapsPresenter?.mapOrder(orderData)
     }
 
@@ -318,6 +320,11 @@ class MainFragment(private val passenger: Passenger?) : RxFragment(),
             bottomDialog.dismiss()
             toast("try again -> ${it.localizedMessage}")
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mapView.onDestroy()
     }
 
 
