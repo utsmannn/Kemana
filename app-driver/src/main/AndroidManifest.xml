@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2019 Muhammad Utsman
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.utsman.kemana.driver">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name="androidx.multidex.MultiDexApplication"
@@ -22,12 +38,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
-        <activity android:name=".FormCompleteActivity"
-            android:theme="@style/AppThemeToolbar"
-            android:label="Complete your vehicles data"/>
+        <activity
+            android:name=".FormCompleteActivity"
+            android:label="Complete your vehicles data"
+            android:theme="@style/AppThemeToolbar" />
 
-        <service
-            android:name=".services.LocationServices" />
+        <service android:name=".services.RabbitServices" />
+        <service android:name=".services.LocationServices" />
 
     </application>
 

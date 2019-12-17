@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2019 Muhammad Utsman
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.utsman.kemana
 
 import android.content.Intent
@@ -9,6 +25,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.utsman.easygooglelogin.EasyGoogleLogin
 import com.utsman.easygooglelogin.LoginResultListener
 import com.utsman.featurerabbitmq.Rabbit
+import com.utsman.kemana.base.RABBIT_URL
 import com.utsman.kemana.base.intentTo
 import com.utsman.kemana.base.logi
 import com.utsman.kemana.remote.driver.Passenger
@@ -42,6 +59,8 @@ class AuthActivity : AppCompatActivity(), LoginResultListener {
     }
 
     override fun onLoginSuccess(user: FirebaseUser) {
+        Rabbit.setInstance(user.email, RABBIT_URL)
+
         logi("login success")
         val passenger = Passenger(
             name = user.displayName,
@@ -50,7 +69,6 @@ class AuthActivity : AppCompatActivity(), LoginResultListener {
         )
 
         val email = user.email!!
-        Rabbit.setID(email)
 
         val bundle = bundleOf("passenger" to passenger)
         intentTo(MainActivity::class.java, bundle)

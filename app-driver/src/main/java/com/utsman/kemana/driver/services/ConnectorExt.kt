@@ -14,16 +14,30 @@
  * limitations under the License.
  */
 
-package com.utsman.featurerabbitmq
+package com.utsman.kemana.driver.services
 
-import com.rabbitmq.client.Connection
-import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
+import isfaaghyth.app.notify.Notify
+import isfaaghyth.app.notify.NotifyProvider
 import org.json.JSONObject
-import java.lang.Exception
 
-interface RabbitInstance {
-    fun listen(msg: (from: String, body: JSONObject) -> Unit) : Disposable
-    fun publishTo(id: String, msg: JSONObject, error: (Exception) -> Unit): Disposable
+data class ConnectorRabbit(val data: JSONObject)
+
+fun Notify.sendToRabbit(passengerId: String, type: Int, data: JSONObject) {
+    val body = JSONObject()
+    body.apply {
+        put("pass_id", passengerId)
+        put("type", type)
+        put("data", data)
+    }
+
+    send(ConnectorRabbit(body))
+}
+
+fun Notify.listenFromRabbit(type: Int, data: JSONObject) {
+    listen(ConnectorRabbit::class.java, NotifyProvider(), Consumer {
+        val typ = it.data.getInt("type")
+
+
+    })
 }
