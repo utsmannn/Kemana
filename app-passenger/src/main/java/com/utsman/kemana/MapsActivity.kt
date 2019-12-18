@@ -14,33 +14,27 @@
  * limitations under the License.
  */
 
-@file:Suppress("UNCHECKED_CAST")
+package com.utsman.kemana
 
-package com.utsman.kemana.fragment
-
+import android.location.Location
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.maps.MapView
 import com.utsman.featurerabbitmq.Rabbit
 import com.utsman.featurerabbitmq.Type
-import com.utsman.kemana.R
 import com.utsman.kemana.base.*
 import com.utsman.kemana.base.view.BottomSheetUnDrag
 import com.utsman.kemana.fragment.bottom_sheet.MainBottomSheet
 import com.utsman.kemana.fragment.bottom_sheet.PickupBottomSheet
-import com.utsman.kemana.impl.view.FragmentListener
-import com.utsman.kemana.impl.view.ILocationView
 import com.utsman.kemana.impl.view.IMapView
 import com.utsman.kemana.impl.view.IMessagingView
 import com.utsman.kemana.maps_callback.PickupMaps
 import com.utsman.kemana.maps_callback.ReadyMaps
 import com.utsman.kemana.maps_callback.StartMaps
-import com.utsman.kemana.presenter.LocationPresenter
 import com.utsman.kemana.presenter.MapsPresenter
 import com.utsman.kemana.presenter.MessagingPresenter
 import com.utsman.kemana.remote.driver.OrderData
@@ -51,24 +45,22 @@ import com.utsman.kemana.remote.place.Places
 import com.utsman.kemana.remote.place.PolylineResponses
 import com.utsman.kemana.remote.toJSONObject
 import com.utsman.kemana.remote.toOrderData
+import com.utsman.smartmarker.location.LocationWatcher
+import com.utsman.smartmarker.mapbox.toLatLngMapbox
 import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.bottom_sheet.view.*
-import kotlinx.android.synthetic.main.activity_maps.view.*
+import kotlinx.android.synthetic.main.bottom_sheet.*
+import kotlinx.android.synthetic.main.activity_maps.*
 import org.json.JSONObject
 
-class MainFragment(private val passenger: Passenger?, private val fragmentListener: FragmentListener) : RxFragment(),
-    ILocationView, IMapView, IMessagingView {
+class MapsActivity : RxAppCompatActivity(), IMapView, IMessagingView {
 
     private var mainBottomSheetFragment: MainBottomSheet? = null
     private var pickupBottomSheetFragment: PickupBottomSheet? = null
-
-    private lateinit var bottomSheet: BottomSheetUnDrag<View>
 
     private var mapsPresenter: MapsPresenter? = null
     private var messagingPresenter: MessagingPresenter? = null
     private var remotePresenter: RemotePresenter? = null
 
-    private lateinit var mapView: MapView
     private lateinit var startMaps: StartMaps
     private lateinit var readyMaps: ReadyMaps
     private lateinit var pickupMaps: PickupMaps
@@ -80,55 +72,45 @@ class MainFragment(private val passenger: Passenger?, private val fragmentListen
     private var trackingDisposable: Disposable? = null
     private var cameraDisposable: Disposable? = null
 
-    private val locationPresenter by lazy {
-        LocationPresenter(context!!)
+    private val locationWatcher by lazy {
+        LocationWatcher(this)
+    }
+
+    private val bottomSheet by lazy {
+        val bottomSh = BottomSheetBehavior.from(main_bottom_sheet) as BottomSheetUnDrag<*>
+        bottomSh.setAllowUserDragging(false)
+        return@lazy bottomSh
     }
 
     private val bottomDialog by lazy {
-        val bottomDialog = BottomSheetDialog(context!!)
-        val bottomDialogView = LayoutInflater.from(context).inflate(R.layout.dialog_finding_order, null)
+        val bottomDialog = BottomSheetDialog(this)
+        val bottomDialogView = LayoutInflater.from(this).inflate(R.layout.dialog_finding_order, null)
         bottomDialog.setContentView(bottomDialogView)
         bottomDialog.setCancelable(false)
 
         return@lazy bottomDialog
     }
 
+    private val passenger by lazy {
+        getBundleFrom<Passenger>("passenger")
+    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val v = inflater.inflate(R.layout.activity_maps, container, false)
-        mapView = v?.mapbox_view!!
-        mapView.onCreate(savedInstanceState)
-        bottomSheet = BottomSheetBehavior.from(v.main_bottom_sheet) as BottomSheetUnDrag<View>
-        bottomSheet.setAllowUserDragging(false)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Mapbox.getInstance(this, MAPKEY)
+        setContentView(R.layout.activity_maps)
         bottomSheet.hidden()
+        mapbox_view.onCreate(savedInstanceState)
 
-        locationPresenter.initLocation(this)
+        locationWatcher.getLocation(this) { location ->
+            init(location)
+        }
 
-        // BottomSheetDialog d = (BottomSheetDialog) dialog;
-        //
-        //        // This is gotten directly from the source of BottomSheetDialog
-        //        // in the wrapInBottomSheet() method
-        //        FrameLayout bottomSheet = (FrameLayout) d.findViewById(android.support.design.R.id.design_bottom_sheet);
-        //
-        //        // Right here!
-        //        BottomSheetBehavior.from(bottomSheet)
-        //            .setState(BottomSheetBehavior.STATE_EXPANDED);
-
-
-        return v
     }
 
-    private fun revertAllNull() {
-        messagingPresenter = null
-        remotePresenter = null
-    }
+    private fun init(location: Location) {
+        latLng = location.toLatLngMapbox()
 
-    override fun onLocationReady(latLng: LatLng) {
-        this.latLng = latLng
         logi("location ready --> $latLng")
 
         mapsPresenter = MapsPresenter(this)
@@ -150,12 +132,12 @@ class MainFragment(private val passenger: Passenger?, private val fragmentListen
     }
 
     override fun mapStart(startLatLng: LatLng) {
-        startMaps = StartMaps(composite, context, startLatLng) { map, marker ->
+        startMaps = StartMaps(composite, this, startLatLng) { map, marker ->
             // map ready from invoke
 
         }
 
-        mapView.getMapAsync(startMaps)
+        mapbox_view.getMapAsync(startMaps)
         startMaps.setPaddingBottom(200)
         composite.add(startMaps)
     }
@@ -169,29 +151,32 @@ class MainFragment(private val passenger: Passenger?, private val fragmentListen
         if (polyline == null) {
             toast("failed")
 
-            mapView.getMapAsync(startMaps)
+            mapbox_view.getMapAsync(startMaps)
             startMaps.setPaddingBottom(200)
 
         } else {
-            readyMaps = ReadyMaps(context, startLatLng, destLatLng, polyline.geometry)
+            readyMaps = ReadyMaps(this, startLatLng, destLatLng, polyline.geometry)
 
-            mapView.getMapAsync(readyMaps)
+            mainBottomSheetFragment?.pricingVisible()
+            mapbox_view.getMapAsync(readyMaps)
             readyMaps.setPaddingBottom(200)
             composite.add(readyMaps)
         }
     }
 
     override fun mapPickup(orderData: OrderData) {
+        bottomDialog.cancel()
+
         logi("driver id is --> ${orderData.attribute.driver?.id}")
         messagingPresenter?.let {
             pickupBottomSheetFragment = PickupBottomSheet(orderData, it)
         }
 
-        pickupMaps = PickupMaps(context, composite, orderData) { mapbox, marker, camDis ->
+        pickupMaps = PickupMaps(this, composite, orderData) { mapbox, marker, camDis ->
             replaceFragment(pickupBottomSheetFragment, R.id.main_frame_bottom_sheet)
 
             cameraDisposable = camDis
-            trackingDisposable = Rabbit.getInstance()?.listen { from, body ->
+            /*trackingDisposable = Rabbit.getInstance()?.listen { from, body ->
                 logi("listen from $from - for traking -> $body")
                 val type = body.getInt("type")
 
@@ -207,22 +192,26 @@ class MainFragment(private val passenger: Passenger?, private val fragmentListen
                         marker?.moveMarkerSmoothly(newLatLong)
                     }
                 }
-            }
+            }*/
 
-            composite.addAll(cameraDisposable, trackingDisposable)
+            //composite.addAll(cameraDisposable, trackingDisposable)
+            composite.addAll(cameraDisposable)
         }
 
-        mapView.getMapAsync(pickupMaps)
+        mapbox_view.getMapAsync(pickupMaps)
         composite.add(pickupMaps)
     }
 
     override fun failedServerConnection() {
-        val bottomDialog = BottomSheetDialog(context!!)
+        val bottomDialog = BottomSheetDialog(this)
         bottomDialog.setContentView(R.layout.bottom_dialog_error)
         bottomDialog.show()
     }
 
     override fun dispose() {
+        trackingDisposable?.dispose()
+        cameraDisposable?.dispose()
+
         readyMaps.dispose()
         startMaps.dispose()
         pickupMaps.dispose()
@@ -245,7 +234,7 @@ class MainFragment(private val passenger: Passenger?, private val fragmentListen
 
                 // listen callback driver
                 Rabbit.getInstance()?.listen { from, body ->
-                    logi("from $from is $body")
+                    logi("confirm driver coming -> from $from is $body")
 
                     val type = body.getInt("type")
                     val data = body.getJSONObject("data")
@@ -254,18 +243,14 @@ class MainFragment(private val passenger: Passenger?, private val fragmentListen
                         Type.ORDER_CONFIRM -> {
                             val orderData = data.toOrderData()
                             if (orderData.accepted) {
-                                //toast("you can get driver")
-                                // driver accepted
                                 logi("driver id is --> ${orderData.attribute.driver?.id}")
                                 setupOrderAccepted(orderData)
 
                             } else {
                                 logi("order rejected")
 
-                                // if target < size, call again with increase target
                                 if (target < size) {
                                     logi("target is $target and size is $size")
-                                    // increase target with +1 and call again
                                     target = (+1).apply {
                                         finder(emails[this], startPlaces, destPlaces, polyline)
                                     }
@@ -286,16 +271,11 @@ class MainFragment(private val passenger: Passenger?, private val fragmentListen
     }
 
     override fun orderCancel() {
-        fragmentListener.onDetachMainFragment()
-    }
+        mapsPresenter?.dispose()
 
-    private fun setupOrderAccepted(orderData: OrderData) {
-        logi("order accepted")
-        bottomDialog.cancel()
-
-        val driver = orderData.attribute.driver
-        logi("driver id is --> ${driver?.id}")
-        mapsPresenter?.mapOrder(orderData)
+        locationWatcher.getLocation(this) { location ->
+            init(location)
+        }
     }
 
     private fun finder(email: String, startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {
@@ -322,40 +302,46 @@ class MainFragment(private val passenger: Passenger?, private val fragmentListen
         }
     }
 
+    private fun setupOrderAccepted(orderData: OrderData) {
+        logi("order accepted")
+
+        val driver = orderData.attribute.driver
+        logi("driver id is --> ${driver?.id}")
+        mapsPresenter?.mapOrder(orderData)
+    }
+
     override fun onDestroy() {
+        mapbox_view.onDestroy()
         super.onDestroy()
-        mapView.onDestroy()
     }
 
     override fun onStart() {
+        mapbox_view.onStart()
         super.onStart()
-        mapView.onStart()
     }
 
     override fun onPause() {
         super.onPause()
-        mapView.onPause()
+        mapbox_view.onPause()
     }
 
     override fun onResume() {
         super.onResume()
-        mapView.onResume()
+        mapbox_view.onResume()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        mapView.onSaveInstanceState(outState)
+        mapbox_view.onSaveInstanceState(outState)
     }
 
     override fun onStop() {
         super.onStop()
-        mapView.onStop()
+        mapbox_view.onStop()
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        mapView.onLowMemory()
+        mapbox_view.onLowMemory()
     }
-
-
 }

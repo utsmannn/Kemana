@@ -41,11 +41,11 @@ import com.utsman.kemana.fragment.bottom_sheet.MainBottomSheet
 import com.utsman.kemana.impl.view.FragmentListener
 import com.utsman.kemana.presenter.MapsPresenter
 import com.utsman.kemana.remote.driver.Passenger
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.bottom_sheet.*
 
 class MainActivity : RxAppCompatActivity(), FragmentListener {
 
-    private lateinit var mainFragment: MainFragment
     private val person by lazy {
         getBundleFrom<Passenger>("passenger")
     }
@@ -53,14 +53,17 @@ class MainActivity : RxAppCompatActivity(), FragmentListener {
     @SuppressLint("AuthLeak")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Mapbox.getInstance(this, MAPKEY)
         setContentView(R.layout.activity_main)
 
-
-        mainFragment = MainFragment(person, this)
-
         setupPermission {
-            replaceFragment(mainFragment, R.id.main_frame)
+
+            btn_maps.setOnClickListener {
+                //intentTo(MapsActivity::class.java, bundleOf("passenger" to person))
+                val intent = Intent(this, MapsActivity::class.java)
+                intent.putExtras(bundleOf("passenger" to person))
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }
         }
     }
 

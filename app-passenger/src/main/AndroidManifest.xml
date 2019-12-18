@@ -42,6 +42,7 @@
         </activity>
 
         <activity android:name=".MainActivity"/>
+        <activity android:name=".MapsActivity"/>
     </application>
 
 </manifest>

@@ -45,6 +45,7 @@ class LocationServices : RxService(),
     private lateinit var remotePresenter: RemotePresenter
 
     private var updateLocationDisposable: Disposable? = null
+    private var updateToPassenger: Disposable? = null
 
     private var defaultLatLng = LatLng()
     private var driver: Driver? = null
@@ -197,6 +198,7 @@ class LocationServices : RxService(),
                     val orderCancel = OrderCancelSubs(true)
                     Notify.send(orderCancel)
                     emailPassenger = null
+                    updateToPassenger?.dispose()
                 }
             }
         }
@@ -244,7 +246,7 @@ class LocationServices : RxService(),
                 put("data", jsonLatLon)
             }
 
-            Rabbit.getInstance()?.publishTo(emailPassenger!!, jsonObject) {
+            updateToPassenger = Rabbit.getInstance()?.publishTo(emailPassenger!!, jsonObject) {
                 toast("error --> ${it.localizedMessage}")
             }
         }

@@ -46,8 +46,7 @@ class ReadyMaps(
     private val context: Context?,
     private val startLatLng: LatLng,
     private val destinationLatLng: LatLng,
-    private val polyString: String?,
-    private val layer: (map: MapboxMap) -> Unit
+    private val polyString: String?
 ) : OnMapReadyCallback, BaseDisposableCompletable() {
 
     private lateinit var mapbox: MapboxMap
@@ -72,7 +71,6 @@ class ReadyMaps(
 
             if (polyString != null) {
                 setupPolylineRoute(polyString, style) {
-                    layer.invoke(mapbox)
 
                     val markerStart = mapbox.addMarker(markerOptionStart)
                     val markerDestination = mapbox.addMarker(markerOptionDestination)

@@ -21,6 +21,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.jakewharton.rxbinding3.widget.afterTextChangeEvents
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -144,6 +146,12 @@ class MainBottomSheet(
         val viewDialog =
             LayoutInflater.from(context).inflate(R.layout.bottoh_sheet_location_picker, null)
         bottomSheetDialog.setContentView(viewDialog)
+
+        bottomSheetDialog.setOnShowListener {
+            val bottomSheet = bottomSheetDialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+            BottomSheetBehavior.from(bottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
+            viewDialog.input_location.requestFocus()
+        }
 
         viewDialog?.rv_location?.setupAdapter<Places>(R.layout.item_location) { adapter, context, list ->
             list?.clear()

@@ -32,7 +32,7 @@ interface BaseRx {
 open class RxAppCompatActivity : AppCompatActivity(), BaseRx {
 
     override fun onDestroy() {
-        composite.dispose()
+        composite.clear()
         super.onDestroy()
     }
 }
@@ -40,7 +40,7 @@ open class RxAppCompatActivity : AppCompatActivity(), BaseRx {
 open class RxFragment : Fragment(), BaseRx {
 
     override fun onDestroyView() {
-        composite.dispose()
+        composite.clear()
         super.onDestroyView()
     }
 }
@@ -49,7 +49,7 @@ open class RxService : Service(), BaseRx {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
-        composite.dispose()
+        composite.clear()
         super.onDestroy()
     }
 

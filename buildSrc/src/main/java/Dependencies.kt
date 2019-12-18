@@ -40,7 +40,7 @@ object Firebase {
 }
 
 object Maps {
-    val mapbox              = "com.mapbox.mapboxsdk:mapbox-android-sdk:8.4.0"
+    val mapbox              = "com.mapbox.mapboxsdk:mapbox-android-sdk:8.5.0"
     val gmsLocationService  = "com.google.android.gms:play-services-location:17.0.0"
     val rxLocation          = "pl.charmas.android:android-reactive-location2:2.1@aar"
     val smartMarker         = "com.utsman.smartmarker:core:1.3.12@aar"

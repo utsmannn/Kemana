@@ -52,7 +52,6 @@ class MainActivity : RxAppCompatActivity() {
 
         locationServices = Intent(this, LocationServices::class.java)
         mainFragment = MainFragment(driver)
-        //mainFragment = MainFragment.withDriver(driver)
 
         setupPermission {
             startService(locationServices)
@@ -87,7 +86,6 @@ class MainActivity : RxAppCompatActivity() {
                 override fun onPermissionDenied(response: PermissionDeniedResponse?) {
                     loge("permission denied")
                 }
-
             })
             .check()
     }

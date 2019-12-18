@@ -84,11 +84,10 @@ class Rabbit private constructor(private var connection: Connection?) {
             override fun publishTo(id: String, msg: JSONObject, error: (Exception) -> Unit): Disposable {
                 return Observable.just(connection)
                     .subscribeOn(Schedulers.io())
-                    .doOnNext {
+                    .map {
+                        val channel = it.createChannel()
+                        channel?.queueDeclare(id, false, false, true, null)
                         try {
-                            val channel = it?.createChannel()
-                            channel?.queueDeclare(id, false, false, true, null)
-
                             channel?.exchangeDeclare("kemana-2", "fanout")
                             channel?.queueBind(id, "kemana-2", id)
 
@@ -112,11 +111,16 @@ class Rabbit private constructor(private var connection: Connection?) {
                             liveError.postValue(e)
                             e.printStackTrace()
                         }
+
+                        return@map channel
                     }
                     .doOnError {
                         liveError.observeForever {
                             error.invoke(it)
                         }
+                    }
+                    .doOnNext {
+                        it.close()
                     }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe()
