@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Gradle: com.utsman.smartmarker:ext-mapbox:1.3.12@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/2b56d845239223a852dc18e453ad3690/ext-mapbox-1.3.12/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/2b56d845239223a852dc18e453ad3690/ext-mapbox-1.3.12/res" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.utsman.smartmarker/ext-mapbox/1.3.12/f18ddba3b349df374f1db73329ecbeae9e95e1e5/ext-mapbox-1.3.12-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.utsman.smartmarker/ext-mapbox/1.3.12/a6fe6b13414033727efd2cfc1a62cadff32d3826/ext-mapbox-1.3.12-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

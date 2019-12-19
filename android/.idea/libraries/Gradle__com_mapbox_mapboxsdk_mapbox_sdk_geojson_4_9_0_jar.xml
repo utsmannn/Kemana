@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: com.mapbox.mapboxsdk:mapbox-sdk-geojson:4.9.0@jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.mapbox.mapboxsdk/mapbox-sdk-geojson/4.9.0/6505c7845faa6955b10b69da2541c5f78dcc5e17/mapbox-sdk-geojson-4.9.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.mapbox.mapboxsdk/mapbox-sdk-geojson/4.9.0/374023afb056cd20304cc85faee5c57f656b5364/mapbox-sdk-geojson-4.9.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.mapbox.mapboxsdk/mapbox-sdk-geojson/4.9.0/2a995394dfd2fb5199e302d7e96e51af7dcee115/mapbox-sdk-geojson-4.9.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

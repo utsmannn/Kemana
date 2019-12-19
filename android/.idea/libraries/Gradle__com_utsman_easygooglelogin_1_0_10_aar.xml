@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Gradle: com.utsman:easygooglelogin:1.0.10@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/3c5d7f65f074ee5b290cd59cdd4a65ba/easygooglelogin-1.0.10/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/3c5d7f65f074ee5b290cd59cdd4a65ba/easygooglelogin-1.0.10/res" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.utsman/easygooglelogin/1.0.10/9a14d163d26d73fc400e524288962d7b41109179/easygooglelogin-1.0.10-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.utsman/easygooglelogin/1.0.10/6c9627694d38706f8be58bca4e43fdbc779f8630/easygooglelogin-1.0.10-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

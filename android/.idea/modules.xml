@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Kemana.iml" filepath="$PROJECT_DIR$/Kemana.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app-driver/app-driver.iml" filepath="$PROJECT_DIR$/app-driver/app-driver.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app-passenger/app-passenger.iml" filepath="$PROJECT_DIR$/app-passenger/app-passenger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/base/base.iml" filepath="$PROJECT_DIR$/base/base.iml" />
+      <module fileurl="file://$PROJECT_DIR$/buildSrc/buildSrc.iml" filepath="$PROJECT_DIR$/buildSrc/buildSrc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/feature/feature.iml" filepath="$PROJECT_DIR$/feature/feature.iml" />
+      <module fileurl="file://$PROJECT_DIR$/feature/rabbitmq/rabbitmq.iml" filepath="$PROJECT_DIR$/feature/rabbitmq/rabbitmq.iml" />
+      <module fileurl="file://$PROJECT_DIR$/feature/remote/remote.iml" filepath="$PROJECT_DIR$/feature/remote/remote.iml" />
+    </modules>
+  </component>
+</project>
