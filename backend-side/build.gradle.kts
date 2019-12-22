@@ -40,6 +40,10 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
+
+	implementation("com.rabbitmq:amqp-client:4.11.3")
+	implementation("org.json:json:20090211")
+
 }
 
 tasks.withType<Test> {

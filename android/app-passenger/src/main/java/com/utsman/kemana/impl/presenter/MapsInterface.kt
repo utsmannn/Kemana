@@ -24,7 +24,7 @@ import com.utsman.kemana.remote.place.PolylineResponses
 interface MapsInterface {
     fun mapStart(startLatLng: LatLng)
     fun mapReady(start: Places, destination: Places, polyline: PolylineResponses?)
-    fun mapOrder(orderData: OrderData)
+    fun mapPickup(orderData: OrderData)
     fun failedServerConnection()
     fun dispose()
 }

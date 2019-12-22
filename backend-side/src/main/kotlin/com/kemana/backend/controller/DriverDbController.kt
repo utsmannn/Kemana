@@ -72,14 +72,14 @@ class DriverDbController {
         return Responses("OK", listOf(attr))
     }
 
-    @RequestMapping(value = [""], method = [RequestMethod.GET])
-    fun getDriverByEmail(@RequestParam("email") email: String): Responses {
+    @RequestMapping(value = ["/get/{email}"], method = [RequestMethod.GET])
+    fun getDriverByEmail(@PathVariable("email") email: String): Responses {
         val driver = driverDbRepository.findDriverByEmail(email)
         return Responses("OK", listOf(driver))
     }
 
-    @RequestMapping(value = [""], method = [RequestMethod.PUT])
-    fun editPositionByEmail(@RequestParam("email") email: String, @Valid @RequestBody position: Position): Responses {
+    @RequestMapping(value = ["/edit/{email}"], method = [RequestMethod.PUT])
+    fun editPositionByEmail(@PathVariable("email") email: String, @Valid @RequestBody position: Position): Responses {
         val driver = driverDbRepository.findDriverByEmail(email)
         driver?.position = position
         driverDbRepository.save(driver!!)

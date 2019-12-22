@@ -4,7 +4,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document(collection = "order_data")
 data class OrderData(
-        val orderID: String?,
+        val id: String?,
         val from: Places?,
         val to: Places?,
         val attribute: OrderDataAttr?,

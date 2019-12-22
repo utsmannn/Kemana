@@ -55,6 +55,7 @@ import isfaaghyth.app.notify.Notify
 import isfaaghyth.app.notify.NotifyProvider
 import kotlinx.android.synthetic.main.bottom_dialog_receiving_order.view.*
 import kotlinx.android.synthetic.main.bottom_sheet.view.*
+import kotlinx.android.synthetic.main.fragment_main.*
 import kotlinx.android.synthetic.main.fragment_main.view.*
 import org.json.JSONObject
 import java.util.*
@@ -150,6 +151,9 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
 
         Notify.listen(OrderCancelSubs::class.java, NotifyProvider(), Consumer { cancelSubs ->
             if (cancelSubs.cancel) {
+                mapbox = null
+                marker = null
+
                 bottomSheet.hidden()
                 mapView.getMapAsync(mainMaps)
                 replaceFragment(mainBottomSheetFragment, R.id.main_frame_bottom_sheet)
@@ -269,11 +273,11 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
         destPlace: Places
     ) {
         val orderDataAttr = OrderDataAttr(
-            orderID = System.currentTimeMillis().toString(),
             driver = driver,
             passenger = passenger
         )
         val orderData = OrderData(
+            orderID = System.currentTimeMillis().toString(),
             accepted = accepted,
             from = startPlace,
             to = destPlace,
@@ -329,6 +333,7 @@ class MainFragment(private val driver: Driver?) : RxFragment(),
 
     override fun onDestroy() {
         super.onDestroy()
+        mapbox_view.onDestroy()
         deactivateState()
     }
 

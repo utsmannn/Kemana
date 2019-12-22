@@ -23,6 +23,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import com.utsman.featurerabbitmq.Rabbit
 import com.utsman.featurerabbitmq.Type
 import com.utsman.kemana.base.*
+import com.utsman.kemana.driver.getEmail
 import com.utsman.kemana.driver.impl.view.ILocationUpdateView
 import com.utsman.kemana.driver.impl.view.ILocationView
 import com.utsman.kemana.driver.presenter.LocationPresenter
@@ -68,7 +69,6 @@ class LocationServices : RxService(),
         }
     }
 
-    @SuppressLint("AuthLeak")
     override fun onCreate() {
         super.onCreate()
         ready.postValue(false)
@@ -235,7 +235,7 @@ class LocationServices : RxService(),
 
         logi("start checking passenger on --> $emailPassenger")
         if (emailPassenger != null) {
-            logi("sending tracking")
+            /*logi("sending tracking")
             val jsonLatLon = JSONObject()
             jsonLatLon.put("lat", newLatLng.latitude)
             jsonLatLon.put("lon", newLatLng.longitude)
@@ -248,6 +248,11 @@ class LocationServices : RxService(),
 
             updateToPassenger = Rabbit.getInstance()?.publishTo(emailPassenger!!, jsonObject) {
                 toast("error --> ${it.localizedMessage}")
+            }*/
+
+            val position = Position(newLatLng.latitude, newLatLng.longitude)
+            remotePresenter.editDriverRegisteredByEmail(getEmail(), position) { driver ->
+
             }
         }
     }

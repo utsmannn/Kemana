@@ -33,7 +33,7 @@ class MapsPresenter(private val iMapView: IMapView) :
         iMapView.mapReady(start, destination, polyline)
     }
 
-    override fun mapOrder(orderData: OrderData) {
+    override fun mapPickup(orderData: OrderData) {
         iMapView.mapPickup(orderData)
     }
 

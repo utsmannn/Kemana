@@ -17,6 +17,7 @@
 package com.utsman.kemana.remote.driver
 
 import android.os.Parcelable
+import com.google.gson.annotations.SerializedName
 import com.utsman.kemana.remote.place.Places
 import kotlinx.android.parcel.Parcelize
 import java.util.*
@@ -74,6 +75,8 @@ data class ResponsesChecking(
 )
 
 data class OrderData(
+    @SerializedName("id")
+    val orderID: String?,
     val accepted: Boolean,
     val from: Places?,
     val to: Places?,
@@ -81,9 +84,13 @@ data class OrderData(
 )
 
 data class OrderDataAttr(
-    val orderID: String?,
     val driver: Driver?,
     val passenger: Passenger?
+)
+
+data class OrderResponses(
+    val message: String,
+    val data: OrderData
 )
 
 object RemoteState {

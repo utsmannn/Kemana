@@ -18,8 +18,9 @@ package com.utsman.kemana
 
 import android.location.Location
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.mapbox.mapboxsdk.Mapbox
@@ -71,6 +72,8 @@ class MapsActivity : RxAppCompatActivity(), IMapView, IMessagingView {
 
     private var trackingDisposable: Disposable? = null
     private var cameraDisposable: Disposable? = null
+
+    private val driverAcceptedId = MutableLiveData<String>()
 
     private val locationWatcher by lazy {
         LocationWatcher(this)
@@ -194,6 +197,20 @@ class MapsActivity : RxAppCompatActivity(), IMapView, IMessagingView {
                 }
             }*/
 
+            /*driverAcceptedId.observe(this, Observer {  driverId ->
+
+            })*/
+
+            trackingDisposable = timer(2000) {
+                remotePresenter?.getRegisteredDriverById(orderData.attribute.driver?.id) { driver ->
+                    val driverPosition = driver?.position
+                    if (driverPosition != null) {
+                        val driverLatLon = LatLng(driverPosition.lat!!, driverPosition.lon!!)
+                        marker?.moveMarkerSmoothly(driverLatLon)
+                    }
+                }
+            }
+
             //composite.addAll(cameraDisposable, trackingDisposable)
             composite.addAll(cameraDisposable)
         }
@@ -307,7 +324,7 @@ class MapsActivity : RxAppCompatActivity(), IMapView, IMessagingView {
 
         val driver = orderData.attribute.driver
         logi("driver id is --> ${driver?.id}")
-        mapsPresenter?.mapOrder(orderData)
+        mapsPresenter?.mapPickup(orderData)
     }
 
     override fun onDestroy() {

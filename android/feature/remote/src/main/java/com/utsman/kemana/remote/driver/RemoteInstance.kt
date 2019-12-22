@@ -81,11 +81,16 @@ interface RemoteInstance {
         @Path("email") email: String?
     ): Flowable<ResponsesChecking>
 
-    @PUT("/api/v1/driver_db")
+    @PUT("/api/v1/driver_db/edit/{email}")
     fun editDriverRegisteredByEmail(
-        @Query("email") email: String?,
+        @Path("email") email: String?,
         @Body position: Position?
     ): Flowable<Responses>
+
+
+    // order
+    @GET("/api/v1/order/save")
+    fun saveOrder(@Body orderData: OrderData)
 
     companion object {
 

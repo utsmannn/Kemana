@@ -107,7 +107,7 @@ fun OrderData.toJSONObject(): JSONObject {
         put("accepted", accepted)
         put("driver", attribute.driver?.toJSONObject())
         put("passenger", attribute.passenger?.toJSONObject())
-        put("orderId", attribute.orderID)
+        put("orderId", orderID)
         put("from", from?.toJSONObject())
         put("to", to?.toJSONObject())
     }
@@ -122,7 +122,7 @@ fun JSONObject.toOrderData(): OrderData {
     val to = getJSONObject("to").toPlace()
     val driver = getJSONObject("driver")
     val passenger = getJSONObject("passenger")
-    val orderDataAttr = OrderDataAttr(orderId, driver.toDriver(), passenger.toPassenger())
+    val orderDataAttr = OrderDataAttr(driver.toDriver(), passenger.toPassenger())
 
-    return OrderData(accepted, from, to, orderDataAttr)
+    return OrderData(orderId, accepted, from, to, orderDataAttr)
 }

@@ -295,7 +295,7 @@ class MainFragment(private val passenger: Passenger?, private val fragmentListen
 
         val driver = orderData.attribute.driver
         logi("driver id is --> ${driver?.id}")
-        mapsPresenter?.mapOrder(orderData)
+        mapsPresenter?.mapPickup(orderData)
     }
 
     private fun finder(email: String, startPlaces: Places, destPlaces: Places, polyline: PolylineResponses) {

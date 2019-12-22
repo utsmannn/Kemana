@@ -26,6 +26,3 @@ data class Position(var lat: Double? = 0.0,
 
 data class Attribute(var vehiclesType: String? = "",
                      var vehiclesPlat: String? = "")
-
-data class Responses(val message: String,
-                     val data: Any)
