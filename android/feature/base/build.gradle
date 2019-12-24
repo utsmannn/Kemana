@@ -1,0 +1,12 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+
+dependencies {
+    api Design.glide
+    kapt Design.glideKapt
+}
+
+apply from: '../../build-base-module.gradle'

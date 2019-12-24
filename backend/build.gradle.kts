@@ -49,8 +49,7 @@ tasks {
         outputDir = file("docs")
         attributes(
                 mapOf(
-                        "snippets" to snippetsDir,
-                        "stylesheet" to file("$projectDir/src/doc/ascii/riak.css")
+                        "snippets" to snippetsDir
                 )
         )
     }

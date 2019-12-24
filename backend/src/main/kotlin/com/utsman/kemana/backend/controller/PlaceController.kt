@@ -60,8 +60,8 @@ class PlaceController {
 
             return@map Places(
                     id = it?.location?.locationId,
-                    placeName = address,
-                    addressName = address,
+                    place_name = address,
+                    address_name = address,
                     geometry = listOf(lat, lon)
             )
         }

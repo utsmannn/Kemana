@@ -1,0 +1,48 @@
+/*
+ * Copyright (c) 2019 Muhammad Utsman
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.utsman.feature.base.view
+
+import android.content.Context
+import android.util.AttributeSet
+import android.view.MotionEvent
+import android.view.View
+
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+
+class BottomSheetUnDrag<V : View> : BottomSheetBehavior<V> {
+    private var mAllowUserDragging = true
+
+    constructor() : super()
+
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
+
+    fun setAllowUserDragging(allowUserDragging: Boolean) {
+        mAllowUserDragging = allowUserDragging
+    }
+
+    override fun onInterceptTouchEvent(
+        parent: CoordinatorLayout,
+        child: V,
+        event: MotionEvent
+    ): Boolean {
+        return if (!mAllowUserDragging) {
+            false
+        } else super.onInterceptTouchEvent(parent, child, event)
+    }
+}

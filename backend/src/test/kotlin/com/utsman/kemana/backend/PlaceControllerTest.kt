@@ -23,7 +23,7 @@ class PlaceControllerTest {
     @Autowired
     lateinit var mockMvc: MockMvc
 
-    private val searchUri = "/api/v1/place/search?q=uhamka&from=-6.1767059, 106.828464&apikey=EKZhNIBtjrjeYxqdyhCMQ1kxVc_O4QGfxEJLqWt0Hp0"
+    private val searchUri = "/api/v1/place/search?q=uhamka&from=-6.1767059,106.828464&apikey=EKZhNIBtjrjeYxqdyhCMQ1kxVc_O4QGfxEJLqWt0Hp0"
     private val getPlaceUri = "/api/v1/place?from=-6.21939,106.92863&apikey=EKZhNIBtjrjeYxqdyhCMQ1kxVc_O4QGfxEJLqWt0Hp0"
 
     @Test

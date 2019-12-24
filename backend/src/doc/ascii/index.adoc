@@ -1,40 +1,48 @@
-= Kemana API DOC
-Kemana api documentation
+= Kemana REST API DOC
+Kemana REST API documentation
 :toc: left
 :toclevels: 3
 :sectlinks:
 :sectnums:
+:sectanchors:
 
 == User
-Kemana User API (Driver and Passenger)
 
-// save user //
-=== Save User
-Save user to document
+=== User Object
+|===
+| param | type |desc
 
-===== Sample Request
-include::{snippets}/user/save-user/http-request.adoc[]
+| `id`
+| string
+| Optional, generated in backend
+
+| `name`
+| string
+| Name
+
+| `email`
+| string
+| Email
+
+| `phone`
+| string
+| Number phone
+
+| `photo`
+| string
+| Photo url
+
+| `position`
+| object
+| Object of `position`
+
+| `driver_attribute`
+| object
+| Object of `driver_attribute`, ignore if object type `passenger`
 
 |===
-| param | desc
 
-| `document`
-| Document where user saving, `driver`, `passenger` or `driver_active`
-
-|===
-
-====== Request Body
-For request body is object user, all nullable
-[source]
-----
-{
-  "name" : "marjuki",
-  "email" : "email@marjuki.com",
-  "photo" : "photoUrl"
-}
-----
-
-====== User Object
+===== Sample User Object
 [source]
 ----
 {
@@ -54,6 +62,26 @@ For request body is object user, all nullable
     }
 }
 ----
+
+// save user //
+=== Save User
+Save user to document
+
+===== Sample Request
+include::{snippets}/user/save-user/http-request.adoc[]
+
+|===
+| param | type | desc
+
+| `document`
+| parameter
+| Document where user saving, `driver`, `passenger` or `driver_active`
+
+| `user`
+| body / `Content-Type: application/json`
+| Put your user object json in body
+
+|===
 
 ===== Sample Response
 include::{snippets}/user/save-user/http-response.adoc[]
@@ -93,7 +121,34 @@ include::{snippets}/user/delete-user/http-response.adoc[]
 // end edit user //
 
 == Places
-Kemana Places api
+
+=== Place Object
+|===
+| param | type |desc
+
+| `id`
+| string
+| Id for place object
+
+| `place_name`
+| string
+| Place name
+
+|===
+
+===== Sample Object
+[source]
+----
+{
+    "id" : "360qquh9-5262f23aac2c4a8c90b5c126b88302f5",
+    "placeName" : "Universitas Muhammadiyah Prof Dr Hamka (Uhamka)",
+    "addressName" : "Jalan Delima 1 Gang 3, Duren Sawit 13460",
+    "geometry" : [
+        -6.21939,
+        106.92863
+    ]
+}
+----
 
 // search place //
 === Search Place
@@ -140,3 +195,172 @@ include::{snippets}/place/get-current-place/http-request.adoc[]
 ===== Sample Response
 include::{snippets}/place/get-current-place/http-response.adoc[]
 // end get current place //
+
+== Direction
+
+=== Direction Object
+|===
+| param | type |desc
+
+| `distance`
+| double
+| distance between two location
+
+| `geometry`
+| string
+| geometry string encoded for polyline
+
+|===
+
+===== Sample Direction Object
+[source]
+----
+{
+  "distance" : 15427.7,
+  "geometry" : "`kud@uf`kSyC_@yJ]wF^qHyQR{A|BcA}CcNSsB}FsOOyAfXiErKyAvl@qIz_@aRvm@mXlU_V~P{Pv`A{YxDwFzH_V}@gs@_DmqAyD}Wv@kvAxLapBpZj@~@gS{E]JsBWAZ}ES?"
+}
+
+----
+
+// get direction //
+=== Get Direction Between Two Location
+
+===== Sample Request
+include::{snippets}/direction/get-direction/http-request.adoc[]
+|===
+| param | desc
+
+| `from`
+| Latitude and longitude start location
+
+| `to`
+| Latitude and longitude end location
+
+| `token`
+| Mapbox Token
+
+|===
+
+===== Sample Response
+include::{snippets}/direction/get-direction/http-response.adoc[]
+// end get direction //
+
+== Order
+
+==== Order Object
+|===
+| param | type |desc
+
+| `id`
+| string
+| Optional, generated in backend
+
+| `time`
+| long
+| time millis
+
+| `driver_id`
+| string
+| `id` of driver
+
+| `passenger_id`
+| string
+| `id` of passenger
+
+| `from`
+| object
+| object of `place` where your start
+
+| `to`
+| object
+| object of `place` where your destination
+
+| `distance`
+| double
+| distance between two location
+
+|===
+
+===== Sample Order Object
+[source]
+----
+{
+    "id" : "ccbfe33f-8839-30eb-9fd8-8f96e05adb47",
+    "time" : 1577216969037,
+    "driver_id" : "drv_id",
+    "passenger_id" : "pasg_id",
+    "from" : {
+      "id" : "NT_Cd95J1IADx9t-xa6WdzQnB_xQD",
+      "place_name" : null,
+      "address_name" : null,
+      "geometry" : [ -6.21939, 106.92863 ]
+    },
+    "to" : {
+      "id" : "360qquh9-5262f23aac2c4a8c90b5c126b88302f5",
+      "place_name" : null,
+      "address_name" : null,
+      "geometry" : [ -6.21939, 106.92863 ]
+    },
+    "distance" : 320123.0
+}
+----
+
+// save order //
+=== Save Order Data
+
+===== Sample Request
+include::{snippets}/order/save-order/http-request.adoc[]
+
+|===
+| param | desc
+
+| `body`
+| Order object
+
+| `to`
+| Latitude and longitude end location
+
+| `token`
+| Mapbox Token
+
+|===
+
+===== Sample Response
+include::{snippets}/order/save-order/http-response.adoc[]
+// end save order //
+
+// save order //
+=== Get Order Data
+
+===== Sample Request
+include::{snippets}/order/get-order/http-request.adoc[]
+
+|===
+| param | desc
+
+| `id`
+| `id` of order object
+
+|===
+
+===== Sample Response
+include::{snippets}/order/get-order/http-response.adoc[]
+// end save order //
+
+// delete order //
+=== Get Order Data
+
+===== Sample Request
+include::{snippets}/order/delete-order/http-request.adoc[]
+
+|===
+| param | desc
+
+| `id`
+| `id` of order object
+
+|===
+
+===== Sample Response
+include::{snippets}/order/delete-order/http-response.adoc[]
+// end delete order //

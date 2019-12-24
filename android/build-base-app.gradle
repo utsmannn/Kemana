@@ -1,0 +1,77 @@
+/*
+ * Copyright (c) 2019 Muhammad Utsman
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+
+    defaultConfig {
+        applicationId appId
+        minSdkVersion 17
+        targetSdkVersion 29
+        versionCode 1
+        versionName "0.0.1"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+
+        multiDexEnabled = true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation Core.kotlin
+    implementation Core.appCompat
+    implementation Core.ktx
+    implementation Core.permission
+    implementation Core.notify
+    implementation Core.multidex
+
+    implementation Design.material
+    implementation Design.slideButton
+    implementation Design.recycling
+    implementation Design.glide
+    kapt Design.glideKapt
+
+    implementation Rx.rxJava
+    implementation Rx.rxAndroid
+    implementation Rx.rxBinding3
+
+    implementation Maps.mapbox
+    implementation Maps.smartMarker
+    implementation Maps.smartMarkerMapbox
+    implementation Maps.smartMarkerLocation
+
+    implementation Maps.gmsLocationService
+    implementation Maps.rxLocation
+
+    /*implementation Firebase.google_auth
+    implementation Firebase.google_auth_ui
+    implementation Firebase.google_auth_helper
+
+    implementation project(Module.feature_rabbitmq)*/
+
+    implementation project(Module.feature_base)
+}

@@ -1,0 +1,16 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+
+dependencies {
+    implementation Retrofit.retrofit
+    implementation Retrofit.gsonConverter
+    implementation Retrofit.rxAdapter
+    implementation Retrofit.loggingInterceptor
+
+    implementation project(Module.feature_base)
+}
+
+apply from: '../../build-base-module.gradle'

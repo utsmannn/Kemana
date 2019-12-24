@@ -1,0 +1,14 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+ext {
+    appId = "com.utsman.kemana"
+}
+
+dependencies {
+    /*implementation project(":base")
+    implementation project(":feature:remote")*/
+}
+
+apply from: '../build-base-app.gradle'
