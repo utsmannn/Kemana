@@ -1,0 +1,23 @@
+= Kemana API DOC
+Kemana api documentation
+
+=== User Database
+the database
+
+=== Save user
+Simple save user
+
+==== Sample Request
+include::{snippets}/place/search-place/http-request.adoc[]
+
+==== Sample Response
+include::{snippets}/place/search-place/http-response.adoc[]
+
+=== Search Place
+Search place by nearby from your location
+
+==== Sample Request
+include::{snippets}/place/search-place/http-request.adoc[]
+
+==== Sample Response
+include::{snippets}/place/search-place/http-response.adoc[]
