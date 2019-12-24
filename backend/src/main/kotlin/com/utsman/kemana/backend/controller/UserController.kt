@@ -34,7 +34,7 @@ class UserController {
         }
     }
 
-    // get user 
+    // get user
     @RequestMapping(method = [RequestMethod.GET])
     fun getUser(
             @RequestParam("id") id: String,

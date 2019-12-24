@@ -1,23 +1,142 @@
 = Kemana API DOC
 Kemana api documentation
+:toc: left
+:toclevels: 3
+:sectlinks:
+:sectnums:
 
-=== User Database
-the database
+== User
+Kemana User API (Driver and Passenger)
 
-=== Save user
-Simple save user
+// save user //
+=== Save User
+Save user to document
 
-==== Sample Request
-include::{snippets}/place/search-place/http-request.adoc[]
+===== Sample Request
+include::{snippets}/user/save-user/http-request.adoc[]
 
-==== Sample Response
-include::{snippets}/place/search-place/http-response.adoc[]
+|===
+| param | desc
 
+| `document`
+| Document where user saving, `driver`, `passenger` or `driver_active`
+
+|===
+
+====== Request Body
+For request body is object user, all nullable
+[source]
+----
+{
+  "name" : "marjuki",
+  "email" : "email@marjuki.com",
+  "photo" : "photoUrl"
+}
+----
+
+====== User Object
+[source]
+----
+{
+    "id": "1281d0ac-7a74-3b91-950f-f52a02862cda",
+    "name": "marjuki",
+    "email": "email@marjuki.com",
+    "phone": "0812983029",
+    "photo": "http://example.jpg",
+    "position": {
+      "lat": -6.2242497,
+      "lon": 106.9240669
+    },
+    "driver_attribute": {
+      "num": "B 8773 A",
+      "type": "HONDA",
+      "color": "white"
+    }
+}
+----
+
+===== Sample Response
+include::{snippets}/user/save-user/http-response.adoc[]
+// end save user //
+
+// edit user //
+=== Edit User
+Save user to document
+
+===== Sample Request
+include::{snippets}/user/edit-user/http-request.adoc[]
+
+|===
+| param | desc
+
+| `document`
+| Document where user saved
+
+| `id`
+| Id of user
+
+|===
+
+===== Sample Response
+include::{snippets}/user/edit-user/http-response.adoc[]
+// end edit user //
+
+// delete user //
+=== Delete User
+Save user to document
+
+===== Sample Request
+include::{snippets}/user/delete-user/http-request.adoc[]
+
+===== Sample Response
+include::{snippets}/user/delete-user/http-response.adoc[]
+// end edit user //
+
+== Places
+Kemana Places api
+
+// search place //
 === Search Place
 Search place by nearby from your location
 
-==== Sample Request
+===== Sample Request
 include::{snippets}/place/search-place/http-request.adoc[]
 
-==== Sample Response
+|===
+| param | desc
+
+| `q`
+| Query for search location
+
+| `from`
+| Latitude and longitude where you can search (bounding box)
+
+| `apikey`
+| Api key from HERE MAPS API
+
+|===
+
+===== Sample Response
 include::{snippets}/place/search-place/http-response.adoc[]
+// end search place //
+
+// get current place //
+=== Get Current Place
+Get Current Place from your location
+
+===== Sample Request
+include::{snippets}/place/get-current-place/http-request.adoc[]
+|===
+| param | desc
+
+| `from`
+| Latitude and longitude where you can search (bounding box)
+
+| `apikey`
+| Api key from HERE MAPS API
+
+|===
+
+===== Sample Response
+include::{snippets}/place/get-current-place/http-response.adoc[]
+// end get current place //
