@@ -14,6 +14,7 @@ buildscript {
         // in the individual module build.gradle files
 
         classpath 'com.google.gms:google-services:4.3.3'
+        classpath 'org.robolectric:robolectric-gradle-plugin:1.0.1'
     }
 }
 

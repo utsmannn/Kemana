@@ -75,3 +75,7 @@ dependencies {
 
     implementation project(Module.feature_base)
 }
+
+androidExtensions {
+    experimental = true
+}

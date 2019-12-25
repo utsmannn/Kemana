@@ -1,4 +1,4 @@
-package com.utsman.feature.remote
+package com.utsman.feature.remote.model
 
 import com.google.gson.annotations.SerializedName
 

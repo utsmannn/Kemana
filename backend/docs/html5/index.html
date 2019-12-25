@@ -815,8 +815,8 @@ Content-Length: 53
 <div class="content">
 <pre class="highlight"><code>{
     "id" : "360qquh9-5262f23aac2c4a8c90b5c126b88302f5",
-    "placeName" : "Universitas Muhammadiyah Prof Dr Hamka (Uhamka)",
-    "addressName" : "Jalan Delima 1 Gang 3, Duren Sawit 13460",
+    "place_name" : "Universitas Muhammadiyah Prof Dr Hamka (Uhamka)",
+    "address_name" : "Jalan Delima 1 Gang 3, Duren Sawit 13460",
     "geometry" : [
         -6.21939,
         106.92863
@@ -1229,7 +1229,7 @@ Content-Length: 179
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /api/v1/order/save HTTP/1.1
 Content-Type: application/json
 Accept: application/json
-Content-Length: 635
+Content-Length: 639
 Host: localhost:8080
 
 {
@@ -1237,8 +1237,8 @@ Host: localhost:8080
   "passenger_id" : "pasg_id",
   "from" : {
       "id": "NT_Cd95J1IADx9t-xa6WdzQnB_xQD",
-      "placeName": "Jalan Delima 1 Gang 3, Duren Sawit, Jakarta Timur",
-      "addressName": "Jalan Delima 1 Gang 3, Duren Sawit, Jakarta Timur",
+      "place_name": "Jalan Delima 1 Gang 3, Duren Sawit, Jakarta Timur",
+      "address_name": "Jalan Delima 1 Gang 3, Duren Sawit, Jakarta Timur",
       "geometry": [
         -6.21939,
         106.92863
@@ -1246,8 +1246,8 @@ Host: localhost:8080
   },
   "to" : {
       "id" : "360qquh9-5262f23aac2c4a8c90b5c126b88302f5",
-      "placeName" : "Universitas Muhammadiyah Prof Dr Hamka (Uhamka)",
-      "addressName" : "Jalan Delima 1 Gang 3, Duren Sawit 13460",
+      "place_name" : "Universitas Muhammadiyah Prof Dr Hamka (Uhamka)",
+      "address_name" : "Jalan Delima 1 Gang 3, Duren Sawit 13460",
       "geometry" : [
         -6.21939,
         106.92863
@@ -1290,25 +1290,25 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json
-Content-Length: 549
+Content-Length: 726
 
 {
   "message" : "ok",
   "data" : {
-    "id" : "06af36e5-0909-34b3-b41d-065242461e80",
-    "time" : 1577218059556,
+    "id" : "a659247a-a887-38a5-8670-038fa0c21bb9",
+    "time" : 1577220912448,
     "driver_id" : "drv_id",
     "passenger_id" : "pasg_id",
     "from" : {
       "id" : "NT_Cd95J1IADx9t-xa6WdzQnB_xQD",
-      "place_name" : null,
-      "address_name" : null,
+      "place_name" : "Jalan Delima 1 Gang 3, Duren Sawit, Jakarta Timur",
+      "address_name" : "Jalan Delima 1 Gang 3, Duren Sawit, Jakarta Timur",
       "geometry" : [ -6.21939, 106.92863 ]
     },
     "to" : {
       "id" : "360qquh9-5262f23aac2c4a8c90b5c126b88302f5",
-      "place_name" : null,
-      "address_name" : null,
+      "place_name" : "Universitas Muhammadiyah Prof Dr Hamka (Uhamka)",
+      "address_name" : "Jalan Delima 1 Gang 3, Duren Sawit 13460",
       "geometry" : [ -6.21939, 106.92863 ]
     },
     "distance" : 320123.0
@@ -1415,7 +1415,7 @@ Content-Length: 52
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-12-25 03:07:24 WIB
+Last updated 2019-12-25 03:54:45 WIB
 </div>
 </div>
 </body>

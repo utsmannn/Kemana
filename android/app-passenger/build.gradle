@@ -9,6 +9,8 @@ ext {
 dependencies {
     /*implementation project(":base")
     implementation project(":feature:remote")*/
+
+    implementation 'com.github.ibrahimsn98:SmoothBottomBar:1.6'
 }
 
 apply from: '../build-base-app.gradle'

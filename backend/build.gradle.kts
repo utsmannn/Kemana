@@ -45,7 +45,8 @@ tasks {
     }
 
     "asciidoctor"(org.asciidoctor.gradle.AsciidoctorTask::class) {
-        sourceDir = file("$projectDir/src/doc/ascii")
+        //sourceDir = file("$projectDir/src/doc/ascii")
+        sourceDir = file("$projectDir/docs/ascii")
         outputDir = file("docs")
         attributes(
                 mapOf(

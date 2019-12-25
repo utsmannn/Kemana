@@ -40,8 +40,8 @@ class OrderControllerTest {
                         "  \"passenger_id\" : \"pasg_id\",\n" +
                         "  \"from\" : {\n" +
                         "      \"id\": \"NT_Cd95J1IADx9t-xa6WdzQnB_xQD\",\n" +
-                        "      \"placeName\": \"Jalan Delima 1 Gang 3, Duren Sawit, Jakarta Timur\",\n" +
-                        "      \"addressName\": \"Jalan Delima 1 Gang 3, Duren Sawit, Jakarta Timur\",\n" +
+                        "      \"place_name\": \"Jalan Delima 1 Gang 3, Duren Sawit, Jakarta Timur\",\n" +
+                        "      \"address_name\": \"Jalan Delima 1 Gang 3, Duren Sawit, Jakarta Timur\",\n" +
                         "      \"geometry\": [\n" +
                         "        -6.21939,\n" +
                         "        106.92863\n" +
@@ -49,8 +49,8 @@ class OrderControllerTest {
                         "  },\n" +
                         "  \"to\" : {\n" +
                         "      \"id\" : \"360qquh9-5262f23aac2c4a8c90b5c126b88302f5\",\n" +
-                        "      \"placeName\" : \"Universitas Muhammadiyah Prof Dr Hamka (Uhamka)\",\n" +
-                        "      \"addressName\" : \"Jalan Delima 1 Gang 3, Duren Sawit 13460\",\n" +
+                        "      \"place_name\" : \"Universitas Muhammadiyah Prof Dr Hamka (Uhamka)\",\n" +
+                        "      \"address_name\" : \"Jalan Delima 1 Gang 3, Duren Sawit 13460\",\n" +
                         "      \"geometry\" : [ \n" +
                         "        -6.21939, \n" +
                         "        106.92863 \n" +
