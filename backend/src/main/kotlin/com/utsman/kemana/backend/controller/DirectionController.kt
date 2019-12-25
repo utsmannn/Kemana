@@ -30,22 +30,28 @@ class DirectionController {
 
         val fromReverse = from.reverseString()
         val toReverse = to.reverseString()
+        val fromCoordinate = from.toListDouble()
+        val toCoordinate = to.toListDouble()
 
         val map = LinkedMultiValueMap<String, String>()
         map.add("coordinates", "$fromReverse;$toReverse")
 
-        //val url = "https://api.mapbox.com/directions/v5/mapbox/driving?access_token=pk.eyJ1Ijoia3VjaW5nYXBlcyIsImEiOiJjazFjZXB4aDIyb3gwM2Nxajlza2c2aG8zIn0.htmYJKp9aaJnh-JhWZA85Q&exclude=toll"
         val url = "https://api.mapbox.com/directions/v5/mapbox/driving?access_token=$token&exclude=toll"
 
         val request = HttpEntity<MultiValueMap<String, String>>(map, headers)
         println(request.body.toString())
         val responses = restTemplate.exchange(url, HttpMethod.POST, request, DirectionOrigin::class.java)
 
-        return DirectionResponses(responses.body?.routes?.get(0)?.distance, responses.body?.routes?.get(0)?.geometry)
+        return DirectionResponses(fromCoordinate, toCoordinate, responses.body?.routes?.get(0)?.distance, responses.body?.routes?.get(0)?.geometry)
     }
 
     private fun String.reverseString(): String {
         val raw = split(",")
         return "${raw[1]},${raw[0]}"
+    }
+
+    private fun String.toListDouble(): List<Double> {
+        val raw = split(",")
+        return listOf(raw[0].toDouble(), raw[1].toDouble())
     }
 }
