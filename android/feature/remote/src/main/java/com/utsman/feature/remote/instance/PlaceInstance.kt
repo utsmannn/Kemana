@@ -17,13 +17,13 @@ interface PlaceInstance {
     @GET("/api/v1/place/search")
     fun searchPlace(
         @Query("q") query: String,
-        @Query("from") from: List<Double>,
+        @Query("from") from: List<Double>?,
         @Query("apikey") key: String
     ): Observable<PlaceResponses>
 
     @GET("/api/v1/place")
     fun getCurrentPlace(
-        @Query("from") from: List<Double>,
+        @Query("from") from: List<Double>?,
         @Query("apikey") key: String
     ): Observable<PlaceResponses>
 

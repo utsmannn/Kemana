@@ -2,6 +2,7 @@ package com.utsman.kemana.state
 
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
+import com.utsman.feature.remote.model.Direction
 import com.utsman.kemana.impl.BaseRenderMapsView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -30,7 +31,7 @@ class StateMapsViewPresenter(private val mainStateMapsView: MainStateMapsView) {
         composite.add(observable)
     }
 
-    fun renderMapsReady(mapboxMap: MapboxMap, style: Style) {
+    fun renderMapsReady(mapboxMap: MapboxMap, style: Style, direction: Direction) {
         val observable =  Observable.just(mapboxMap)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -38,7 +39,7 @@ class StateMapsViewPresenter(private val mainStateMapsView: MainStateMapsView) {
                 removeAll(style)
             }
             .subscribe({
-                readyMaps = mainStateMapsView.mapsReady(mapboxMap, style)
+                readyMaps = mainStateMapsView.mapsReady(mapboxMap, style, direction)
             }, {
                 it.printStackTrace()
             })

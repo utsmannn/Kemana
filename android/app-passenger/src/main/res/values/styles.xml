@@ -8,4 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="SheetDialog" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
 </resources>

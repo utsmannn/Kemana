@@ -43,9 +43,9 @@ object Maps {
     val mapbox              = "com.mapbox.mapboxsdk:mapbox-android-sdk:8.5.0-SNAPSHOT"
     val gmsLocationService  = "com.google.android.gms:play-services-location:17.0.0"
     val rxLocation          = "pl.charmas.android:android-reactive-location2:2.1@aar"
-    val smartMarker         = "com.utsman.smartmarker:core:1.3.12@aar"
-    val smartMarkerMapbox   = "com.utsman.smartmarker:ext-mapbox:1.3.12@aar"
-    val smartMarkerLocation = "com.utsman.smartmarker:ext-location:1.3.12@aar"
+    val smartMarker         = "com.utsman.smartmarker:core:1.3.2@aar"
+    val smartMarkerMapbox   = "com.utsman.smartmarker:ext-mapbox:1.3.2@aar"
+    val smartMarkerLocation = "com.utsman.smartmarker:ext-location:1.3.2@aar"
 }
 
 object Design {

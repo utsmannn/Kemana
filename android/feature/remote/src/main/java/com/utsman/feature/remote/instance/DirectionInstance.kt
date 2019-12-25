@@ -16,8 +16,8 @@ interface DirectionInstance {
 
     @GET("/api/v1/direction")
     fun getDirection(
-        @Query("from") from: List<Double>,
-        @Query("to") to: List<Double>,
+        @Query("from") from: List<Double>?,
+        @Query("to") to: List<Double>?,
         @Query("token") token: String
     ): Observable<Direction>
 
