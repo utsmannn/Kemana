@@ -19,6 +19,7 @@ package com.utsman.feature.base
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 
@@ -42,6 +43,12 @@ fun AppCompatActivity.replaceFragment(fragment: Fragment?, frameId: Int) {
 fun Fragment.replaceFragment(fragment: Fragment?, frameId: Int) {
     fragment?.let {
         childFragmentManager.inTransaction{replace(frameId, fragment)}
+    }
+}
+
+fun FragmentActivity.replaceFragment(fragment: Fragment?, frameId: Int) {
+    fragment?.let {
+        supportFragmentManager.inTransaction{replace(frameId, fragment)}
     }
 }
 

@@ -74,6 +74,7 @@ dependencies {
     implementation project(Module.feature_rabbitmq)*/
 
     implementation project(Module.feature_base)
+    implementation project(Module.feature_remote)
 }
 
 androidExtensions {
