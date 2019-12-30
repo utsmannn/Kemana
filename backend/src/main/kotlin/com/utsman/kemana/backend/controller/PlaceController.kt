@@ -22,7 +22,6 @@ class PlaceController {
         val lat = listCoordinate[0].toDouble()
         val lon = listCoordinate[1].toDouble()
 
-        //val url = "https://places.sit.ls.hereapi.com/places/v1/autosuggest?at=$lat,$lon&q=$placeName&apikey=EKZhNIBtjrjeYxqdyhCMQ1kxVc_O4QGfxEJLqWt0Hp0"
         val url = "https://places.sit.ls.hereapi.com/places/v1/autosuggest?at=$lat,$lon&q=$placeName&apikey=$apikey"
 
         val respon = restTemplate.getForObject(url, PlaceHere::class.java)
@@ -51,13 +50,14 @@ class PlaceController {
 
         val originAddress = restTemplate.getForObject(url, AddressResponses::class.java)
         println(from)
+
         val listAddress = originAddress?.response?.view?.get(0)?.result?.map {
             val street = it?.location?.address?.street
             val district = it?.location?.address?.district
             val city = it?.location?.address?.city
 
-            val address = "$street, $district, $city"
-
+            val address = "$street, $district, $city".replace("null, ", "")
+            
             return@map Places(
                     id = it?.location?.locationId,
                     place_name = address,
