@@ -6,6 +6,7 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.utsman.feature.base.replaceFragment
 import com.utsman.feature.remote.model.Direction
+import com.utsman.feature.remote.model.Order
 import com.utsman.kemana.R
 import com.utsman.kemana.control.NormalControlFragment
 import com.utsman.kemana.impl.BaseRenderMapsView
@@ -34,6 +35,14 @@ class NormalMaps(private val activity: FragmentActivity) : BaseRenderMapsView {
         }
 
         val normalControlImpl = object : NormalControlImpl {
+            override fun onSelectMapsPicker() {
+
+            }
+
+            override fun onFindingOrder(order: Order) {
+
+            }
+
             override fun toReadyMaps(direction: Direction) {
                 stateListener.doOnReady(direction)
             }

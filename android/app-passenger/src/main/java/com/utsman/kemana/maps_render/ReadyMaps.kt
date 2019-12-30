@@ -23,7 +23,7 @@ import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker
 
-class ReadyMaps(private val activity: FragmentActivity, private val direction: Direction) : BaseRenderMapsView {
+class ReadyMaps(activity: FragmentActivity, private val direction: Direction) : BaseRenderMapsView {
 
     private val fromLatLon = LatLng(direction.fromCoordinate[0], direction.fromCoordinate[1])
     private val toLatLon = LatLng(direction.toCoordinate[0], direction.toCoordinate[1])

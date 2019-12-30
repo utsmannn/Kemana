@@ -25,7 +25,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
-class BottomSheetUnDrag<V : View> : BottomSheetBehavior<V> {
+abstract class BottomSheetUnDrag<V : View> : BottomSheetBehavior<V> {
     private var mAllowUserDragging = true
 
     constructor() : super()
@@ -44,5 +44,11 @@ class BottomSheetUnDrag<V : View> : BottomSheetBehavior<V> {
         return if (!mAllowUserDragging) {
             false
         } else super.onInterceptTouchEvent(parent, child, event)
+    }
+
+    companion object {
+        fun <V: View>from(view: View) : BottomSheetUnDrag<V> {
+            return BottomSheetBehavior.from(view) as BottomSheetUnDrag<V>
+        }
     }
 }

@@ -49,7 +49,7 @@ class HomeFragment : RxFragment(), MainStateMapsView {
         // another setup
         stateListener = object : StateListener {
             override fun doOnNormal() {
-
+                stateMapsView.renderMapsNormal(mapboxMap, style)
             }
 
             override fun doOnReady(direction: Direction) {
@@ -57,7 +57,7 @@ class HomeFragment : RxFragment(), MainStateMapsView {
             }
 
             override fun doOnOrder() {
-
+                stateMapsView.renderMapsOrder(mapboxMap, style)
             }
         }
     }
@@ -80,5 +80,9 @@ class HomeFragment : RxFragment(), MainStateMapsView {
         return maps
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        stateMapsView.dispose()
+    }
 
 }
