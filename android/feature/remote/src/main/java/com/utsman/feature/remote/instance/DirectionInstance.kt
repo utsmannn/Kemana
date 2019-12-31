@@ -9,13 +9,15 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 
 interface DirectionInstance {
 
-    @GET("/api/v1/direction")
+    @GET("/{email}/api/v1/direction")
     fun getDirection(
+        @Path("email") email: String,
         @Query("from") from: List<Double>?,
         @Query("to") to: List<Double>?,
         @Query("token") token: String

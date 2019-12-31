@@ -46,6 +46,8 @@ class NormalControlFragment(private val normalControlImpl: NormalControlImpl) : 
     private var toPlace: Place? = null
     private var direction: Direction? = null
 
+    private val email = "sample@mail.com"
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -55,7 +57,7 @@ class NormalControlFragment(private val normalControlImpl: NormalControlImpl) : 
         hidePricing(v)
         locationWatcher.getLocation { location ->
             val from = listOf(location.latitude, location.longitude)
-            val observablePlace = placeInstance.getCurrentPlace(from, HERE_API_KEY)
+            val observablePlace = placeInstance.getCurrentPlace(email, from, HERE_API_KEY)
                 .subscribeOn(Schedulers.io())
                 .map { it.places[0] }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -80,7 +82,7 @@ class NormalControlFragment(private val normalControlImpl: NormalControlImpl) : 
                 if (fromPlace != null && toPlace != null) {
                     logi("request is --> ${fromPlace?.geometry} -- ${toPlace?.geometry}")
 
-                    directionInstance.getDirection(fromPlace?.geometry, toPlace?.geometry, MAPBOX_TOKEN)
+                    directionInstance.getDirection(email, fromPlace?.geometry, toPlace?.geometry, MAPBOX_TOKEN)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({
@@ -103,7 +105,7 @@ class NormalControlFragment(private val normalControlImpl: NormalControlImpl) : 
                 if (fromPlace != null && toPlace != null) {
                     logi("request is --> ${fromPlace?.geometry} -- ${toPlace?.geometry}")
 
-                    directionInstance.getDirection(fromPlace?.geometry, toPlace?.geometry, MAPBOX_TOKEN)
+                    directionInstance.getDirection(email, fromPlace?.geometry, toPlace?.geometry, MAPBOX_TOKEN)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({
@@ -197,7 +199,7 @@ class NormalControlFragment(private val normalControlImpl: NormalControlImpl) : 
 
                 mapboxMap.addOnCameraMoveListener {
                     val latLonPicker = mapboxMap.cameraPosition.target
-                    placeInstance.getCurrentPlace(listOf(latLonPicker.latitude, latLonPicker.longitude), HERE_API_KEY)
+                    placeInstance.getCurrentPlace(email, listOf(latLonPicker.latitude, latLonPicker.longitude), HERE_API_KEY)
                         .subscribeOn(Schedulers.io())
                         .map { it.places[0] }
                         .observeOn(AndroidSchedulers.mainThread())
@@ -210,7 +212,7 @@ class NormalControlFragment(private val normalControlImpl: NormalControlImpl) : 
 
                 viewDialog.btn_location_picker_set.setOnClickListener {
                     val latLonPicker = mapboxMap.cameraPosition.target
-                    placeInstance.getCurrentPlace(listOf(latLonPicker.latitude, latLonPicker.longitude), HERE_API_KEY)
+                    placeInstance.getCurrentPlace(email, listOf(latLonPicker.latitude, latLonPicker.longitude), HERE_API_KEY)
                         .subscribeOn(Schedulers.io())
                         .map { it.places.get(0) }
                         .observeOn(AndroidSchedulers.mainThread())
@@ -258,7 +260,7 @@ class NormalControlFragment(private val normalControlImpl: NormalControlImpl) : 
                             submitNetworkState(NetworkState.LOADING)
                         }
                         .subscribe({ query ->
-                            placeInstance.searchPlace(query, fromPlace?.geometry, HERE_API_KEY)
+                            placeInstance.searchPlace(email, query, fromPlace?.geometry, HERE_API_KEY)
                                 .subscribeOn(Schedulers.io())
                                 .map { it.places }
                                 .observeOn(AndroidSchedulers.mainThread())

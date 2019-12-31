@@ -9,27 +9,27 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.DELETE
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Query
+import retrofit2.http.*
 import java.util.concurrent.TimeUnit
 
 interface UserInstance {
 
-    @POST("/api/v1/user/save")
+    @POST("/{email}/api/v1/user/save")
     fun saveUser(
+        @Path("email") email: String,
         @Query("document") document: String
     ): Observable<UserResponses>
 
-    @PUT("/api/v1/user/edit")
+    @PUT("/{email}/api/v1/user/edit")
     fun editUser(
+        @Path("email") email: String,
         @Query("document") document: String,
         @Query("id") id: String
     ): Observable<UserResponses>
 
-    @DELETE("/api/v1/user/delete")
+    @DELETE("/{email}/api/v1/user/delete")
     fun deleteUser(
+        @Path("email") email: String,
         @Query("document") document: String,
         @Query("id") id: String
     ): Observable<UserDeletedResponses>
