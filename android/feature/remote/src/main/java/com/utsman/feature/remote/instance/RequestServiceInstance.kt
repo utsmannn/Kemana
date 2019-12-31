@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 interface RequestServiceInstance {
 
     @POST("/service/start/{email}")
-    fun requestToServer(@Path("email") email: String): Observable<RequestServiceResponses>
+    fun requestToServer(@Path("email") email: String?): Observable<RequestServiceResponses>
 
     companion object {
         fun create(): RequestServiceInstance {

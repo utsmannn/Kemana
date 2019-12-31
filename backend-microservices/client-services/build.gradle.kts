@@ -39,6 +39,9 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-server") {
         exclude(group = "com.fasterxml.jackson.dataformat", module = "jackson-dataformat-xml")
     }
+
+    implementation("com.rabbitmq:amqp-client:4.11.3")
+    implementation("org.json:json:20090211")
 }
 
 dependencyManagement {

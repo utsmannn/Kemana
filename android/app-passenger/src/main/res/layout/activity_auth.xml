@@ -5,10 +5,10 @@
     android:orientation="vertical"
     android:gravity="center">
 
-    <Button
+    <com.google.android.gms.common.SignInButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="masuk"
-        android:id="@+id/btn_enter"/>
+        android:id="@+id/btn_sign"/>
 
 </LinearLayout>

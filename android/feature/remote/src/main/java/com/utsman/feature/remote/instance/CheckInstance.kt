@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 interface CheckInstance {
 
     @GET("/{email}/api/v1/check")
-    fun checkService(@Path("email") email: String): Observable<CheckResponses>
+    fun checkService(@Path("email") email: String?): Observable<CheckResponses>
 
     companion object {
         fun create(): CheckInstance {

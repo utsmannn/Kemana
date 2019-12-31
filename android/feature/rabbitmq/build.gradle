@@ -1,0 +1,16 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+dependencies {
+    implementation project(Module.feature_base)
+    implementation Message.rabbitmq
+    implementation Message.logback
+}
+
+androidExtensions {
+    experimental = true
+}
+
+apply from: '../../build-base-module.gradle'

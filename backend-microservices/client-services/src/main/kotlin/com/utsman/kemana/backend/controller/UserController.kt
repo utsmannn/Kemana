@@ -1,6 +1,6 @@
 package com.utsman.kemana.backend.controller
 
-import com.utsman.kemana.backend.Responses
+import com.utsman.kemana.backend.model.Responses
 import com.utsman.kemana.backend.distanceTo
 import com.utsman.kemana.backend.model.DriverAttribute
 import com.utsman.kemana.backend.model.Position

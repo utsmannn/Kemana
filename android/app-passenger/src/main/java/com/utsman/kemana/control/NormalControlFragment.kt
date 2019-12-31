@@ -46,7 +46,9 @@ class NormalControlFragment(private val normalControlImpl: NormalControlImpl) : 
     private var toPlace: Place? = null
     private var direction: Direction? = null
 
-    private val email = "sample@mail.com"
+    private val email by lazy {
+        context?.Preferences_getEmail()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

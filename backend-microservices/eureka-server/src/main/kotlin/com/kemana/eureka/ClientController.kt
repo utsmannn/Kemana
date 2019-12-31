@@ -12,6 +12,7 @@ class ClientController {
     @RequestMapping("/start/{email}", method = [RequestMethod.POST])
     fun startService(@PathVariable("email") email: String): Responses {
         val processBuilder = ProcessBuilder()
+        println("try start service for $email")
         processBuilder.command("java", "-jar", "backend-0.0.1.jar", "--spring.application.name=$email")
         processBuilder.start()
 

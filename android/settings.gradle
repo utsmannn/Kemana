@@ -1,2 +1,2 @@
-include ':app-passenger', ':feature:remote', ':feature:base'
+include ':app-passenger', ':feature:remote', ':feature:base', ':feature:rabbitmq'
 rootProject.name='Kemana'

@@ -1,6 +1,6 @@
 package com.utsman.kemana.backend.controller
 
-import com.utsman.kemana.backend.Responses
+import com.utsman.kemana.backend.model.Responses
 import com.utsman.kemana.backend.model.Order
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.core.MongoTemplate

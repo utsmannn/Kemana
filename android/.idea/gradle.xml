@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$/buildSrc" />
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/base" />
+            <option value="$PROJECT_DIR$/feature/rabbitmq" />
             <option value="$PROJECT_DIR$/feature/remote" />
           </set>
         </option>

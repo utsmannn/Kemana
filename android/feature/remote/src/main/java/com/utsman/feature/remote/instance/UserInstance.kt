@@ -16,20 +16,20 @@ interface UserInstance {
 
     @POST("/{email}/api/v1/user/save")
     fun saveUser(
-        @Path("email") email: String,
+        @Path("email") email: String?,
         @Query("document") document: String
     ): Observable<UserResponses>
 
     @PUT("/{email}/api/v1/user/edit")
     fun editUser(
-        @Path("email") email: String,
+        @Path("email") email: String?,
         @Query("document") document: String,
         @Query("id") id: String
     ): Observable<UserResponses>
 
     @DELETE("/{email}/api/v1/user/delete")
     fun deleteUser(
-        @Path("email") email: String,
+        @Path("email") email: String?,
         @Query("document") document: String,
         @Query("id") id: String
     ): Observable<UserDeletedResponses>

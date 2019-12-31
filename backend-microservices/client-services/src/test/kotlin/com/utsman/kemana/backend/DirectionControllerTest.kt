@@ -21,7 +21,7 @@ class DirectionControllerTest {
     @Autowired
     lateinit var mockMvc: MockMvc
 
-    private val getDirectionUri = "/api/v1/direction?from=-6.1767059,106.828464&to=-6.21939,106.92863&token=pk.eyJ1Ijoia3VjaW5nYXBlcyIsImEiOiJjazFjZXB4aDIyb3gwM2Nxajlza2c2aG8zIn0.htmYJKp9aaJnh-JhWZA85Q"
+    private val getDirectionUri = "/sample@mail.com/api/v1/direction?from=-6.1767059,106.828464&to=-6.21939,106.92863&token=pk.eyJ1Ijoia3VjaW5nYXBlcyIsImEiOiJjazFjZXB4aDIyb3gwM2Nxajlza2c2aG8zIn0.htmYJKp9aaJnh-JhWZA85Q"
 
     @Test
     fun getDirectionTest() {

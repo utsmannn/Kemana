@@ -26,9 +26,9 @@ class OrderControllerTest {
     @MockBean
     lateinit var mongoTemplate: MongoTemplate
 
-    private val saveOrder = "/api/v1/order/save"
-    private val getOrder = "/api/v1/order?id=3a388370-32a4-3e72-b87b-2316c3306639"
-    private val deleteOrder = "/api/v1/order/delete?id=mfklm"
+    private val saveOrder = "/sample@mail.com/api/v1/order/save"
+    private val getOrder = "/sample@mail.com/api/v1/order?id=3a388370-32a4-3e72-b87b-2316c3306639"
+    private val deleteOrder = "/sample@mail.com/api/v1/order/delete?id=mfklm"
 
     @Test
     fun saveOrder() {

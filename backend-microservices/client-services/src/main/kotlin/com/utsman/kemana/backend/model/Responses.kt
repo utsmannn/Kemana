@@ -1,4 +1,4 @@
-package com.utsman.kemana.backend
+package com.utsman.kemana.backend.model
 
 import com.mongodb.lang.Nullable
 

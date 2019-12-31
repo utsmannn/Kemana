@@ -54,6 +54,7 @@ object Design {
     val glide               = "com.github.bumptech.glide:glide:4.10.0"
     val glideKapt           = "com.github.bumptech.glide:compiler:4.10.0"
     val slideButton         = "com.ncorti:slidetoact:0.7.0"
+    val materialDialog      = "com.afollestad.material-dialogs:core:3.1.1"
 }
 
 object Lifecycle {
@@ -89,11 +90,11 @@ object Message {
 object Module {
     val feature_base        = ":feature:base"
     val feature_remote      = ":feature:remote"
+    val feature_rabbitmq    = ":feature:rabbitmq"
 
     val feature_auth        = ":feature:auth"
     val feature_map_util    = ":feature:maputil"
     val feature_place       = ":feature:places"
     val feature_message     = ":feature:message"
     val feature_backendless = ":feature:backendless"
-    val feature_rabbitmq    = ":feature:rabbitmq"
 }
