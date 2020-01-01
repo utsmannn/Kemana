@@ -24,6 +24,7 @@ class RabbitController {
         Rabbit.getInstance()?.listen { from, body ->
             when (body.getString("type")) {
 
+                // NEED SOCKET FOR HEARTBEAT
                 // wait from device
                 "checking" -> {
                     if (from == clientId) {
