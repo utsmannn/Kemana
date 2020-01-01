@@ -47,7 +47,7 @@ class Rabbit private constructor(private var connection: Connection?) {
                     .subscribeOn(Schedulers.io())
                     .doOnNext {
                         val channel = it?.createChannel()
-                        channel?.queueDeclare(id, false, false, true, null)
+                        channel?.queueDeclare(id, true, false, false, null)
 
                         logi("rabbit channel created -> ${channel?.channelNumber}")
                         channel?.exchangeDeclare("kemana-3", "fanout")
@@ -87,7 +87,7 @@ class Rabbit private constructor(private var connection: Connection?) {
                     .subscribeOn(Schedulers.io())
                     .map {
                         val channel = it.createChannel()
-                        channel?.queueDeclare(id, false, false, false, null)
+                        channel?.queueDeclare(id, true, false, false, null)
                         try {
                             channel?.exchangeDeclare("kemana-3", "fanout")
                             channel?.queueBind(id, "kemana-3", id)
@@ -151,8 +151,14 @@ class Rabbit private constructor(private var connection: Connection?) {
             this.id = id
 
             logi("rabbit setup instance")
+            logi("rabbit registered with $id")
             Observable.just(url)
                 .subscribeOn(Schedulers.io())
+                .doOnError {
+                    liveError.observeForever {
+                        error?.invoke(it)
+                    }
+                }
                 .map {
                     val factory = ConnectionFactory()
                     factory.setUri(it)
@@ -178,11 +184,6 @@ class Rabbit private constructor(private var connection: Connection?) {
                     }
                 }
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError {
-                    liveError.observeForever {
-                        error?.invoke(it)
-                    }
-                }
                 .subscribe()
         }
     }

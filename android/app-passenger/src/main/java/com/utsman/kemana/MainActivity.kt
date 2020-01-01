@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.mapbox.mapboxsdk.Mapbox
 import com.utsman.feature.base.MAPBOX_TOKEN
+import com.utsman.feature.base.logi
+import com.utsman.feature.rabbitmq.Rabbit
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -31,5 +33,9 @@ class MainActivity : AppCompatActivity() {
         pagerAdapter.addFragments(homeFragment)
 
         main_pager.adapter = pagerAdapter
+
+        Rabbit.getInstance()?.listen { from, body ->
+            logi("anjay rabbit -> $from -> $body")
+        }
     }
 }

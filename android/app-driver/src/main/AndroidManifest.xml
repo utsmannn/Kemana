@@ -25,6 +25,7 @@
         <activity android:name=".MainActivity"/>
 
         <service android:name=".services.DriverService"/>
+        <service android:name=".services.BidService"/>
     </application>
 
 </manifest>

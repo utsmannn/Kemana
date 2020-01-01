@@ -57,13 +57,14 @@ class DriverService : RxService() {
 
         Notify.listen(OnlineUpdater::class.java, NotifyProvider(), Consumer {
             isOnline.postValue(it.isOnline)
+            logi("anjayy --> from driver service")
         })
     }
 
     private fun setupContent(user: User) {
         locationWatcher.getLocationUpdate(LocationWatcher.Priority.JEDI, object : LocationUpdateListener {
             override fun oldLocation(oldLocation: Location?) {
-
+                // old location
             }
 
             override fun newLocation(newLocation: Location) {
@@ -101,7 +102,7 @@ class DriverService : RxService() {
             }
 
             override fun failed(throwable: Throwable?) {
-
+                throwable?.printStackTrace()
             }
 
         })

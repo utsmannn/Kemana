@@ -18,6 +18,7 @@ import com.karumi.dexter.listener.single.PermissionListener
 import com.utsman.easygooglelogin.EasyGoogleLogin
 import com.utsman.easygooglelogin.LoginResultListener
 import com.utsman.feature.base.*
+import com.utsman.feature.rabbitmq.Rabbit
 import com.utsman.feature.remote.instance.CheckInstance
 import com.utsman.feature.remote.instance.RequestServiceInstance
 import com.utsman.feature.remote.instance.UserInstance
@@ -168,6 +169,11 @@ class AuthActivity : RxAppCompatActivity(), LoginResultListener {
     override fun onLoginSuccess(user: FirebaseUser?) {
         val email = user?.email
         Preferences_saveEmail(email)
+
+        Rabbit.setInstance(email, RABBIT_URL) {
+            toast("failed initialize rabbit")
+        }
+
         dialogInitialize.show()
 
         val userModel = User(

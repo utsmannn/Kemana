@@ -9,6 +9,7 @@ import com.utsman.feature.base.MAPBOX_TOKEN
 import com.utsman.feature.base.RxAppCompatActivity
 import com.utsman.feature.base.toast
 import com.utsman.feature.remote.instance.UserInstance
+import com.utsman.kemana.driver.services.BidService
 import com.utsman.kemana.driver.services.DriverService
 import com.utsman.kemana.driver.subscriber.OnlineUpdater
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -26,8 +27,8 @@ class MainActivity : RxAppCompatActivity() {
         Intent(this, DriverService::class.java)
     }
 
-    private val userInstance by lazy {
-        UserInstance.create()
+    private val bidService by lazy {
+        Intent(this, BidService::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +36,7 @@ class MainActivity : RxAppCompatActivity() {
         Mapbox.getInstance(this, MAPBOX_TOKEN)
         setContentView(R.layout.activity_main)
         startService(driverService)
+        startService(bidService)
 
         setSupportActionBar(toolbar)
 
@@ -65,13 +67,6 @@ class MainActivity : RxAppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopService(driverService)
-
-        /*userInstance.deleteUser(email, id, "driver_active")
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                isAddedOnline = false
-                composite.clear()
-            }*/
+        stopService(bidService)
     }
 }
