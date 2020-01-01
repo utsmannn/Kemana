@@ -2,7 +2,10 @@ package com.utsman.kemana.backend.controller
 
 import com.utsman.kemana.backend.model.Responses
 import com.utsman.kemana.backend.model.Order
+import com.utsman.kemana.backend.rabbit.Rabbit
+import org.json.JSONObject
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
 import org.springframework.web.bind.annotation.*
@@ -13,6 +16,24 @@ import java.util.*
 class OrderController {
     @Autowired
     lateinit var mongoTemplate: MongoTemplate
+
+    @Autowired
+    lateinit var environment: Environment
+
+    // REQUESTING TESTING
+    @RequestMapping("/test", method = [RequestMethod.POST])
+    fun testRequest(): Responses {
+        val clientId = environment.getProperty("spring.application.name")
+        val jsonObject = JSONObject().apply {
+            put("test", "iya test aja")
+        }
+
+        Rabbit.getInstance()?.publishTo("utsmannn@gmail.com", jsonObject) {
+            println("error -> ${it.localizedMessage}")
+        }
+        return Responses("ok", "sending")
+    }
+
 
     @RequestMapping("/save", method = [RequestMethod.POST])
     fun saveOrder(@RequestBody order: Order): Responses {

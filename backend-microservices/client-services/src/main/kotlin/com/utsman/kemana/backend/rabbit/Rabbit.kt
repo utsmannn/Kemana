@@ -13,7 +13,7 @@ class Rabbit private constructor(private var connection: Connection?) {
         return object : RabbitInstance {
             override fun listen(msg: (from: String, body: JSONObject) -> Unit) {
                 val channel = connection?.createChannel()
-                channel?.queueDeclare(id, false, false, true, null)
+                channel?.queueDeclare(id, true, false, false, null)
 
                 println("rabbit channel created -> ${channel?.channelNumber}")
                 channel?.exchangeDeclare("kemana-3", "fanout")
@@ -35,12 +35,12 @@ class Rabbit private constructor(private var connection: Connection?) {
                 })
             }
 
-            override fun publishTo(id: String, msg: JSONObject, error: ((java.lang.Exception) -> Unit)?) {
+            override fun publishTo(id: String?, msg: JSONObject, error: ((java.lang.Exception) -> Unit)?) {
                 val channel = connection?.createChannel()
-                channel?.queueDeclare(id, false, false, false, null)
+                channel?.queueDeclare(id, true, false, false, null)
                 try {
                     channel?.exchangeDeclare("kemana-3", "fanout")
-                    channel?.queueBind(id, "kemana-3", id)
+                    //channel?.queueBind(id, "kemana-3", id)
 
                     val jsonBody = JSONObject()
                     jsonBody.put("id", Companion.id)
