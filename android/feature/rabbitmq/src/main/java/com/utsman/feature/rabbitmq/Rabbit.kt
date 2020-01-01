@@ -171,7 +171,6 @@ class Rabbit private constructor(private var connection: Connection?) {
                         loge("error aja")
                         return@map null
                     } catch (e: NullPointerException) {
-                        liveError.postValue(e)
                         loge("error aja")
                         return@map null
                     } catch (e: OnErrorNotImplementedException) {

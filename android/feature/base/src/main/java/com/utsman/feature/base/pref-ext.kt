@@ -15,8 +15,12 @@ fun Context.Preferences_getEmail(): String {
     return pref.getString("email", "not define email") ?: ""
 }
 
-fun Context.getId(): String {
+fun Context.Preferences_saveId(id: String?) = apply {
     val pref = getSharedPreferences("account", Context.MODE_PRIVATE)
-    val email = pref.getString("email", "not define email") ?: ""
-    return UUID.nameUUIDFromBytes(email.toByteArray()).toString()
+    pref.edit().putString("id", id).apply()
+}
+
+fun Context.Preferences_getId(): String {
+    val pref = getSharedPreferences("account", Context.MODE_PRIVATE)
+    return pref.getString("id", "not define id") ?: ""
 }

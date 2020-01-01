@@ -1,6 +1,7 @@
 package com.utsman.feature.remote.instance
 
 import com.utsman.feature.base.REMOTE_URL
+import com.utsman.feature.remote.model.User
 import com.utsman.feature.remote.model.UserDeletedResponses
 import com.utsman.feature.remote.model.UserResponses
 import io.reactivex.Observable
@@ -17,6 +18,14 @@ interface UserInstance {
     @POST("/{email}/api/v1/user/save")
     fun saveUser(
         @Path("email") email: String?,
+        @Query("document") document: String,
+        @Body user: User
+    ): Observable<UserResponses>
+
+    @GET("/{email}/api/v1/user")
+    fun getUser(
+        @Path("email") email: String?,
+        @Query("id") id: String?,
         @Query("document") document: String
     ): Observable<UserResponses>
 

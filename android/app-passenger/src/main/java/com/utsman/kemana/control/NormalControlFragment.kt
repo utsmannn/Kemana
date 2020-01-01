@@ -28,9 +28,8 @@ import com.utsman.smartmarker.location.LocationWatcher
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.bottoh_sheet_location_picker.view.*
-import kotlinx.android.synthetic.main.control_main.view.*
+import kotlinx.android.synthetic.main.control_normal.view.*
 import kotlinx.android.synthetic.main.item_location.view.*
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 class NormalControlFragment(private val normalControlImpl: NormalControlImpl) : RxFragment() {
@@ -55,7 +54,7 @@ class NormalControlFragment(private val normalControlImpl: NormalControlImpl) : 
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val v = inflater.inflate(R.layout.control_main, container, false)
+        val v = inflater.inflate(R.layout.control_normal, container, false)
         hidePricing(v)
         locationWatcher.getLocation { location ->
             val from = listOf(location.latitude, location.longitude)

@@ -1,4 +1,4 @@
-package com.utsman.kemana
+package com.utsman.kemana.driver
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -159,7 +159,7 @@ class AuthActivity : RxAppCompatActivity(), LoginResultListener {
             photo = (user?.photoUrl ?: "").toString()
         )
 
-        val observableUser = userInstance.saveUser(email, "passenger", userModel)
+        val observableUser = userInstance.saveUser(email, "driver", userModel)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .map { it.data }

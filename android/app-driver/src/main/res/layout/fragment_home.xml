@@ -2,43 +2,32 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Kemana?"
-        android:textSize="18sp"
-        android:layout_margin="12dp"/>
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1.7"
-        android:layout_marginLeft="12dp"
+        android:layout_height="200dp"
         android:layout_marginRight="12dp"
-        android:layout_marginBottom="12dp">
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="12dp">
 
-        <com.mapbox.mapboxsdk.maps.MapView
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/map_view" />
+            android:id="@+id/control_container"/>
 
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginLeft="12dp"
-        android:layout_marginRight="12dp"
-        android:layout_marginBottom="12dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:layout_margin="12dp">
 
-        <FrameLayout
+        <com.mapbox.mapboxsdk.maps.MapView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/control_container"/>
+            android:id="@+id/mapview"/>
 
     </com.google.android.material.card.MaterialCardView>
 

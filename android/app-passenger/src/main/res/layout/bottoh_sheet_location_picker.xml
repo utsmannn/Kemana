@@ -27,8 +27,6 @@
         android:layout_marginTop="12dp"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
-        app:cardCornerRadius="3dp"
-        app:cardElevation="1dp"
         android:id="@+id/container_input">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -58,8 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_margin="12dp"
-            android:layout_weight="1"
-            app:cardCornerRadius="7dp">
+            android:layout_weight="1">
 
             <com.mapbox.mapboxsdk.maps.MapView
                 android:id="@+id/maps_view_picker"
