@@ -1,5 +1,6 @@
 package com.utsman.kemana.driver.control
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -52,5 +53,16 @@ class NormalControlFragment : RxFragment() {
     private fun setupContent(v: View, user: User) {
         v.text_name.text = user.name
         v.image_profile.loadCircleUrl(user.photo)
+    }
+
+    @SuppressLint("CheckResult")
+    override fun onDestroyView() {
+        super.onDestroyView()
+        userInstance.deleteUser(email, id, "driver_active")
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe()
+
+        composite.clear()
     }
 }

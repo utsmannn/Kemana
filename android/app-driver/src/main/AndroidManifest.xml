@@ -23,6 +23,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity"/>
+
+        <service android:name=".services.DriverService"/>
     </application>
 
 </manifest>

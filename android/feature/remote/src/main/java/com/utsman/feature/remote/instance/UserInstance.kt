@@ -1,6 +1,7 @@
 package com.utsman.feature.remote.instance
 
 import com.utsman.feature.base.REMOTE_URL
+import com.utsman.feature.remote.model.Position
 import com.utsman.feature.remote.model.User
 import com.utsman.feature.remote.model.UserDeletedResponses
 import com.utsman.feature.remote.model.UserResponses
@@ -32,16 +33,24 @@ interface UserInstance {
     @PUT("/{email}/api/v1/user/edit")
     fun editUser(
         @Path("email") email: String?,
-        @Query("document") document: String,
-        @Query("id") id: String
+        @Query("id") id: String?,
+        @Query("document") document: String
     ): Observable<UserResponses>
 
     @DELETE("/{email}/api/v1/user/delete")
     fun deleteUser(
         @Path("email") email: String?,
-        @Query("document") document: String,
-        @Query("id") id: String
+        @Query("id") id: String?,
+        @Query("document") document: String
     ): Observable<UserDeletedResponses>
+
+    @PUT("/{email}/api/v1/user/edit/position")
+    fun editPosition(
+        @Path("email") email: String?,
+        @Query("document") document: String,
+        @Query("id") id: String,
+        @Body position: Position
+    ): Observable<UserResponses>
 
     companion object {
         fun create(): UserInstance {

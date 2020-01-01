@@ -4,16 +4,21 @@ import androidx.fragment.app.FragmentActivity
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
+import com.utsman.feature.base.logi
 import com.utsman.feature.base.replaceFragment
 import com.utsman.kemana.driver.R
 import com.utsman.kemana.driver.control.NormalControlFragment
 import com.utsman.kemana.driver.impl.BaseRenderMapsView
 import com.utsman.kemana.driver.state.StateListener
+import com.utsman.kemana.driver.subscriber.NotifyUpdateLocator
 import com.utsman.smartmarker.location.LocationWatcher
 import com.utsman.smartmarker.mapbox.Marker
 import com.utsman.smartmarker.mapbox.MarkerOptions
 import com.utsman.smartmarker.mapbox.addMarker
 import com.utsman.smartmarker.mapbox.toLatLngMapbox
+import io.reactivex.functions.Consumer
+import isfaaghyth.app.notify.Notify
+import isfaaghyth.app.notify.NotifyProvider
 
 class NormalMaps(private val activity: FragmentActivity) : BaseRenderMapsView {
     private val locationWatcher = LocationWatcher(activity)
@@ -34,6 +39,11 @@ class NormalMaps(private val activity: FragmentActivity) : BaseRenderMapsView {
         val normalControlFragment = NormalControlFragment()
 
         activity.replaceFragment(normalControlFragment, R.id.control_container)
+
+        Notify.listen(NotifyUpdateLocator::class.java, NotifyProvider(), Consumer {
+            logi("anjay --> ${it.latLng}")
+            meMarker?.moveMarkerSmoothly(it.latLng)
+        })
 
        /* val normalControlImpl = object : NormalControlImpl {
             override fun onSelectMapsPicker() {
