@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient
 import org.springframework.core.env.Environment
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
@@ -27,6 +28,9 @@ class StartController {
 	@Autowired
 	lateinit var environment: Environment
 
+	@Autowired
+	lateinit var mongoTemplate: MongoTemplate
+
 	private val rabbitController = RabbitController()
 
 	@RequestMapping(value = ["/check"], method = [RequestMethod.GET])
@@ -41,13 +45,13 @@ class StartController {
 
 	@RequestMapping(value = ["/listen"], method = [RequestMethod.POST])
 	fun startServerListenRabbit(): Responses {
-		rabbitController.startListen()
+		rabbitController.startListen(mongoTemplate, environment)
 		return Responses("ok", "starting...")
 	}
 
 	@RequestMapping(value = ["/request-order"], method = [RequestMethod.POST])
 	fun requestOrder(): Responses {
-		rabbitController.checkAvailableAndBid()
+		rabbitController.checkAvailableAndBid(environment)
 		return Responses("ok", "waiting callback...")
 	}
 }

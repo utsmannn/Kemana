@@ -7,32 +7,36 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findAll
+import org.springframework.web.bind.annotation.RestController
+import java.util.*
+import kotlin.concurrent.schedule
 
 class RabbitController {
-
-    @Autowired
-    lateinit var environment: Environment
-
-    @Autowired
-    lateinit var mongoTemplate: MongoTemplate
 
     private var isOnline = false
     private var target = 0
 
-    fun startListen() {
+    private var startTime = 0L
+
+    fun startListen(mongoTemplate: MongoTemplate, environment: Environment) {
         val clientId = environment.getProperty("spring.application.name")
 
         Rabbit.getInstance()?.listen { from, body ->
             when (body.getString("type")) {
-                // from device
+
+                // wait from device
                 "checking" -> {
                     if (from == clientId) {
-                        val data = body.getBoolean("online")
-                        isOnline = data
+                        val data = body.getJSONObject("data")
+                        val online = data.getBoolean("online")
+                        isOnline = online
 
-                        if (data) {
-                            sendingBid(target, clientId)
-                        }
+                        if (online) {
+                            sendingBid(mongoTemplate, target, clientId)
+                        } /*else {
+                            target += 1
+                            sendingBid(mongoTemplate, target, clientId)
+                        }*/
                     }
                 }
 
@@ -57,7 +61,7 @@ class RabbitController {
                         println("accepted")
                     } else {
                         target += 1
-                        sendingBid(target, clientId!!)
+                        sendingBid(mongoTemplate, target, clientId!!)
                     }
                 }
             }
@@ -65,31 +69,51 @@ class RabbitController {
     }
 
     // to device
-    fun checkAvailableAndBid() {
+    fun checkAvailableAndBid(environment: Environment) {
         val clientId = environment.getProperty("spring.application.name")
         val json = JSONObject()
-        val jsonBody = JSONObject()
+        val jsonData = JSONObject()
 
-        jsonBody.put("message", "isAlive")
+        startTime = System.currentTimeMillis()
+        jsonData.put("message", "isAlive")
+        jsonData.put("time", System.currentTimeMillis())
+
         json.put("type", "checking")
-        json.put("body", jsonBody)
+        json.put("data", jsonData)
 
         Rabbit.getInstance()?.publishTo(clientId, json)
     }
 
-    // to server client
-    private fun sendingBid(target: Int, clientId: String) {
+    // send bind
+    private fun sendingBid(mongoTemplate: MongoTemplate, target: Int, clientId: String) {
         val driverActive = mongoTemplate.findAll<User>("driver_active")
-        val email = driverActive.map { it.email }[target]
+        val emails = driverActive.map { it.email }
+        val size = emails.size - 1
 
-        val json = JSONObject()
-        val jsonBody = JSONObject()
-        jsonBody.put("from", clientId)
+        // to server client target
+        if (target <= size) {
+            val email = emails[target]
 
-        json.put("type", "bid")
-        json.put("body", jsonBody)
+            val json = JSONObject()
+            val jsonData = JSONObject()
+            jsonData.put("from", clientId)
 
-        Rabbit.getInstance()?.publishTo(email, json)
+            json.put("type", "bid")
+            json.put("data", jsonData)
+
+            Rabbit.getInstance()?.publishTo(email, json)
+
+            // to server client owner
+        } else {
+            val json = JSONObject()
+            val jsonData = JSONObject()
+            jsonData.put("finding", "failed")
+            json.put("type", "order")
+            json.put("data", jsonData)
+
+            //Rabbit.getInstance()?.publishTo(clientId, jsonData)
+            Rabbit.getInstance()?.publishTo("kucingapes.uts@gmail.com", jsonData)
+        }
     }
 
 }
