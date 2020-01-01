@@ -17,7 +17,6 @@ import java.util.*
 class UserController {
     @Autowired
     lateinit var mongoTemplate: MongoTemplate
-    private val documents = listOf("driver", "passenger")
 
     // save user
     @RequestMapping(value = ["/save"], method = [RequestMethod.POST])
@@ -25,13 +24,9 @@ class UserController {
             @RequestParam("document") document: String,
             @RequestBody user: User
     ): Responses {
-        return if (documents.contains(document)) {
-            user.id = UUID.nameUUIDFromBytes(user.name?.toByteArray()).toString()
-            mongoTemplate.save(user, document)
-            Responses("save in `$document` document", user)
-        } else {
-            Responses("document must be `driver` or `passenger`")
-        }
+        user.id = UUID.nameUUIDFromBytes(user.name?.toByteArray()).toString()
+        mongoTemplate.save(user, document)
+        return Responses("save in `$document` document", user)
     }
 
     // get user
@@ -55,13 +50,9 @@ class UserController {
             @RequestParam("document") document: String,
             @RequestBody user: User
     ): Responses {
-        return if (documents.contains(document)) {
-            user.id = id
-            mongoTemplate.save(user, document)
-            Responses("save in `$document` document", user)
-        } else {
-            Responses("document must be `driver` or `passenger`")
-        }
+        user.id = id
+        mongoTemplate.save(user, document)
+        return Responses("save in `$document` document", user)
     }
 
     // delete user
@@ -70,16 +61,12 @@ class UserController {
             @RequestParam("id") id: String,
             @RequestParam("document") document: String
     ): Responses {
-        return if (documents.contains(document)) {
-            val user = mongoTemplate.findById<User>(id, document)
-            return if (user != null) {
-                mongoTemplate.remove(user, document)
-                Responses("removed from `$document` document")
-            } else {
-                Responses("driver not found")
-            }
+        val user = mongoTemplate.findById<User>(id, document)
+        return if (user != null) {
+            mongoTemplate.remove(user, document)
+            Responses("removed from `$document` document")
         } else {
-            Responses("document must be `driver` or `passenger`")
+            Responses("driver not found")
         }
     }
 
@@ -90,17 +77,13 @@ class UserController {
             @RequestParam("document") document: String,
             @RequestBody position: Position
     ): Responses {
-        return if (documents.contains(document)) {
-            val user = mongoTemplate.findById<User>(id, document)
-            return if (user != null) {
-                user.position = position
-                mongoTemplate.save(user, document)
-                Responses("save in `$document` document", user)
-            } else {
-                Responses("driver not found")
-            }
+        val user = mongoTemplate.findById<User>(id, document)
+        return if (user != null) {
+            user.position = position
+            mongoTemplate.save(user, document)
+            Responses("save in `$document` document", user)
         } else {
-            Responses("document must be `driver` or `passenger`")
+            Responses("driver not found")
         }
     }
 
@@ -111,18 +94,13 @@ class UserController {
             @RequestParam("document") document: String,
             @RequestBody userPhone: User
     ): Responses {
-        return if (documents.contains(document)) {
-            val user = mongoTemplate.findById<User>(id, document)
-
-            return if (user != null) {
-                user.phone = userPhone.phone
-                mongoTemplate.save(user, document)
-                Responses("save in `$document` document", user)
-            } else {
-                Responses("driver not found")
-            }
+        val user = mongoTemplate.findById<User>(id, document)
+        return if (user != null) {
+            user.phone = userPhone.phone
+            mongoTemplate.save(user, document)
+            Responses("save in `$document` document", user)
         } else {
-            Responses("document must be `driver` or `passenger`")
+            Responses("driver not found")
         }
     }
 
