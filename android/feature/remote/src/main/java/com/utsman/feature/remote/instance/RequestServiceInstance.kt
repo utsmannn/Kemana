@@ -1,5 +1,6 @@
 package com.utsman.feature.remote.instance
 
+import com.utsman.feature.base.REMOTE_URL_AUTH
 import com.utsman.feature.remote.model.RequestServiceResponses
 import io.reactivex.Observable
 import okhttp3.OkHttpClient
@@ -28,7 +29,7 @@ interface RequestServiceInstance {
                 .build()
 
             val retrofit = Retrofit.Builder()
-                .baseUrl("http://192.168.43.193:1010")
+                .baseUrl(REMOTE_URL_AUTH)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(client)

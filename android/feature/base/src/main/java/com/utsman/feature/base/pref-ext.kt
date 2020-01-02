@@ -24,3 +24,13 @@ fun Context.Preferences_getId(): String {
     val pref = getSharedPreferences("account", Context.MODE_PRIVATE)
     return pref.getString("id", "not define id") ?: ""
 }
+
+fun Context.Preferences_savePort(port: Int) = apply {
+    val pref = getSharedPreferences("account", Context.MODE_PRIVATE)
+    pref.edit().putInt("port", port).apply()
+}
+
+fun Context.Preferences_getPort(): Int {
+    val pref = getSharedPreferences("account", Context.MODE_PRIVATE)
+    return pref.getInt("port", 0)
+}

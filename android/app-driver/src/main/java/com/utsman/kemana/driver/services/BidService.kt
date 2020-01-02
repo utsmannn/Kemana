@@ -1,5 +1,7 @@
 package com.utsman.kemana.driver.services
 
+import com.utsman.feature.base.BASE_URL
+import com.utsman.feature.base.Preferences_getPort
 import com.utsman.feature.base.RxService
 import com.utsman.feature.base.logi
 import com.utsman.feature.rabbitmq.Rabbit
@@ -8,6 +10,10 @@ import io.reactivex.functions.Consumer
 import isfaaghyth.app.notify.Notify
 import isfaaghyth.app.notify.NotifyProvider
 import org.json.JSONObject
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.net.Socket
+import kotlin.concurrent.thread
 
 class BidService : RxService() {
 
@@ -22,10 +28,37 @@ class BidService : RxService() {
 
         })
 
+        // val url = "192.168.1.13"
+        //
+        //        thread {
+        //            val socket = Socket(url, 8080)
+        //            val o = ObjectOutputStream(socket.getOutputStream())
+        //            Log.i("aaaaaa", "sending")
+        //            o.writeObject("oke")
+        //        }
+
+
+        val port = Preferences_getPort()
+
+        thread {
+            val socket = Socket(BASE_URL, port)
+            val o = ObjectOutputStream(socket.getOutputStream())
+            val i = ObjectInputStream(socket.getInputStream())
+            logi("sending to server")
+            o.writeObject("oke")
+
+            val msg = i.readObject() as String
+            logi("aaaa -> $msg")
+        }
+
         Rabbit.getInstance()?.listen { from, body ->
+            logi("anjay from $from --> $body")
+        }
+
+        /*Rabbit.getInstance()?.listen { from, body ->
             when (body.getString("type")) {
                 "checking" -> {
-                    val data = body.getJSONObject("body")
+                    val data = body.getJSONObject("data")
                     val nowTime = System.currentTimeMillis()
                     val sendingTime = data.getLong("time")
                     val diffTime = nowTime-sendingTime
@@ -46,6 +79,6 @@ class BidService : RxService() {
                     }
                 }
             }
-        }
+        }*/
     }
 }

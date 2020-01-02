@@ -83,7 +83,10 @@ class AuthActivity : RxAppCompatActivity(), LoginResultListener {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext {
-                if (it.data.contains(email ?: "check ok")) {
+                val port = it.data.port
+                if (port != null) {
+                    Preferences_savePort(port)
+                    logi("port is -> $port")
                     onRequest = false
                     saveOnDataBase(user, email)
                     dialogInitialize.dismiss()
@@ -96,7 +99,7 @@ class AuthActivity : RxAppCompatActivity(), LoginResultListener {
                 requestService(user, email)
             }
             .subscribe({
-                logi(it.data)
+                //logi(it.data)
             }, {
                 it.printStackTrace()
             })
