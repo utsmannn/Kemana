@@ -73,7 +73,7 @@ class Rabbit private constructor(private var connection: Connection?) {
         /**
          * ID is topic
          * */
-        fun setInstance(id: String?, url: String, error: ((Exception) -> Unit)? = null) {
+        fun setInstance(id: String?, url: String, ready: () -> Unit) {
             Companion.id = id
 
             val factory = ConnectionFactory()
@@ -82,6 +82,8 @@ class Rabbit private constructor(private var connection: Connection?) {
             val connection = factory.newConnection()
             println("rabbit connection ready")
             Companion.connection = connection
+
+            ready.invoke()
         }
     }
 }

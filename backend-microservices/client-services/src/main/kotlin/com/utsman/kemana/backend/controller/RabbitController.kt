@@ -3,13 +3,16 @@ package com.utsman.kemana.backend.controller
 import com.utsman.kemana.backend.model.User
 import com.utsman.kemana.backend.rabbit.Rabbit
 import org.json.JSONObject
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findAll
-import org.springframework.web.bind.annotation.RestController
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.net.ServerSocket
+import java.net.Socket
 import java.util.*
 import kotlin.concurrent.schedule
+import kotlin.concurrent.thread
 
 class RabbitController {
 
@@ -18,15 +21,23 @@ class RabbitController {
 
     private var startTime = 0L
 
+    private var socket: Socket? = null
+
+    private var answered = false
+
+    private lateinit var thread: Thread
+
     fun startListen(mongoTemplate: MongoTemplate, environment: Environment) {
         val clientId = environment.getProperty("spring.application.name")
 
         Rabbit.getInstance()?.listen { from, body ->
-            when (body.getString("type")) {
+            println("data is ->> $from -> $body")
+            val data = body.getJSONObject("body")
+            when (data.getString("type")) {
 
                 // NEED SOCKET FOR HEARTBEAT
                 // wait from device
-                "checking" -> {
+                /*"checking" -> {
                     if (from == clientId) {
                         val data = body.getJSONObject("data")
                         val online = data.getBoolean("online")
@@ -34,55 +45,89 @@ class RabbitController {
 
                         if (online) {
                             sendingBid(mongoTemplate, target, clientId)
-                        } /*else {
+                        } *//*else {
                             target += 1
                             sendingBid(mongoTemplate, target, clientId)
-                        }*/
+                        }*//*
                     }
-                }
+                }*/
 
                 // from server client
                 "bid" -> {
-                    val data = body.getJSONObject("body")
                     val bidOwner = data.getString("from")
 
-                    // send to device
-                    val json = JSONObject()
-                    json.put("type", "order")
-                    json.put("body", bidOwner)
+                    // check available using socket
 
-                    Rabbit.getInstance()?.publishTo(clientId, json)
+                    thread(name = "socket") {
+                        println("waiting client answer")
+
+                        val o = ObjectOutputStream(socket?.getOutputStream())
+                        val i = ObjectInputStream(socket?.getInputStream())
+                        val msg = i.readObject() as String
+                        println("message from client -> $msg")
+                        o.writeObject("bah ilah")
+
+                        if (msg == "oke") {
+                            //sendingBid(mongoTemplate, target, clientId!!)
+                            bidToDevice(bidOwner, clientId)
+                            answered = true
+                            socket?.close()
+                        } else {
+                            println("offline")
+                        }
+
+                        Timer().schedule(10000) {
+                            if (!answered) {
+                                println("offline")
+                                socket?.close()
+                                target += 1
+                                sendingBid(mongoTemplate, target, clientId!!)
+                            }
+                        }
+                    }.run()
+
+                    // send to device
+
                 }
 
                 // from device
                 "order" -> {
-                    val data = body.getBoolean("accepted")
+                    /*val data = body.getBoolean("accepted")
                     if (data) {
                         // accepted
                         println("accepted")
                     } else {
                         target += 1
                         sendingBid(mongoTemplate, target, clientId!!)
-                    }
+                    }*/
                 }
             }
         }
     }
 
-    // to device
-    fun checkAvailableAndBid(environment: Environment) {
-        val clientId = environment.getProperty("spring.application.name")
+    private fun bidToDevice(bidOwner: String?, clientId: String?) {
         val json = JSONObject()
-        val jsonData = JSONObject()
-
-        startTime = System.currentTimeMillis()
-        jsonData.put("message", "isAlive")
-        jsonData.put("time", System.currentTimeMillis())
-
-        json.put("type", "checking")
-        json.put("data", jsonData)
+        json.put("type", "order")
+        json.put("body", bidOwner)
 
         Rabbit.getInstance()?.publishTo(clientId, json)
+    }
+
+    fun startSocketServer(server: ServerSocket) {
+
+        thread(name = "socket") {
+            this.socket = server.accept()
+            println("socket stared")
+        }.run()
+    }
+
+    // to device
+    fun checkAvailableAndBid(mongoTemplate: MongoTemplate, environment: Environment, port: Int) {
+        val clientId = environment.getProperty("spring.application.name")
+
+        if (clientId != null) {
+            sendingBid(mongoTemplate, target, clientId)
+        }
     }
 
     // send bind
@@ -95,14 +140,14 @@ class RabbitController {
         if (target <= size) {
             val email = emails[target]
 
-            val json = JSONObject()
             val jsonData = JSONObject()
             jsonData.put("from", clientId)
+            jsonData.put("type", "bid")
 
-            json.put("type", "bid")
-            json.put("data", jsonData)
+            println("try sending to target -> $jsonData")
+            //Rabbit.getInstance()?.publishTo(email, json)
+            Rabbit.getInstance()?.publishTo("server-kucingapes.uts@gmail.com", jsonData)
 
-            Rabbit.getInstance()?.publishTo(email, json)
 
             // to server client owner
         } else {

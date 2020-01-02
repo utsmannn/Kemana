@@ -7,3 +7,5 @@ data class Responses(
         @Nullable
         val data: Any? = null
 )
+
+data class CheckPort(val port: Int)
