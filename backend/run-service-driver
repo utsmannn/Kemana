@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+./service-driver/gradlew build && java -jar service-driver/build/libs/driver-0.1.jar

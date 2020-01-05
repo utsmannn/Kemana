@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+./service-place/gradlew build && java -jar service-place/build/libs/place-0.1.jar

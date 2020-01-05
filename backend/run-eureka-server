@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+./eureka-server/gradlew build && java -jar eureka-server/build/libs/eureka-0.1.jar

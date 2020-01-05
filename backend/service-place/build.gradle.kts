@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.utsman.kemana"
-version = "0.0.1-SNAPSHOT"
+version = "0.1"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
@@ -22,8 +22,13 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
-	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-server")
+	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client") {
+		exclude(group = "com.fasterxml.jackson.dataformat", module = "jackson-dataformat-xml")
+	}
+	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-server") {
+		exclude(group = "com.fasterxml.jackson.dataformat", module = "jackson-dataformat-xml")
+	}
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}

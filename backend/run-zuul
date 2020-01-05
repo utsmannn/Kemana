@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+./zuul-gateway/gradlew build && java -jar zuul-gateway/build/libs/zuul-0.1.jar
