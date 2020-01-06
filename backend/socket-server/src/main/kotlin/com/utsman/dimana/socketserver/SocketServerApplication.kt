@@ -1,11 +1,11 @@
-package com.utsman.kemana.order
+package com.utsman.dimana.socketserver
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class OrderApplication
+class SocketServerApplication
 
 fun main(args: Array<String>) {
-	runApplication<OrderApplication>(*args)
+	runApplication<SocketServerApplication>(*args)
 }
