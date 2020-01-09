@@ -35,7 +35,7 @@ class NormalControlFragment : RxFragment() {
     ): View? {
         val v = inflater.inflate(R.layout.control_normal, container, false)
 
-        val observableUser = userInstance.getUser(email, id, "driver")
+        val observableUser = userInstance.getUser(id, "driver")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .map { it.data }
@@ -58,7 +58,7 @@ class NormalControlFragment : RxFragment() {
     @SuppressLint("CheckResult")
     override fun onDestroyView() {
         super.onDestroyView()
-        userInstance.deleteUser(email, id, "driver_active")
+        userInstance.deleteUser(id, "driver_active")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe()

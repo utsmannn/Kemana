@@ -16,37 +16,32 @@ import java.util.concurrent.TimeUnit
 
 interface UserInstance {
 
-    @POST("/{email}/api/v1/user/save")
+    @POST("/api/v1/user/save")
     fun saveUser(
-        @Path("email") email: String?,
         @Query("document") document: String,
         @Body user: User
     ): Observable<UserResponses>
 
-    @GET("/{email}/api/v1/user")
+    @GET("/api/v1/user")
     fun getUser(
-        @Path("email") email: String?,
         @Query("id") id: String?,
         @Query("document") document: String
     ): Observable<UserResponses>
 
-    @PUT("/{email}/api/v1/user/edit")
+    @PUT("/api/v1/user/edit")
     fun editUser(
-        @Path("email") email: String?,
         @Query("id") id: String?,
         @Query("document") document: String
     ): Observable<UserResponses>
 
-    @DELETE("/{email}/api/v1/user/delete")
+    @DELETE("/api/v1/user/delete")
     fun deleteUser(
-        @Path("email") email: String?,
         @Query("id") id: String?,
         @Query("document") document: String
     ): Observable<UserDeletedResponses>
 
-    @PUT("/{email}/api/v1/user/edit/position")
+    @PUT("/api/v1/user/edit/position")
     fun editPosition(
-        @Path("email") email: String?,
         @Query("document") document: String,
         @Query("id") id: String,
         @Body position: Position

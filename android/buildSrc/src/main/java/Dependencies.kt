@@ -85,6 +85,7 @@ object Message {
     val rmqa                = "com.utsman.rmqa:rmqa:0.0.2"
     val rabbitmq            = "com.rabbitmq:amqp-client:4.11.3"
     val logback             = "ch.qos.logback:logback-classic:1.2.3"
+    val socket              = "io.socket:socket.io-client:1.0.0"
 }
 
 object Module {

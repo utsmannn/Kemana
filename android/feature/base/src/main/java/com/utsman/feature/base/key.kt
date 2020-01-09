@@ -24,7 +24,7 @@ val MAPBOX_TOKEN = "sk.eyJ1Ijoia3VjaW5nYXBlcyIsImEiOiJjazNrMXAxdGcwY2pmM25xeHE1N
 val HERE_API_KEY = "EKZhNIBtjrjeYxqdyhCMQ1kxVc_O4QGfxEJLqWt0Hp0"
 
 //val REMOTE_URL = "http://192.168.43.193:8080"
-val REMOTE_URL = "http://192.168.43.193:1011"
+val REMOTE_URL = "http://192.168.43.193:1111"
 //val REMOTE_URL = "http://10.1.3.183:8080"
 //val REMOTE_URL = "http://192.168.1.28:8080"
 //val REMOTE_URL = "http://localhost:8080"
@@ -34,3 +34,5 @@ val RABBIT_URL = "amqp://user1:1234@192.168.43.193/%2F"
 //val RABBIT_URL = "amqp://user1:1234@10.1.3.183/%2F"
 //val RABBIT_URL = "amqp://edafafqh:ypJNO0725gpmo1tFnr4cbyFThZ1ZwMLH@woodpecker.rmq.cloudamqp.com/edafafqh"
 //val RABBIT_URL = "amqp://user1:1234@192.168.1.28/%2F"
+
+val SOCKET_URL = "http://192.168.43.193:8080"

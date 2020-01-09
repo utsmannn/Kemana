@@ -74,65 +74,17 @@ class AuthActivity : RxAppCompatActivity(), LoginResultListener {
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun checkServiceBackend(user: User, email: String?) {
-        dialogInitialize.show()
-        dialogInitializeView.text_dialog.text = "Checking..."
-        val observable = checkInstance.checkService(email)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnNext {
-                if (it.data.contains(email ?: "check ok")) {
-                    onRequest = false
-                    saveOnDataBase(user, email)
-                    dialogInitialize.dismiss()
-                    intentTo(MainActivity::class.java)
-                    finish()
-                }
-            }
-            .doOnError {
-                dialogInitializeView.text_dialog.text = "Initialize..."
-                requestService(user, email)
-            }
-            .subscribe({
-                logi(it.data)
-            }, {
-                it.printStackTrace()
-            })
-
-        composite.add(observable)
-    }
-
-    private fun requestService(user: User, mail: String?) {
-        if (!onRequest) {
-            onRequest = true
-            val observable = requestServiceInstance.requestToServer(mail)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    logi(it.status)
-                    checkServiceBackend(user, mail)
-
-                }, {
-                    it.printStackTrace()
-                })
-            composite.add(observable)
-        } else {
-            Handler().postDelayed({
-                checkServiceBackend(user, mail)
-            }, 2000)
-        }
-    }
-
-    private fun saveOnDataBase(user: User, email: String?) {
+    private fun saveOnDataBase(user: User) {
         dialogInitializeView.text_dialog.text = "Preparing..."
-        val observableUser = userInstance.saveUser(email, "driver", user)
+        val observableUser = userInstance.saveUser("driver", user)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .map { it.data }
             .subscribe({
                 Preferences_saveId(it.id)
-
+                dialogInitialize.dismiss()
+                intentTo(MainActivity::class.java)
+                finish()
             }, {
                 dialogInitialize.dismiss()
                 toast("Error, try again -> ${it.localizedMessage}")
@@ -176,7 +128,7 @@ class AuthActivity : RxAppCompatActivity(), LoginResultListener {
             photo = (user?.photoUrl ?: "").toString()
         )
 
-        checkServiceBackend(userModel, email)
+        saveOnDataBase(userModel)
     }
 
     override fun onLogoutSuccess(task: Task<Void>?) {

@@ -33,8 +33,8 @@ dependencies {
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     asciidoctor("org.springframework.restdocs:spring-restdocs-asciidoctor")
 
-    implementation("com.rabbitmq:amqp-client:4.11.3")
-    implementation("org.json:json:20090211")
+    implementation("com.corundumstudio.socketio:netty-socketio:1.7.12")
+    implementation("com.googlecode.json-simple:json-simple:1.1")
 }
 
 dependencyManagement {

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 class BackendApplication
 
 fun main(args: Array<String>) {
+	SocketConfiguration.init()
 	runApplication<BackendApplication>(*args)
 }
 
@@ -27,5 +28,14 @@ class CheckController {
 	fun check(): Responses {
 		val name = environment.getProperty("spring.application.name")
 		return Responses("ok", "check ok with name -> $name")
+	}
+
+	@RequestMapping(value = ["/check_online"], method = [RequestMethod.GET])
+	fun checkOnline(): Responses {
+		SocketConfiguration.getConfig().getSocketServer {
+
+		}
+
+		return Responses("ok", "ok")
 	}
 }

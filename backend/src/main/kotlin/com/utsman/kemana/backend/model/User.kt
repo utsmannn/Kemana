@@ -2,6 +2,7 @@ package com.utsman.kemana.backend.model
 
 import com.mongodb.lang.Nullable
 import org.springframework.data.annotation.Id
+import java.util.*
 
 
 data class UserTest(
@@ -13,10 +14,11 @@ data class UserTest(
 data class User(
         @Id
         var id: String? = null,
+        var session_id: String? = null,
         var name: String? = null,
         var email: String? = null,
         var phone: String? = null,
-        val photo: String? = null,
+        var photo: String? = null,
         @Nullable
         var position: Position? = null,
         @Nullable

@@ -15,9 +15,8 @@ import java.util.concurrent.TimeUnit
 
 interface DirectionInstance {
 
-    @GET("/{email}/api/v1/direction")
+    @GET("/api/v1/direction")
     fun getDirection(
-        @Path("email") email: String?,
         @Query("from") from: List<Double>?,
         @Query("to") to: List<Double>?,
         @Query("token") token: String

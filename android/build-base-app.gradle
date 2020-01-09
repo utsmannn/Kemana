@@ -76,6 +76,10 @@ dependencies {
     implementation project(Module.feature_rabbitmq)
     implementation project(Module.feature_base)
     implementation project(Module.feature_remote)
+
+    implementation ('io.socket:socket.io-client:1.0.0') {
+        exclude group: 'org.json', module: 'json'
+    }
 }
 
 androidExtensions {

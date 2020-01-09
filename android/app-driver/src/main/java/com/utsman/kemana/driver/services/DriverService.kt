@@ -42,7 +42,7 @@ class DriverService : RxService() {
     override fun onCreate() {
         super.onCreate()
         isOnline.postValue(false)
-        val observableUser = userInstance.getUser(email, id, "driver")
+        val observableUser = userInstance.getUser(id, "driver")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .map { it.data }
@@ -75,7 +75,7 @@ class DriverService : RxService() {
                         logi("anjay -> is online")
                         val position = Position(newLocation.latitude, newLocation.longitude)
                         user.position = position
-                        val observableSaveUser = userInstance.saveUser(email, "driver_active", user)
+                        val observableSaveUser = userInstance.saveUser("driver_active", user)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe {
@@ -87,7 +87,7 @@ class DriverService : RxService() {
                         logi("anjay -> is offline")
 
                         if (isAddedOnline) {
-                            val observableDeleteUser = userInstance.deleteUser(email, id, "driver_active")
+                            val observableDeleteUser = userInstance.deleteUser(id, "driver_active")
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe {

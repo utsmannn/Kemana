@@ -15,17 +15,15 @@ import java.util.concurrent.TimeUnit
 
 interface PlaceInstance {
 
-    @GET("/{email}/api/v1/place/search")
+    @GET("/api/v1/place/search")
     fun searchPlace(
-        @Path("email") email: String?,
         @Query("q") query: String,
         @Query("from") from: List<Double>?,
         @Query("apikey") key: String
     ): Observable<PlaceResponses>
 
-    @GET("/{email}/api/v1/place")
+    @GET("/api/v1/place")
     fun getCurrentPlace(
-        @Path("email") email: String?,
         @Query("from") from: List<Double>?,
         @Query("apikey") key: String
     ): Observable<PlaceResponses>
