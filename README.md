@@ -1,5 +1,5 @@
-# KEMANA - Online Ojek Open Source (like uber or gojek)
-## Under Development !!
+## KEMANA - Online Ojek Open Source (like uber or gojek)
+# DEPRECATED !!
 
 <p align="center">
   <img src="https://i.ibb.co/g4vzFyt/ezgif-com-optimize.gif"/>
